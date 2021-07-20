@@ -1,2 +1,3 @@
 default:
     py_version: "python3/bin/python"
+    transcript_folder: '/Users/mrosen44/Box Sync/MaRIPOHSA data (new and established)/MaRIPOHSA Viral Load Database/Viral Load Transcripts (112 transcripts)'

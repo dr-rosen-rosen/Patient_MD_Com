@@ -15,4 +15,8 @@ debuggingState(on=FALSE)
 Sys.setenv(R_CONFIG_ACTIVE = "default")
 config <- config::get()
 Sys.setenv(RETICULATE_PYTHON = config$py_version)
-#reticulate::source_python('1_funcs.py')
+reticulate::source_python('1_funcs.py')
+
+test <- get_transcripts(
+  dir_path = config$transcript_folder
+)
