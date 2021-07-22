@@ -41,30 +41,35 @@ def get_it(fname):
     return trans_df
 
 # calls get_it in parallel
-def get_it_parallel_izer(func,f_list,num_processes):
-    '''Takes a list of file locations and reads them in'''
-    if num_processes==None:
-        num_processes = min(len(f_list), cpu_count())
-    with closing(Pool(num_processes)) as pool:
-        results_list = pool.map(func, f_list)
-        pool.terminate()
-    return pd.concat(results_list)#, axis=1)
+# def get_it_parallel_izer(func,f_list,num_processes):
+#     '''Takes a list of file locations and reads them in'''
+#     if num_processes==None:
+#         num_processes = min(len(f_list), cpu_count())
+#     with closing(Pool(num_processes)) as pool:
+#         results_list = pool.map(func, f_list)
+#         pool.terminate()
+#     return pd.concat(results_list)#, axis=1)
 
 # This takes a top level folder and pulls all data in files into dataframe
 def get_transcripts(dir_path):
     # Create a list of all of the transcript files to read if __name__ == '__main__':
-    directories = [dir_path]
+
     f_list = []
-    for directory in directories:
-        for fname in os.listdir(directory):
-            if fname.endswith('.docx') and not fname.startswith('~') and not fname.startswith('VL database documentation'):
-                f_list.append(os.path.join(directory,fname))
+    df_list = []
+    
+    for directory in dir_path:
+        print(directory)
+        # for fname in os.listdir(directory):
+        #     print(fname)
+            # if fname.endswith('.docx') and not fname.startswith('~') and not fname.startswith('VL database documentation'):
+            #     f_list.append(os.path.join(directory,fname))
+            #     df_list.append(get_it(fname))
+    return #pd.concat(df_list)
 
-    num_processes = 10
-
-    return(
-    get_it_parallel_izer(get_it,f_list,num_processes)
-    )
+#    num_processes = 10
+#    return(
+#    get_it_parallel_izer(get_it,f_list,num_processes)
+#    )
 
 ##########################################################################
 ################# Clean up transcript data
