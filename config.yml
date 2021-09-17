@@ -1,9 +1,6 @@
 default:
     py_version: "python3/bin/python"
-maripohsa:
-    transcript_folder: !expr c('/Users/mrosen44/Box Sync/MaRIPOHSA data (new and established)/MaRIPOHSA Viral Load Database/Viral Load Transcripts (112 transcripts)')
-echo:
-    transcript_folder: !expr c('/Users/mrosen44/Box Sync/ECHO1 Rosen Group/ECHO Study/Transcripts/JHU/JHU',
-              '/Users/mrosen44/Box Sync/ECHO1 Rosen Group/ECHO Study/Transcripts/OHSU/OHSU',
-              '/Users/mrosen44/Box Sync/ECHO1 Rosen Group/ECHO Study/Transcripts/SLR/SLR',
-              '/Users/mrosen44/Box Sync/ECHO1 Rosen Group/ECHO Study/Transcripts/WSU/WSU')
+mike:
+    transcript_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
+salar:
+    transcript_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
