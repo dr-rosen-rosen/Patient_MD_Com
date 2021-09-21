@@ -4,7 +4,6 @@
 ##########################################################################
 ##########################################################################
 
-
 library(docxtractr)
 library(janitor)
 library(tidyverse)
@@ -80,6 +79,17 @@ get_and_clean_all_transcripts <- function(all_filenames) {
   
   return(all_transcripts_final)
 }
+
+
+update_speaker_roles <- function(all_transcripts, annies_role_file) {
+  
+  return(cleaned_roles)
+}
+
+##########################################################################
+################# Functions for LSM
+##########################################################################
+
 
 conv_LSM_prep <- function(all_transcripts) {
   #combine all text by patient_id and role
