@@ -2,7 +2,7 @@ default:
     py_version: "python3/bin/python"
 mike:
     transcript_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
-    annies_role_file: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/MaRIPOHSA_Transcripts_SpeakerRole_Annie'
+    annies_role_file: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/MaRIPOHSA_Transcripts_SpeakerRole_Annie.csv'
 salar:
     transcript_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
-    annies_role_file: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/MaRIPOHSA_Transcripts_SpeakerRole_Annie'
+    annies_role_file: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/MaRIPOHSA_Transcripts_SpeakerRole_Annie.csv'
