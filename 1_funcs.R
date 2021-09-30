@@ -73,18 +73,25 @@ get_and_clean_all_transcripts <- function(all_filenames, annies_role_file) {
   all_transcripts_final <-select(all_transcripts_final, -c("role1", "role2", "role3", "role4", 
                                                            "role5", "role6", "role7", "role8", 
                                                            "role9", "role10", "role11", "role12", "role13"))
-  if (!is.an(annies_role_file)) {
+  #renaming the transcript text and id variables
+  all_transcripts_final <- rename(all_transcripts_final, transcript_id = patient_id) 
+  all_transcripts_final <- rename(all_transcripts_final, transcript_text = V2) 
+  
+  if (!is.na(annies_role_file)) { # This will run this version of speaker recoding IF 
+    # a recoding file path is sent to the function; if that is NA, will skip and 
+    # return original speaker codings in the transcript
+    
     ####### beginning of new code added by Salar on 09/27/21######
     ##############################################################
     
-    #renaming the transcript text and id variables
-    all_transcripts_final <- rename(all_transcripts_final, transcript_id = patient_id) 
-    all_transcripts_final <- rename(all_transcripts_final, transcript_text = V2) 
+    #renaming the transcript text and id variables... Moved above since this should happen all the time
+    #all_transcripts_final <- rename(all_transcripts_final, transcript_id = patient_id) 
+    #all_transcripts_final <- rename(all_transcripts_final, transcript_text = V2) 
     
     #converting the annie_role_file to long form
     #got an error when I ran the code from the 0_main.R ... I think I didn't set up the config.yml script correctly
     
-    annies_role_file_long <- readr::read_csv(annies_role_file) %>% 
+    annies_role_file_long <- readr::read_csv(annies_role_file, show_col_types = FALSE) %>% 
       pivot_longer(!transcript_id, names_to = "role", values_to = "recode")
     
     #transcript_id column in annies_role_file needs to be changed to character format
@@ -151,13 +158,13 @@ update_speaker_roles <- function(all_transcripts, annies_role_file) {
 recode_func <- function(d,transcript, role_f){
   # This creates a named list of old and new roles
   mapper <- role_f %>%
-    filter(transcript_id == transcript$patient_id) %>%
+    filter(transcript_id == transcript$transcript_id) %>%
     select(role, recode) %>%
     deframe()
   # checks if there needs to be any recoding done
   if(length(mapper) > 0) {
     # This recodes using above mapper
-    print(paste('Recoding...',transcript$patient_id))
+    print(paste('Recoding...',transcript$transcript_id))
     d <- d %>%
       mutate(role = recode(role, !!!mapper))
   }
@@ -177,7 +184,7 @@ recode_spkrs <- function(df, role_f) {
   annies_role_file_long[cols.chr]<- sapply(annies_role_file_long[cols.chr], as.character)
   
   df <- df %>%
-    group_by(patient_id) %>%
+    group_by(transcript_id) %>%
     group_modify(~recode_func(d = .x, transcript = .y, role_f = annies_role_file_long)) %>%
     ungroup()
   
