@@ -35,7 +35,9 @@ get_and_clean_one_transcript <- function(transcript) {
   
   #removing the .MP3 extension from the "conversation_id" and renaming that variable to "patient_id"
   audio_doc_final <- audio_doc_final %>%
-    separate("conversation_id", c("patient_id"), ".MP3")
+    mutate(conversation_id = tolower(conversation_id)) %>%
+    separate("conversation_id", c("patient_id"), ".mp3") %>%
+    separate("patient_id", c("patient_id"), ".wav")
 }
 
 
@@ -83,10 +85,6 @@ get_and_clean_all_transcripts <- function(all_filenames, annies_role_file) {
     
     ####### beginning of new code added by Salar on 09/27/21######
     ##############################################################
-    
-    #renaming the transcript text and id variables... Moved above since this should happen all the time
-    #all_transcripts_final <- rename(all_transcripts_final, transcript_id = patient_id) 
-    #all_transcripts_final <- rename(all_transcripts_final, transcript_text = V2) 
     
     #converting the annie_role_file to long form
     #got an error when I ran the code from the 0_main.R ... I think I didn't set up the config.yml script correctly
@@ -146,14 +144,6 @@ get_and_clean_all_transcripts <- function(all_filenames, annies_role_file) {
   
   return(all_transcripts_final)
 }
-
-# I added the updated speaker role code to the above function but kept this in case it would
-#be better to have a different function for the recoding transcripts
-update_speaker_roles <- function(all_transcripts, annies_role_file) {
-  
-  return(cleaned_roles)
-}
-
 
 recode_func <- function(d,transcript, role_f){
   # This creates a named list of old and new roles
