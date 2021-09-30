@@ -30,10 +30,10 @@ all_transcripts_df_no_recoding <- get_and_clean_all_transcripts(
 )
 
 # Second way of recoding speakers using deframe and recode
-mike_recoded_df <- recode_spkrs(
+recoded_df <- recode_spkrs(
   df = all_transcripts_df_no_recoding,
   role_f = config$annies_role_file
-)
+) %>% mutate(role = tolower(role)) %>% filter(role != "***")
 
 conv_LSM_df <- conv_LSM_prep(
   all_transcripts = all_transcripts_df

@@ -38,8 +38,9 @@ get_and_clean_one_transcript <- function(transcript) {
     mutate(conversation_id = tolower(conversation_id)) %>%
     separate("conversation_id", c("patient_id"), ".mp3") %>%
     separate("patient_id", c("patient_id"), ".wav")
+  
+  return(audio_doc_final)
 }
-
 
 get_and_clean_all_transcripts <- function(all_filenames, annies_role_file) {
   #read in and clean each transcript and return in dataframe 
@@ -78,6 +79,7 @@ get_and_clean_all_transcripts <- function(all_filenames, annies_role_file) {
   #renaming the transcript text and id variables
   all_transcripts_final <- rename(all_transcripts_final, transcript_id = patient_id) 
   all_transcripts_final <- rename(all_transcripts_final, transcript_text = V2) 
+  #all_transcripts_final <- all_transcripts_final %>% mutate(role = tolower(role))
   
   if (!is.na(annies_role_file)) { # This will run this version of speaker recoding IF 
     # a recoding file path is sent to the function; if that is NA, will skip and 
@@ -90,7 +92,8 @@ get_and_clean_all_transcripts <- function(all_filenames, annies_role_file) {
     #got an error when I ran the code from the 0_main.R ... I think I didn't set up the config.yml script correctly
     
     annies_role_file_long <- readr::read_csv(annies_role_file, show_col_types = FALSE) %>% 
-      pivot_longer(!transcript_id, names_to = "role", values_to = "recode")
+      pivot_longer(!transcript_id, names_to = "role", values_to = "recode")# %>%
+      #mutate(recode = tolower(recode))
     
     #transcript_id column in annies_role_file needs to be changed to character format
     
@@ -168,7 +171,8 @@ recode_spkrs <- function(df, role_f) {
   #got an error when I ran the code from the 0_main.R ... I think I didn't set up the config.yml script correctly
   annies_role_file_long <- readr::read_csv(role_f, show_col_types = FALSE) %>% 
     pivot_longer(!transcript_id, names_to = "role", values_to = "recode") %>%
-    drop_na()
+    drop_na() #%>%
+    #mutate(recode = tolower(recode))
   #transcript_id column in annies_role_file needs to be changed to character format
   cols.chr <- c("transcript_id")
   annies_role_file_long[cols.chr]<- sapply(annies_role_file_long[cols.chr], as.character)
