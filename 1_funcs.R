@@ -189,7 +189,7 @@ recode_spkrs <- function(df, role_f) {
 
 
 # making column for provider_id
-all_transcripts_final_092921_V2 <- mutate(all_transcripts_final_092921,
+all_transcripts_final_092921_V2 <- mutate(all_transcripts_final,
                                           provider_id = str_sub(transcript_id, 1, 2)) 
 
 # making column for patient_id
@@ -206,7 +206,7 @@ all_transcripts_final_092921_V2 <- all_transcripts_final_092921_V2 %>%
 
 #removing transcripts with at least 10% of utterances are transcribed [foreign]
 #19106401(protocol event), 20188701, 28146601, 28146602, 37168301
-
+foreign_transcripts <- c("19106401(protocol event)", "20188701", "28146601", "28146602", "37168301") 
 
 #removing transcripts with multiple patients
 #11120201, 24110501, 17129904 and 17206401, 
@@ -235,6 +235,12 @@ all_transcripts_role_proportions <-all_transcripts_role_proportions %>%
 all_transcripts_role_proportions$proportion <- all_transcripts_role_proportions$other_role / 
   all_transcripts_role_proportions$total_speech
 
+
+sum(other)/sum()
+
+filter >=
+
+  
 
 
 ##########################################################################
