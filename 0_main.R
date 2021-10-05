@@ -35,6 +35,9 @@ recoded_df <- recode_spkrs(
   role_f = config$annies_role_file
 ) %>% mutate(role = tolower(role)) %>% filter(role != "***")
 
+recoded_df <- run_exclusions(recoded_df)
+
+
 conv_LSM_df <- conv_LSM_prep(
   all_transcripts = all_transcripts_df
 )

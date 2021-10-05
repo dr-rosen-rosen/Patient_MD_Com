@@ -144,6 +144,20 @@ get_and_clean_all_transcripts <- function(all_filenames, annies_role_file) {
   }
   #remove all content that have brackets [....]
   all_transcripts_final$transcript_text <- gsub("\\[(.*?)\\]", "", all_transcripts_final$transcript_text)
+  # making column for provider_id
+  all_transcripts_final <- mutate(all_transcripts_final,
+                                            provider_id = str_sub(transcript_id, 1, 2)) 
+  
+  # making column for patient_id
+  all_transcripts_final <- mutate(all_transcripts_final,
+                                            patient_id = str_sub(transcript_id, 3, 6))
+  
+  # making column for patient visit repetition
+  all_transcripts_final <- mutate(all_transcripts_final,
+                                            visit_repetition = str_sub(transcript_id, 7, 8))
+  
+  all_transcripts_final <- all_transcripts_final %>% 
+    mutate(location = if_else(str_detect(transcript_id, "^8"), "portland", "baltimore"))
   
   return(all_transcripts_final)
 }
@@ -185,60 +199,56 @@ recode_spkrs <- function(df, role_f) {
   return(df)
 }
 
+##########################################################################
+################# Functions for running exclusions
+##########################################################################
 
 
-
-# making column for provider_id
-all_transcripts_final_092921_V2 <- mutate(all_transcripts_final,
-                                          provider_id = str_sub(transcript_id, 1, 2)) 
-
-# making column for patient_id
-all_transcripts_final_092921_V2 <- mutate(all_transcripts_final_092921_V2,
-                                          patient_id = str_sub(transcript_id, 3, 6))
-
-# making column for patient visit repetition
-all_transcripts_final_092921_V2 <- mutate(all_transcripts_final_092921_V2,
-                                          visit_repetition = str_sub(transcript_id, 7, 8))
-
-all_transcripts_final_092921_V2 <- all_transcripts_final_092921_V2 %>% 
-  mutate(location = if_else(str_detect(transcript_id, "^8"), "portland", "baltimore"))
-
-
-#removing transcripts with at least 10% of utterances are transcribed [foreign]
-#19106401(protocol event), 20188701, 28146601, 28146602, 37168301
-foreign_transcripts <- c("19106401(protocol event)", "20188701", "28146601", "28146602", "37168301") 
-
-#removing transcripts with multiple patients
-#11120201, 24110501, 17129904 and 17206401, 
-
-#removing transcripts with multiple doctors
-#32127001, 33143601
-
-
-#identifying transcripts with large proportions of "other" speech
-all_transcripts_role_proportions <- all_transcripts_final %>% 
-  group_by(transcript_id) %>%
-  summarise(other_role = sum(role == "other"), 
-            patient_role = sum(role == "patient"),
-            doctor_role = sum(role == "doctor")) 
-
-all_transcripts_role_proportions  <- all_transcripts_role_proportions  %>%
-  rowwise() %>%
-  mutate(doctor_patient = sum(c(patient_role, doctor_role))) %>%
-  relocate(other_role, .after = last_col())
-
-#summing the other and doctor/patient speech to create value for all speech
-all_transcripts_role_proportions <-all_transcripts_role_proportions %>%
-  rowwise() %>%
-  mutate(total_speech = sum(c(doctor_patient, other_role)))
-
-all_transcripts_role_proportions$proportion <- all_transcripts_role_proportions$other_role / 
-  all_transcripts_role_proportions$total_speech
+run_exclusions <- function(df){
+  
+  #removing transcripts with at least 10% of utterances are transcribed [foreign]
+  #19106401(protocol event), 20188701, 28146601, 28146602, 37168301
+  #removing transcripts with multiple patients
+  #11120201, 24110501, 17129904 and 17206401, 
+  #removing transcripts with multiple doctors
+  #32127001, 33143601
+  
+  excluded_transcripts <- c("19106401(protocol event)", "20188701", "28146601", "28146602", "37168301",
+                            "11120201", "24110501", "17129904", "17206401", 
+                            "32127001", "33143601") 
+  
+  df_excluded <- df %>% filter(!(transcript_id %in% excluded_transcripts))
+  
+  # df_excluded <- df_excluded %>%
+  #   group_by(transcript_id) %>%
+  #   summarize(proportion_other = count())
+  #identifying transcripts with large proportions of "other" speech
+  df_excluded <- df_excluded %>% 
+    group_by(transcript_id) %>%
+    summarise(other_role = sum(role == "other"), 
+              patient_role = sum(role == "patient"),
+              doctor_role = sum(role == "doctor")) 
+  
+  df_excluded  <- df_excluded  %>%
+    rowwise() %>%
+    mutate(doctor_patient = sum(c(patient_role, doctor_role))) %>%
+    relocate(other_role, .after = last_col())
+  
+  #summing the other and doctor/patient speech to create value for all speech
+  df_excluded <-df_excluded %>%
+    rowwise() %>%
+    mutate(total_speech = sum(c(doctor_patient, other_role)))
+  
+  df_excluded$proportion <- df_excluded$other_role / 
+    df_excluded$total_speech
+  
+  df_excluded <- df_excluded %>%
+    filter(proportion >= .2)
+  
+  return(df_excluded)
+}
 
 
-sum(other)/sum()
-
-filter >=
 
   
 
