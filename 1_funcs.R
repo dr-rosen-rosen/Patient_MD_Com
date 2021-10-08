@@ -217,33 +217,45 @@ run_exclusions <- function(df){
                             "11120201", "24110501", "17129904", "17206401", 
                             "32127001", "33143601") 
   
+  #filtering out the list of transcripts in "excluded_transcript" df
   df_excluded <- df %>% filter(!(transcript_id %in% excluded_transcripts))
   
+  #commented out code below is for counting the number of utterances by count instead of sum. Will return to explore more.
   # df_excluded <- df_excluded %>%
   #   group_by(transcript_id) %>%
   #   summarize(proportion_other = count())
   #identifying transcripts with large proportions of "other" speech
-  df_excluded <- df_excluded %>% 
+  df_excluded_proportions <- df_excluded %>% 
     group_by(transcript_id) %>%
     summarise(other_role = sum(role == "other"), 
               patient_role = sum(role == "patient"),
               doctor_role = sum(role == "doctor")) 
   
-  df_excluded  <- df_excluded  %>%
+  df_excluded_proportions  <- df_excluded_proportions  %>%
     rowwise() %>%
     mutate(doctor_patient = sum(c(patient_role, doctor_role))) %>%
     relocate(other_role, .after = last_col())
   
   #summing the other and doctor/patient speech to create value for all speech
-  df_excluded <-df_excluded %>%
+  df_excluded_proportions <-df_excluded_proportions %>%
     rowwise() %>%
     mutate(total_speech = sum(c(doctor_patient, other_role)))
   
-  df_excluded$proportion <- df_excluded$other_role / 
-    df_excluded$total_speech
+  #creating a proportion column by dividing "other_role" by "total_speech"
+  df_excluded_proportions$proportion <- df_excluded_proportions$other_role / 
+    df_excluded_proportions$total_speech
   
-  df_excluded <- df_excluded %>%
-    filter(proportion >= .2)
+  #Filtering this df to only include transcripts where less than 20% of utterances are by "other"
+  df_excluded_proportions <- df_excluded_proportions %>%
+    filter(proportion < .2)
+  
+  #made a list of unique values of "transcript_id" from the df which represents all of the transcripts with less
+  #than 20% of utterances by "other"
+  df_excluded_proportions <- unique(c(df_excluded_proportions$transcript_id))
+  
+  #I filtered the larger df "df_excluded" using the list I made in the previous like of code 
+  #(which was a list of all transcripts with less than 20% "other")
+  df_excluded <- df_excluded %>% filter((transcript_id %in% df_excluded_proportions))
   
   return(df_excluded)
 }
@@ -258,11 +270,12 @@ run_exclusions <- function(df){
 ##########################################################################
 
 
-conv_LSM_prep <- function(all_transcripts) {
+conv_LSM_prep <- function(recoded_df) {
   #combine all text by patient_id and role
-  all_transcripts_combined_roles <- all_transcripts %>% 
-    group_by(patient_id, role, date) %>%
-    summarise(V2 = paste(V2, collapse = "")) %>% 
+  all_transcripts_combined_roles <- recoded_df %>% 
+    group_by(transcript_id, role) %>%
+    summarise(transcript_text = paste(transcript_text, collapse = "")) %>% 
     ungroup()
   return(all_transcripts_combined_roles)
 }
+
