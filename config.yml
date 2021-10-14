@@ -1,14 +1,11 @@
 default:
     py_version: "python3/bin/python"
-    liwc_f_name: "conv_LSM_df_LIWC2015_Results.csv"
+    liwc_f_name: "conv_LSM_df_LIWC2015_Results_notext.csv"
 mike:
     transcript_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
     annies_role_file: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/MaRIPOHSA_Transcripts_SpeakerRole_Annie.csv'
-    liwc_f_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis/conv_LSM_df_LIWC2015_Results.csv'
+    liwc_f_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis'
 salar:
     transcript_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
     annies_role_file: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/MaRIPOHSA_Transcripts_SpeakerRole_Annie.csv'
-    liwc_f_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis/conv_LSM_df_LIWC2015_Results.csv'
-    
-    
-
+    liwc_f_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis'
