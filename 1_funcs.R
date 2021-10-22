@@ -279,3 +279,33 @@ conv_LSM_prep <- function(recoded_df) {
   return(all_transcripts_combined_roles)
 }
 
+
+
+
+
+  LIWC_high_category <- function(LIWC_df) {
+    LIWC_df_high <- LIWC_df %>%
+      #deleting all punctuations
+      filter(-one_of(c("AllPunc","Period","Comma", "Colon", "SemiC","QMark", 
+                       "Exclam", "Dash", "Quote", "Apostro", "Parenth", "OtherP"))) %>%
+      #deleting all subcategory variables
+      #starting with pronoun subcat
+      filter((-one_of(c("ppron", "i", "we", "you", "shehe", "they", "ipron",
+                        #deleting negative emotion subcat
+                        "anger", "sad"))))
+      
+  }
+    
+    
+  LIWC_low_category <- function(LIWC_df) {
+    LIWC_df_low <- LIWC_df %>%
+      #deleting all punctuations
+      filter(-one_of(c("AllPunc","Period","Comma", "Colon", "SemiC","QMark", 
+                       "Exclam", "Dash", "Quote", "Apostro", "Parenth", "OtherP")))
+      #deleting all main category variables
+      filter(-one_of(c("pronoun", "negemo", "social", "cogproc")))
+      
+  } 
+    
+    
+
