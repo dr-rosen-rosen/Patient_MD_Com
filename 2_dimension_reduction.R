@@ -7,7 +7,8 @@ library(factoextra)
 library(FactoMineR)
 require(Factoshiny)
 
-LIWC_df <- read.csv(here(config$liwc_f_path,config$liwc_f_name))
+LIWC_df <- read.csv(here(config$liwc_f_path,config$liwc_f_name)) %>%
+  select(-one_of(c("AllPunc","Period","Comma","Colon","SemiC","QMark","Exclam","Dash","Quote","Apostro","Parenth","OtherP")))  
 DR_LIWC_df_nona <- LIWC_df %>%
   filter(Source..C. == 'doctor') %>%
   select(-one_of(c("Source..A.","Source..B.","Source..C."))) %>%
@@ -46,16 +47,16 @@ Factoshiny::Factoshiny(PT_PCA)
 
 library(nFactors)
 DR_ev <- eigen(cor(DR_LIWC_df_nona)) # get eigenvalues
-DR_ap <- parallel(subject=nrow(DR_LIWC_df_nona),var=ncol(DR_LIWC_df_nona),
+DR_ap <- nFactors::parallel(subject=nrow(DR_LIWC_df_nona),var=ncol(DR_LIWC_df_nona),
                rep=100,quantile =.05)
-DR_nS <- nScree(x=DR_ev$values, aparallel=DR_ap$eigen$qevpea)
-plotnScree(DR_nS)
+DR_nS <- nFactors::nScree(x=DR_ev$values, aparallel=DR_ap$eigen$qevpea)
+nFactors::plotnScree(DR_nS)
 
 PT_ev <- eigen(cor(PT_LIWC_df_nona)) # get eigenvalues
-PT_ap <- parallel(subject=nrow(PT_LIWC_df_nona),var=ncol(PT_LIWC_df_nona),
+PT_ap <- nFactors::parallel(subject=nrow(PT_LIWC_df_nona),var=ncol(PT_LIWC_df_nona),
                   rep=100,quantile =.05)
-PT_nS <- nScree(x=PT_ev$values, aparallel=PT_ap$eigen$qevpea)
-plotnScree(PT_nS)
+PT_nS <- nFactors::nScree(x=PT_ev$values, aparallel=PT_ap$eigen$qevpea)
+nFactors::plotnScree(PT_nS)
 
 
 ############################
@@ -63,7 +64,7 @@ plotnScree(PT_nS)
 ############################
 library(psych)
 fa.parallel(PT_LIWC_df_nona, fm = 'minres', fa = 'fa')
-sevenFactor <- fa(df_NoNA,nfactors = 10,rotate = "oblimin",fm="minres", scores="Bartlett")
+sevenFactor <- fa(PT_LIWC_df_nona,nfactors = 19,rotate = "oblimin",fm="minres", scores="Bartlett")
 print(sevenFactor$loadings,cutoff=.3)
 print(sevenFactor)
 
