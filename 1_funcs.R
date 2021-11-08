@@ -310,16 +310,16 @@ conv_LSM_prep <- function(recoded_df) {
       LIWC_df <- LIWC_df %>%
         rowwise() %>%
         #other category for negative emotions
-        mutate(neg_emo_other = (negemo_sum - negemo)) %>%
+        mutate(neg_emo_other = (negemo - negemo_sum)) %>%
         #other category for social
-        mutate(social_other = (social_sum - social)) %>%
+        mutate(social_other = (social - social_sum)) %>%
         #other category for perceptual processes
-        mutate(percept_other = (percept_sum - percept))
+        mutate(percept_other = (percept - percept_sum))
       
       #removing main categories and other categories like netspeak that group wanted to exclude
       LIWC_df <- LIWC_df %>%
         rowwise() %>%
-        filter(-one_of(c("funct", "negemo", "social", "cogproc", "percept", "bio", "drives",
+        filter(-one_of(c("funct", "affect", "negemo", "social", "cogproc", "percept", "bio", "drives",
                          "relativ", "informal", "netspeak")))
       
       #removing sum of subcategories of liwc that I had created earlier
