@@ -280,32 +280,53 @@ conv_LSM_prep <- function(recoded_df) {
 }
 
 
-
-
-
-  LIWC_high_category <- function(LIWC_df) {
-    LIWC_df_high <- LIWC_df %>%
+  #Here is a function to include variables that were decided by group to be included in analysis
+  LIWC_Final_Inclusion <- function(LIWC_df) {
+    LIWC_df <- LIWC_df %>%
       #deleting all punctuations
       filter(-one_of(c("AllPunc","Period","Comma", "Colon", "SemiC","QMark", 
-                       "Exclam", "Dash", "Quote", "Apostro", "Parenth", "OtherP"))) %>%
-      #deleting all subcategory variables
-      #starting with pronoun subcat
-      filter((-one_of(c("ppron", "i", "we", "you", "shehe", "they", "ipron",
-                        #deleting negative emotion subcat
-                        "anger", "sad"))))
+                       "Exclam", "Dash", "Quote", "Apostro", "Parenth", "OtherP"))) 
       
-  }
-    
-    
-  LIWC_low_category <- function(LIWC_df) {
-    LIWC_df_low <- LIWC_df %>%
-      #deleting all punctuations
-      filter(-one_of(c("AllPunc","Period","Comma", "Colon", "SemiC","QMark", 
-                       "Exclam", "Dash", "Quote", "Apostro", "Parenth", "OtherP")))
-      #deleting all main category variables
-      filter(-one_of(c("pronoun", "negemo", "social", "cogproc")))
+      #renamed function variable to funct as indicated on LIWC manual
+      LIWC_df <- rename(LIWC_df, funct = "function")
       
-  } 
-    
-    
-
+      #making new variables for the sum of all subcategories of LIWC main categories
+      LIWC_df <- LIWC_df %>%
+        rowwise() %>%
+        mutate(percept_sum = sum(c(see, hear, feel))) %>%
+        mutate(bio_sum = sum(c(body, health, sexual, ingest))) %>%
+        mutate(drives_sum = sum(c(affiliation, achieve, power, reward, risk))) %>%
+        mutate(relativ_sum = sum(c(motion, space, time))) %>%
+        mutate(informal_sum = sum(c(swear, netspeak, assent, nonflu, filler))) %>%
+        mutate(affect_sum = sum(c(posemo, negemo))) %>%
+        mutate(negemo_sum = sum(c(anx, anger, sad))) %>%
+        mutate(pronoun_sum = sum(c(ppron, ipron))) %>%
+        mutate(ppronoun_sum = sum(c(i, we, you, shehe, they))) %>%
+        mutate(funct_sum = sum(c(pronoun, article, prep, auxverb, adverb, conj, negate))) %>%
+        mutate(social_sum = sum(c(family, friend, female, male))) %>%
+        mutate(cogproc_sum = sum(c(insight, cause, discrep, tentat, certain, differ)))
+      
+      #creating the "other" categories
+      LIWC_df <- LIWC_df %>%
+        rowwise() %>%
+        #other category for negative emotions
+        mutate(neg_emo_other = (negemo_sum - negemo)) %>%
+        #other category for social
+        mutate(social_other = (social_sum - social)) %>%
+        #other category for perceptual processes
+        mutate(percept_other = (percept_sum - percept))
+      
+      #removing main categories and other categories like netspeak that group wanted to exclude
+      LIWC_df <- LIWC_df %>%
+        rowwise() %>%
+        filter(-one_of(c("funct", "negemo", "social", "cogproc", "percept", "bio", "drives",
+                         "relativ", "informal", "netspeak")))
+      
+      #removing sum of subcategories of liwc that I had created earlier
+      LIWC_df <- LIWC_df %>%
+        rowwise() %>%
+        filter(-one_of(c("percept_sum", "bio_sum", "drives_sum", "relativ_sum", "informal_sum", "affect_sum", "negemo_sum",
+                         "pronoun_sum", "ppronoun_sum", "funct_sum", "social_sum", "cogproc_sum")))
+      
+  }  
+  
