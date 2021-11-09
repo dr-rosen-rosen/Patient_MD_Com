@@ -8,7 +8,9 @@ library(FactoMineR)
 require(Factoshiny)
 
 LIWC_df <- read.csv(here(config$liwc_f_path,config$liwc_f_name)) %>%
-  select(-one_of(c("AllPunc","Period","Comma","Colon","SemiC","QMark","Exclam","Dash","Quote","Apostro","Parenth","OtherP")))  
+  #select(-one_of(c("AllPunc","Period","Comma","Colon","SemiC","QMark","Exclam","Dash","Quote","Apostro","Parenth","OtherP")))  
+  LIWC_Final_Inclusion()
+
 DR_LIWC_df_nona <- LIWC_df %>%
   filter(Source..C. == 'doctor') %>%
   select(-one_of(c("Source..A.","Source..B.","Source..C."))) %>%
