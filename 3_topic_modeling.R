@@ -22,3 +22,34 @@ kResult <- searchK(out$documents, out$vocab, K=k_range, prevalence=~role,
                    data=meta)
 plot(kResult)
 
+stm_30 <- stm(
+  documents = out$documents, 
+  vocab = out$vocab, 
+  K = 30, 
+  prevalence = ~role,
+  max.em.its = 75,
+  data = out$meta,
+  init.type = "Spectral")
+plot(stm_30, type = 'summary')
+plot(stm_30, type = 'labels')
+stm_100 <- stm(
+  documents = out$documents, 
+  vocab = out$vocab, 
+  K = 100, 
+  prevalence = ~role,
+  max.em.its = 75,
+  data = out$meta,
+  init.type = "Spectral")
+plot(stm_100, type = 'summary')
+plot(stm_100, type = 'labels')
+stm_5 <- stm(
+  documents = out$documents, 
+  vocab = out$vocab, 
+  K = 5, 
+  prevalence = ~role,
+  max.em.its = 75,
+  data = out$meta,
+  init.type = "Spectral")
+plot(stm_5, type = 'summary')
+plot(stm_5, type = 'labels')
+
