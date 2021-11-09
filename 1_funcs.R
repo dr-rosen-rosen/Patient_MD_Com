@@ -284,10 +284,10 @@ conv_LSM_prep <- function(recoded_df) {
 LIWC_Final_Inclusion <- function(LIWC_df) {
   LIWC_df <- LIWC_df %>%
     #deleting all punctuations
-    filter(-one_of(c("AllPunc","Period","Comma", "Colon", "SemiC","QMark", 
+    select(-one_of(c("AllPunc","Period","Comma", "Colon", "SemiC","QMark", 
                      "Exclam", "Dash", "Quote", "Apostro", "Parenth", "OtherP"))) 
   #renamed function variable to funct as indicated on LIWC manual
-  LIWC_df <- rename(LIWC_df, funct = "function")
+  LIWC_df <- rename(LIWC_df, funct = "function.")
   
   #making new variables for the sum of all subcategories of LIWC main categories
   LIWC_df <- LIWC_df %>%
@@ -318,13 +318,13 @@ LIWC_Final_Inclusion <- function(LIWC_df) {
   #removing main categories and other categories like netspeak that group wanted to exclude
   LIWC_df <- LIWC_df %>%
     rowwise() %>%
-    filter(-one_of(c("funct", "negemo", "social", "cogproc", "percept", "bio", "drives",
+    select(-one_of(c("funct", "negemo", "social", "cogproc", "percept", "bio", "drives",
                      "relativ", "informal", "netspeak")))
   
   #removing sum of subcategories of liwc that I had created earlier
   LIWC_df <- LIWC_df %>%
     rowwise() %>%
-    filter(-one_of(c("percept_sum", "bio_sum", "drives_sum", "relativ_sum", "informal_sum", "affect_sum", "negemo_sum",
+    select(-one_of(c("percept_sum", "bio_sum", "drives_sum", "relativ_sum", "informal_sum", "affect_sum", "negemo_sum",
                      "pronoun_sum", "ppronoun_sum", "funct_sum", "social_sum", "cogproc_sum")))
   return(LIWC_df)
 }  
