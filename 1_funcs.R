@@ -326,6 +326,12 @@ LIWC_Final_Inclusion <- function(LIWC_df) {
     rowwise() %>%
     select(-one_of(c("percept_sum", "bio_sum", "drives_sum", "relativ_sum", "informal_sum", "affect_sum", "negemo_sum",
                      "pronoun_sum", "ppronoun_sum", "funct_sum", "social_sum", "cogproc_sum")))
+  
+  LIWC_df <- LIWC_df %>%
+    rowwise() %>%
+    mutate(percept_other = if_else(percept_other < 0, 0, percept_other)) %>%
+    mutate(social_other = if_else(social_other < 0, 0, social_other)) %>%
+    mutate(negemo_other = if_else(negemo_other < 0, 0, negemo_other))
   return(LIWC_df)
 }  
 
