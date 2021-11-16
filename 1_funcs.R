@@ -284,11 +284,11 @@ conv_LSM_prep <- function(recoded_df) {
 LIWC_Final_Inclusion <- function(LIWC_df) {
   LIWC_df <- LIWC_df %>%
     #deleting all punctuations
-    select(-one_of(c("AllPunc","Period","Comma", "Colon", "SemiC","QMark", 
-                     "Exclam", "Dash", "Quote", "Apostro", "Parenth", "OtherP"))) 
+    select(-one_of(c("AllPunc","Period","Comma", "Colon", "SemiC","QMark",
+                     "Exclam", "Dash", "Quote", "Apostro", "Parenth", "OtherP")))
   #renamed function variable to funct as indicated on LIWC manual
   LIWC_df <- rename(LIWC_df, funct = "function.")
-  
+
   #making new variables for the sum of all subcategories of LIWC main categories
   LIWC_df <- LIWC_df %>%
     rowwise() %>%
@@ -304,34 +304,81 @@ LIWC_Final_Inclusion <- function(LIWC_df) {
     mutate(funct_sum = sum(c(pronoun, article, prep, auxverb, adverb, conj, negate))) %>%
     mutate(social_sum = sum(c(family, friend, female, male))) %>%
     mutate(cogproc_sum = sum(c(insight, cause, discrep, tentat, certain, differ)))
-  
+
   #creating the "other" categories
   LIWC_df <- LIWC_df %>%
     rowwise() %>%
     #other category for negative emotions
     mutate(neg_emo_other = (negemo_sum - negemo)) %>%
     #other category for social
-    mutate(social_other = (social_sum - social)) %>%
+    # mutate(social_other = (social_sum - social)) %>%
     #other category for perceptual processes
     mutate(percept_other = (percept_sum - percept))
-  
+
   #removing main categories and other categories like netspeak that group wanted to exclude
   LIWC_df <- LIWC_df %>%
     rowwise() %>%
-    select(-one_of(c("funct", "negemo", "social", "cogproc", "percept", "bio", "drives",
+    select(-one_of(c("funct", "pronoun", "ppron","negemo", "social", "cogproc", "percept", "bio", "drives",
                      "relativ", "informal", "netspeak")))
-  
+
   #removing sum of subcategories of liwc that I had created earlier
   LIWC_df <- LIWC_df %>%
-    rowwise() %>%
-    select(-one_of(c("percept_sum", "bio_sum", "drives_sum", "relativ_sum", "informal_sum", "affect_sum", "negemo_sum",
-                     "pronoun_sum", "ppronoun_sum", "funct_sum", "social_sum", "cogproc_sum")))
-  
+  rowwise() %>%
+  select(-one_of(c("percept_sum", "bio_sum", "drives_sum", "relativ_sum", "informal_sum", "affect_sum", "negemo_sum",
+                   "pronoun_sum", "ppronoun_sum", "funct_sum", "social_sum", "cogproc_sum")))
+
   LIWC_df <- LIWC_df %>%
     rowwise() %>%
     mutate(percept_other = if_else(percept_other < 0, 0, percept_other)) %>%
-    mutate(social_other = if_else(social_other < 0, 0, social_other)) %>%
-    mutate(negemo_other = if_else(negemo_other < 0, 0, negemo_other))
+    # mutate(social_other = if_else(social_other < 0, 0, social_other)) %>%
+    mutate(neg_emo_other = if_else(neg_emo_other < 0, 0, neg_emo_other))
   return(LIWC_df)
-}  
+}
 
+
+##########################################################################
+################# Functions for preparing data for factor analysis
+##########################################################################
+subset_and_center <- function(df,role) {
+  df <- df %>%
+    filter(Source..C. == role) %>%
+    select(-one_of(c("Source..A.","Source..B.","Source..C.")))# %>%
+  df  <- df[complete.cases(df),]
+  df <- scale(df, center = TRUE, scale = TRUE)
+  df <- as.data.frame(df)
+  return(df)
+}
+
+prep_items_for_FA <- function(df, cutoff){
+  # https://stats.stackexchange.com/questions/439653/is-there-a-standard-measure-of-fit-to-validate-exploratory-factor-analysis
+  # https://www.rdocumentation.org/packages/REdaS/versions/0.9.3/topics/Kaiser-Meyer-Olkin-Statistics
+  
+  # calculate Mean Sampling Adequacy (MSAs) which are a measure of how much variance in the item is 'shared'
+  item_scores <- REdaS::KMOS(df, use = "pairwise.complete.obs")
+  keep_items <- names(item_scores$MSA[which(item_scores$MSA >= cutoff)])
+  drop_items <- names(item_scores$MSA[which(item_scores$MSA < cutoff)])
+  print(paste('First KMO criterion:',item_scores$KMO))
+  print('First Bartlett:')
+  print(
+    REdaS::bart_spher(df))
+  print('Retained variables: ')
+  print(
+    keep_items)
+  print('Dropped variables: ')
+  print(
+    drop_items
+  )
+  # Keep only items above MSA cutoff
+  df <- df %>%
+    select(
+      one_of(keep_items)
+      )
+  # re-run to get updated KMO criterion
+  item_scores <- REdaS::KMOS(df, use = "pairwise.complete.obs")
+  print('Updated KMO criterion:')
+  print(item_scores$KMO)
+  print('Updated Bartlett:')
+  print(
+    REdaS::bart_spher(df))
+  return(df)
+}
