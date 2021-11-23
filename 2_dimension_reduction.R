@@ -51,7 +51,9 @@ KMO(PT_LIWC_df_nona)
 # get estimates of number of factors
 EFAtools::N_FACTORS(PT_LIWC_df_nona, method = "ULS")
 # run EFA
-PT_EFA <- EFA(PT_LIWC_df_nona, n_factors = 4, rotation = "promax", method = 'ULS')
+PT_EFA <- EFA(PT_LIWC_df_nona, n_factors = 3, rotation = "promax", method = 'ULS')
+PT_EFA
+PT_EFA$rot_loadings
 # EFAtools::COMPARE(
 #   EFA(PT_LIWC_df_nona, n_factors = 8, rotation = "promax")$rot_loadings,
 #   EFA(PT_LIWC_df_nona, n_factors = 8, rotation = "varimax")$rot_loadings
@@ -66,7 +68,8 @@ KMO(DR_LIWC_df_nona)
 EFAtools::N_FACTORS(DR_LIWC_df_nona, method = "ULS")
 # run EFA
 DR_EFA <- EFA(DR_LIWC_df_nona, n_factors = 5, rotation = "promax", method = 'ULS')
-
+DR_EFA
+DR_EFA$rot_loadings
 
 
 
