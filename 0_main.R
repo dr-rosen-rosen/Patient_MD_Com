@@ -5,6 +5,7 @@
 ##########################################################################
 
 library(here)
+install.packages("here")
 library(config)
 library(reticulate)
 library(lubridate)
@@ -12,7 +13,7 @@ library(tidyverse)
 library(patchwork)
 debuggingState(on=FALSE)
 # start ve with: source python3/bin/activate in project folder
-Sys.setenv(R_CONFIG_ACTIVE = "mike") #salar
+Sys.setenv(R_CONFIG_ACTIVE = "salar") #salar
 config <- config::get()
 #Sys.setenv(RETICULATE_PYTHON = config$py_version)
 #reticulate::source_python('1_funcs.py')

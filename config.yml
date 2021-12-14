@@ -1,7 +1,7 @@
 default:
     py_version: "python3/bin/python"
     liwc_f_name: "conv_LSM_df_LIWC2015_Results_notext.csv"
-    liwc_f_V2_name: "conv_LSM_df_LIWC2015_Results_Update.csv"
+    liwc_f_V2_name: "conv_LSM_df_LIWC2015_Results_Update.xlsx"
 mike:
     transcript_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
     annies_role_file: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/MaRIPOHSA_Transcripts_SpeakerRole_Annie.csv'
