@@ -6,7 +6,8 @@
 **/.DS_Store
 **/.docx
 **/.csv
-
+*.csv
+*.pdf
 # Virtual environment
 /python3/
 
