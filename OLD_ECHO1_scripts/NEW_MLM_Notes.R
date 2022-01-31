@@ -8,6 +8,13 @@ library(tidyverse)
 #open file
 ECHO_LSM_MLM <- read_csv(here(config$ECHO_LSM_MLM_path, config$ECHO_LSM_MLM_name))
 
+#making a race concordance variable "raceconc" between patient and provider race
+ECHO_LSM_MLM <- ECHO_LSM_MLM %>%
+  rowwise() %>%
+  mutate(raceconc = if_else(racecat2== provrace, 1, 0))
+
+# centering the lsm score with scale
+ECHO_LSM_MLM$LSM_function_mean <-scale(ECHO_LSM_MLM$LSM_function_mean, center= TRUE, scale = TRUE)
 
 # Hypothesis one: 
 # Ha: LSM will be [lower with racial/ethnic minority patients], 
@@ -32,10 +39,12 @@ summary(m.1_ha)
 
 # step 3: add the predictors
 # cultdissmd, cultdissmdtert, cultdiss,cultdisstert, 
-#racecat2, cultcomp
+#racecat2, raceconc
 m.2_ha <- lm(LSM_function_mean ~ 
                cultdissmd +
-               cultdiss, data = ECHO_LSM_MLM, na.action=na.omit )
+               cultdiss+
+               factor(racecat2) +
+               factor (raceconc), data = ECHO_LSM_MLM, na.action=na.omit )
 anova(m.1_ha,m.2_ha)
 summary(m.2_ha)
 summ(m.2_ha)
