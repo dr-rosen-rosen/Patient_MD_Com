@@ -382,3 +382,19 @@ prep_items_for_FA <- function(df, cutoff){
     REdaS::bart_spher(df))
   return(df)
 }
+
+get_mahalanobis_distance <- function(df, auto_drop, re_center) {
+  df$mahal <- mahalanobis(df, colMeans(df), cov(df))
+  df$p <- pchisq(df$mahal, df = ncol(df) - 1, lower.tail = FALSE)
+  print(nrow(df %>% filter(p < .001)))
+  if (auto_drop) {
+    df <- df %>%
+      filter(p >=.001)
+    if (re_center) {
+      df <- df %>%
+        mutate(across(!mahal & !p, ~ as.numeric(base::scale(.,center = TRUE, scale = TRUE))))
+    }
+  }
+  df <- df %>% select(!mahal & !p)
+  return(df)
+}
