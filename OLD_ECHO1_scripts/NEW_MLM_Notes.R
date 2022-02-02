@@ -12,29 +12,39 @@ ECHO_LSM_MLM <- read_csv(here(config$ECHO_LSM_MLM_path, config$ECHO_LSM_MLM_name
 ECHO_LSM_MLM <- ECHO_LSM_MLM %>%
   rowwise() %>%
   mutate(raceconc = if_else(racecat2== provrace, 1, 0))
-
-# centering the lsm score with scale
-# ECHO_LSM_MLM$LSM_function_mean <-scale(ECHO_LSM_MLM$LSM_function_mean, center= TRUE, scale = TRUE)
-
-# To compare models w/ ANOVA, you need the same size data. So, you can't
-# just use na.omit for each model (if there are different missingness for different variables)
-# you need to use 'complete cases' for all the variables you intend to use.
-# You should center AFTER you drop for missingness. 
-
 # Get complete cases
 
 Ha_df <- ECHO_LSM_MLM %>%
-  # comiposite cult diss measures
-  # select(LSM_function_mean, provider_id, cultdissmd, cultdiss, racecat2, raceconc) %>%
-  # subsacle measures
-  select(LSM_function_mean, provider_id, racecat2, raceconc, cdspeak,cdreason,cdstyle,cdvalue,cdspirit,cdethnic,cdtype,cdrace,cdculture,cdskin) %>%
-  tidyr::drop_na() %>% # take only rows with no NA; 
-  # mutate_at(c('LSM_function_mean','cultdissmd', 'cultdiss'), ~scale(.,center = TRUE, scale = TRUE)) %>%
-  mutate(cdspeak_dichoto = if_else(cdspeak < median(cdspeak),1,0)) %>%
-  mutate(across(!provider_id & !racecat2 & !raceconc & !cdspeak_dichoto, ~scale(.,center = TRUE, scale = TRUE))) %>%
+  select(LSM_function_mean, provider_id, racecat2, raceconc, 
+         cultdissmd, cultdiss, 
+         cdspeak,cdreason,cdstyle,cdvalue,cdspirit,cdethnic,cdtype,cdrace,cdculture,cdskin,
+         cultdissmd1, cultdissmd2, cultdissmd3, cultdissmd4, cultdissmd5, cultdissmd6, cultdissmd7, cultdissmd8, cultdissmd9, cultdissmd10) %>%
+  # tidyr::drop_na() %>% # take only rows with no NA;
+  mutate(
+    cdAvg_dist = abs(cultdiss - cultdissmd),
+    cdspeak_dist = abs(cdspeak - cultdissmd1),
+    cdreason_dist = abs(cdreason - cultdissmd2),
+    cdstyle_dist = abs(cdstyle - cultdissmd3),
+    cdvalue_dist = abs(cdvalue - cultdissmd4),
+    cdspirit_dist = abs(cdspirit - cultdissmd5),
+    cdethnic_dist = abs(cdethnic - cultdissmd6),
+    cdtype_dist = abs(cdtype - cultdissmd7),
+    cdrace_dist = abs(cdrace - cultdissmd8),
+    cdculture_dist = abs(cdculture - cultdissmd9),
+    cdskin_dist = abs(cdskin - cultdissmd10)
+  ) %>%
+  # mutate(across(!provider_id & !racecat2 & !raceconc, ~scale(.,center = TRUE, scale = TRUE))) %>%
   mutate(provider_id = factor(provider_id)) %>%
   mutate(racecat2 = factor(racecat2)) %>%
   mutate(raceconc = factor(raceconc))
+
+# drop physicians with < n cases
+Ha_df <- Ha_df %>%
+  group_by(provider_id) %>%
+  filter(n() > 5) %>%
+  ungroup() %>%
+  gdata::drop.levels(.)
+
 nrow(Ha_df)
 hist(Ha_df$cdspeak_dichoto)
 # Hypothesis one: 
@@ -62,25 +72,38 @@ summary(m.1_ha)
 # cultdissmd, cultdissmdtert, cultdiss,cultdisstert, 
 #racecat2, raceconc
 m.2_ha <- lm(LSM_function_mean ~ 
-               #cultdissmd +
-               #cultdiss+
+               # cultdissmd +
+               # cultdiss+
+               cdAvg_dist +
                # factor(cdspeak_dichoto) +
-               cdspeak +
-               # cdreason +
+               # cdspeak_dist +
+               # cdreason_dist +
                # cdstyle +
-               # cdvalue +
-               # cdspirit +
-               # cdethnic +
-               # cdtype +
-               # cdrace +
-               # cdculture +
-               # cdskin +
+               # cultdissmd3 + 
+               cdstyle_dist +
+               # cdvalue_dist +
+               # cdspirit_dist +
+               # cdethnic_dist +
+               # cdtype_dist +
+               # cdrace_dist +
+               # cdculture_dist +
+               # cdskin_dist +
+               # cultdissmd1 +
+               # cultdissmd2 +
+               # cultdissmd3 + 
+               # cultdissmd4 +
+               # cultdissmd5 +
+               # cultdissmd6 +
+               # cultdissmd7 +
+               # cultdissmd8 +
+               # cultdissmd9 +
+               # cultdissmd10 +
                racecat2 +
                raceconc, data = Ha_df)
 anova(m.1_ha,m.2_ha)
 summary(m.2_ha)
 summ(m.2_ha)
-sjPlot::tab_model(m.0_ha,m.1_ha,m.2_ha)
+sjPlot::tab_model(m.2_ha)
 
 
 ##################################################################
@@ -94,9 +117,9 @@ sjPlot::tab_model(m.0_ha,m.1_ha,m.2_ha)
 #Hypothesis 3a- DV: patient ratings of clinicians...is it this variable? "provassess"
 
 Hc_df <- ECHO_LSM_MLM %>%
-  select(LSM_function_mean, provider_id, provassess, racecat2, raceconc) %>%
+  dplyr::select(LSM_function_mean, provider_id, provassess, racecat2, raceconc) %>%
   tidyr::drop_na() %>% # take only rows with no NA; 
-  mutate_at(c('LSM_function_mean','provassess'), ~scale(.,center = TRUE, scale = TRUE)) %>%
+  # mutate_at(c('LSM_function_mean','provassess'), ~scale(.,center = TRUE, scale = TRUE)) %>%
   mutate(racecat2 = factor(racecat2)) %>%
   mutate(raceconc = factor(raceconc))
 
@@ -119,27 +142,33 @@ summary(m.2_Hc1)
 
 sjPlot::tab_model(m.0_Hc1,m.1_Hc1,m.2_Hc1)
 
-
-
-
 #Hypothesis 3b- DV: viral load suppression
+
+Hb_vl_df <- ECHO_LSM_MLM %>%
+  dplyr::select(vlsup75, LSM_function_mean, provider_id) %>%
+  tidyr::drop_na()
+  
 # step 1: Null model
 m.0_Hc2 <- glm(vlsup75~ 1, data = ECHO_LSM_MLM)
 
 # step 2: add the culstering variable.. MD
-m.1_Hc2 <- glmer(vlsup75 ~ 1 + (1|provider_id), data = ECHO_LSM_MLM, na.action=na.omit )
+m.1_Hc2 <- glmer(factor(vlsup75) ~ 1 + (1|provider_id), family = 'binomial', data = ECHO_LSM_MLM, na.action=na.omit )
 # test for fit of grouping structure
 anova(m.0_Hc2,m.1_Hc2)
-
+summary(m.1_Hc2)
 # step 3: add the predictors
-m.2_Hc2 <- lmer(vlsup75 ~ 
+m.2_Hc2 <- glmer(factor(vlsup75) ~ 
                   LSM_function_mean +
-                  (1|provider_id), data = ECHO_LSM_MLM, na.action=na.omit )
+                  (1|provider_id),
+                 family = 'binomial',
+                 data = ECHO_LSM_MLM, na.action=na.omit)
 anova(m.1_Hc2,m.2_Hc2)
 summary(m.2_Hc2)
 sjPlot::tab_model(m.0_Hc2,m.1_Hc2,m.2_Hc2)
 summary(m.1_Hc2)
 
+ECHO_LSM_MLM %>%
+  ggplot(aes(y = LSM_function_mean, fill = factor(vlsup75))) + geom_boxplot()
 ##################################################################
 ##################################################################
 ##################################################################
@@ -148,10 +177,45 @@ summary(m.1_Hc2)
 # Hb: Clinicians with higher cultural competence will be more linguistically accommodating. 
 
 
+library(mgcv)
+y.0 <- mgcv::gam(provassess ~ s(LSM_function_mean), data = Hc_df, method = 'REML')
+summary(y.0)
+plot(y.0, 
+     residuals = TRUE, 
+     rug = TRUE,
+     #pch = 1,
+     #cex = 1,
+     shade = TRUE,
+     pages = 1,
+     shift = coef(y.0)[1]
+)
+gam.check(y.0)
+concurvity(y.0, full = TRUE)
 
+f1 <- gamlss::fitDist(Ha_df$LSM_function_mean, type = "real0to1")
+f2 <- gamlss::fitDist(Hc_df$provassess, type = "realplus")
+f3 <- gamlss::fitDist(Hb_vl_df$vlsup75, type = "binom")
+f3$fits
 
-
-
+library(gamlss)
+t <- gamlss::gamlss(
+  formula = LSM_function_mean ~ cdAvg_dist + cdstyle_dist + racecat2 + re(random = ~1|provider_id),
+  family = GB1(), data = na.omit(Ha_df), trace = FALSE,
+  control = gamlss.control(n.cyc = 2000)
+  )
+t <- gamlss::gamlss(
+  formula = provassess ~ LSM_function_mean + re(random = ~1|provider_id),
+  family = BCPE(), data = na.omit(Hc_df), trace = FALSE,
+  control = gamlss.control(n.cyc = 2000)
+)
+t <- gamlss::gamlss(
+  formula = vlsup75 ~ poly(LSM_function_mean, 3) + re(random = ~1|provider_id),
+  family = BI(), data = na.omit(Hb_vl_df), trace = FALSE,
+  control = gamlss.control(n.cyc = 2000)
+)
+summary(t)
+plot(t)
+plot(LSM_function_mean~cdstyle_dist, data = Ha_df)
 ##################################################################
 ##################################################################
 ##################################################################
