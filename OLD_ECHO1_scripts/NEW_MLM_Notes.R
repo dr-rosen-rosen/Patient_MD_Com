@@ -15,11 +15,11 @@ ECHO_LSM_MLM <- ECHO_LSM_MLM %>%
 # Get complete cases
 
 Ha_df <- ECHO_LSM_MLM %>%
-  select(LSM_function_mean, provider_id, racecat2, raceconc, 
+  dplyr::select(LSM_function_mean, provider_id, racecat2, raceconc, 
          cultdissmd, cultdiss, 
          cdspeak,cdreason,cdstyle,cdvalue,cdspirit,cdethnic,cdtype,cdrace,cdculture,cdskin,
          cultdissmd1, cultdissmd2, cultdissmd3, cultdissmd4, cultdissmd5, cultdissmd6, cultdissmd7, cultdissmd8, cultdissmd9, cultdissmd10) %>%
-  # tidyr::drop_na() %>% # take only rows with no NA;
+  tidyr::drop_na() %>% # take only rows with no NA;
   mutate(
     cdAvg_dist = abs(cultdiss - cultdissmd),
     cdspeak_dist = abs(cdspeak - cultdissmd1),
@@ -72,11 +72,11 @@ summary(m.1_ha)
 # cultdissmd, cultdissmdtert, cultdiss,cultdisstert, 
 #racecat2, raceconc
 m.2_ha <- lm(LSM_function_mean ~ 
-               # cultdissmd +
-               # cultdiss+
+               cultdissmd +
+               cultdiss+
                cdAvg_dist +
                # factor(cdspeak_dichoto) +
-               # cdspeak_dist +
+               cdspeak_dist +
                # cdreason_dist +
                # cdstyle +
                # cultdissmd3 + 
@@ -103,6 +103,7 @@ m.2_ha <- lm(LSM_function_mean ~
 anova(m.1_ha,m.2_ha)
 summary(m.2_ha)
 summ(m.2_ha)
+plot(m.2_ha)
 sjPlot::tab_model(m.2_ha)
 
 
@@ -140,7 +141,7 @@ m.2_Hc1 <- lmer(provassess ~
 anova(m.1_Hc1,m.2_Hc1)
 summary(m.2_Hc1)
 
-sjPlot::tab_model(m.0_Hc1,m.1_Hc1,m.2_Hc1)
+sjPlot::tab_model(m.2_Hc1, show.aic = TRUE)
 
 #Hypothesis 3b- DV: viral load suppression
 
@@ -164,7 +165,7 @@ m.2_Hc2 <- glmer(factor(vlsup75) ~
                  data = ECHO_LSM_MLM, na.action=na.omit)
 anova(m.1_Hc2,m.2_Hc2)
 summary(m.2_Hc2)
-sjPlot::tab_model(m.0_Hc2,m.1_Hc2,m.2_Hc2)
+sjPlot::tab_model(m.2_Hc2, show.aic = TRUE)
 summary(m.1_Hc2)
 
 ECHO_LSM_MLM %>%
@@ -177,45 +178,115 @@ ECHO_LSM_MLM %>%
 # Hb: Clinicians with higher cultural competence will be more linguistically accommodating. 
 
 
-library(mgcv)
-y.0 <- mgcv::gam(provassess ~ s(LSM_function_mean), data = Hc_df, method = 'REML')
-summary(y.0)
-plot(y.0, 
-     residuals = TRUE, 
-     rug = TRUE,
-     #pch = 1,
-     #cex = 1,
-     shade = TRUE,
-     pages = 1,
-     shift = coef(y.0)[1]
-)
-gam.check(y.0)
-concurvity(y.0, full = TRUE)
+# library(mgcv)
+# y.0 <- mgcv::gam(provassess ~ s(LSM_function_mean), data = Hc_df, method = 'REML')
+# summary(y.0)
+# plot(y.0, 
+#      residuals = TRUE, 
+#      rug = TRUE,
+#      #pch = 1,
+#      #cex = 1,
+#      shade = TRUE,
+#      pages = 1,
+#      shift = coef(y.0)[1]
+# )
+# gam.check(y.0)
+# concurvity(y.0, full = TRUE)
 
 f1 <- gamlss::fitDist(Ha_df$LSM_function_mean, type = "real0to1")
+f1$fits
+gamlss::histDist(LSM_function_mean, family = GB1, nbins = 30, data = Ha_df)
 f2 <- gamlss::fitDist(Hc_df$provassess, type = "realplus")
+f2$fits
+gamlss::histDist(provassess, family = BCPE, nbins = 30, data = Hc_df)
 f3 <- gamlss::fitDist(Hb_vl_df$vlsup75, type = "binom")
 f3$fits
+gamlss::histDist(vlsup75, family = BI, nbins = 30, data = Hb_vl_df)
+
+ip_style_fit <- gamlss::fitDist(ECHO_LSM_MLM$ipstyle, type = 'realplus')
+ip_style_fit$fits
+gamlss::histDist(ipstyle, family = BCCGo, nbins = 30, data = ECHO_LSM_MLM)
+
+iptrust_fit <- gamlss::fitDist(ECHO_LSM_MLM$iptrust, type = 'realplus')
+iptrust_fit$fits
+gamlss::histDist(iptrust, family = BCCGo, nbins = 30, data = ECHO_LSM_MLM)
+
+provcomm_fit <- gamlss::fitDist(ECHO_LSM_MLM$provcomm, type = 'realplus')
+provcomm_fit$fits
+gamlss::histDist(provcomm, family = BCCGo, nbins = 30, data = ECHO_LSM_MLM)
 
 library(gamlss)
-t <- gamlss::gamlss(
-  formula = LSM_function_mean ~ cdAvg_dist + cdstyle_dist + racecat2 + re(random = ~1|provider_id),
-  family = GB1(), data = na.omit(Ha_df), trace = FALSE,
+library(devtools)
+library(sjPlot)
+library(insight)
+library(httr)
+library(brms)
+
+devtools::install_github("strengejacke/sjPlot")
+devtools::install_github("https://github.com/easystats/insight")
+install.packages("insight", repos = "https://easystats.r-universe.dev")
+
+t1 <- gamlss::gamlss(
+  formula = LSM_function_mean ~ cultdissmd + cultdiss + cdAvg_dist + cdspeak_dist + cdstyle_dist + racecat2 + raceconc + re(random = ~1|provider_id),
+  family = GB1(), data = Ha_df, trace = FALSE,
   control = gamlss.control(n.cyc = 2000)
   )
-t <- gamlss::gamlss(
+summary(t1)
+Rsq(t1)
+plot(t1)
+wp(t1)
+plot(LSM_function_mean~cdstyle_dist, data = Ha_df)
+sjPlot::tab_model(m.2_ha, show.aic = TRUE)
+modelsummary::modelsummary(
+  t1, 
+  estimate = "{estimate} ({std.error}){stars}", 
+  statistic = NULL,
+  coef_omit = c("(Intercept)"))
+
+t2 <- gamlss::gamlss(
   formula = provassess ~ LSM_function_mean + re(random = ~1|provider_id),
   family = BCPE(), data = na.omit(Hc_df), trace = FALSE,
   control = gamlss.control(n.cyc = 2000)
 )
-t <- gamlss::gamlss(
-  formula = vlsup75 ~ poly(LSM_function_mean, 3) + re(random = ~1|provider_id),
+modelsummary::modelsummary(
+  t2, 
+  estimate = "{estimate} ({std.error}){stars}", 
+  statistic = NULL,
+  coef_omit = c("(Intercept)"))
+summary(t2)
+Rsq(t2)
+plot(t2)
+wp(t2)
+plot(LSM_function_mean~provassess, data = Hc_df)
+sjPlot::tab_model(t2)
+t3 <- gamlss::gamlss(
+  formula = vlsup75 ~ LSM_function_mean + re(random = ~1|provider_id),
   family = BI(), data = na.omit(Hb_vl_df), trace = FALSE,
   control = gamlss.control(n.cyc = 2000)
 )
-summary(t)
-plot(t)
-plot(LSM_function_mean~cdstyle_dist, data = Ha_df)
+modelsummary::modelsummary(
+  t3, 
+  estimate = "{estimate} ({std.error}){stars}", 
+  statistic = NULL,
+  coef_omit = c("(Intercept)"))
+
+summary(t3)
+Rsq(t3)
+plot(t3)
+wp(t3)
+
+prov_comm_df <- ECHO_LSM_MLM %>%
+  dplyr::select(LSM_function_mean, provcomm, provider_id) %>%
+  drop_na()
+t4 <- gamlss::gamlss(
+  formula = provcomm ~ LSM_function_mean + re(random = ~1|provider_id),
+  family = BCCGo(), data = prov_comm_df, trace = FALSE,
+  control = gamlss.control(n.cyc = 2000)
+)
+summary(t4)
+Rsq(t4)
+plot(t4)
+wp(t4)
 ##################################################################
 ##################################################################
 ##################################################################
