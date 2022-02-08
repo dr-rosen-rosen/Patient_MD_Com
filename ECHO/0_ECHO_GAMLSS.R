@@ -1,2 +1,0 @@
-#############
-#### ECHO Scripts for GAMLSS
