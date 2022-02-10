@@ -1,7 +1,6 @@
 #############
 #### ECHO Scripts for data cleaning
 
-library(tidyverse)
 #open file
 ECHO_LSM_MLM <- read_csv(here(config$ECHO_LSM_MLM_path, config$ECHO_LSM_MLM_name))
 
