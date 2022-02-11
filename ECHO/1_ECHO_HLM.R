@@ -91,18 +91,101 @@ sjPlot::tab_model(m.2_H1.3_HLM)
 # model H3a.1
 ############
 
+# step 1: Null model
+m.0_H3a.1_HLM <- lm(provcomm~ 1, data = H3a.1_df)
+
+# step 2: add the culstering variable.. MD
+m.1_H3a.1_HLM <- lmer(provcomm ~ 1 + (1|provider_id), data = H3a.1_df)
+# test for fit of grouping structure
+anova(m.1_H3a.1_HLM,m.0_H3a.1_HLM)
+
+# step 3: add the predictors
+m.2_H3a.1_HLM <- lmer(provcomm ~ 
+                  LSM_function_mean, 
+                  (1|provider_id), data = H3a.1_df)
+anova(m.1_H3a.1_HLM,m.2_H3a.1_HLM)
+summary(m.2_H3a.1_HLM)
+
+sjPlot::tab_model(m.2_H3a.1_HLM)
 
 # model H3a.2
 ############
 
+# step 1: Null model
+m.0_H3a.2_HLM <- lm(overcomm~ 1, data = H3a.2_df)
+
+# step 2: add the culstering variable.. MD
+m.1_H3a.2_HLM <- lmer(overcomm ~ 1 + (1|provider_id), data = H3a.2_df)
+# test for fit of grouping structure
+anova(m.1_H3a.2_HLM,m.0_H3a.2_HLM)
+
+# step 3: add the predictors
+m.2_H3a.2_HLM <- lmer(overcomm ~ 
+                        LSM_function_mean, 
+                      (1|provider_id), data = H3a.2_df)
+anova(m.1_H3a.2_HLM,m.2_H3a.2_HLM)
+summary(m.2_H3a.2_HLM)
+
+sjPlot::tab_model(m.2_H3a.2_HLM)
+
 # model H3a.3
 ############
+# step 1: Null model
+m.0_H3a.3_HLM <- lm(ipstyle~ 1, data = H3a.3_df)
+
+# step 2: add the culstering variable.. MD
+m.1_H3a.3_HLM <- lmer(ipstyle ~ 1 + (1|provider_id), data = H3a.3_df)
+# test for fit of grouping structure
+anova(m.1_H3a.3_HLM,m.0_H3a.3_HLM)
+
+# step 3: add the predictors
+m.2_H3a.3_HLM <- lmer(ipstyle ~ 
+                        LSM_function_mean, 
+                      (1|provider_id), data = H3a.3_df)
+anova(m.1_H3a.3_HLM,m.2_H3a.3_HLM)
+summary(m.2_H3a.3_HLM)
+
+sjPlot::tab_model(m.2_H3a.3_HLM)
 
 # model H3a.4
 ############
 
+# step 1: Null model
+m.0_H3a.4_HLM <- lm(iptrust~ 1, data = H3a.4_df)
+
+# step 2: add the culstering variable.. MD
+m.1_H3a.4_HLM <- lmer(iptrust ~ 1 + (1|provider_id), data = H3a.4_df)
+# test for fit of grouping structure
+anova(m.1_H3a.4_HLM,m.0_H3a.4_HLM)
+
+# step 3: add the predictors
+m.2_H3a.4_HLM <- lmer(iptrust ~ 
+                        LSM_function_mean, 
+                      (1|provider_id), data = H3a.4_df)
+anova(m.1_H3a.4_HLM,m.2_H3a.4_HLM)
+summary(m.2_H3a.4_HLM)
+
+sjPlot::tab_model(m.2_H3a.4_HLM)
+
 # model H3a.5
 ############
+
+# step 1: Null model
+m.0_H3a.5_HLM <- glm(provknowcat~ 1, data = H3a.5_df)
+
+# step 2: add the culstering variable.. MD
+m.1_H3a.5_HLM <- glmer(provknowcat ~ 1 + (1|provider_id), family = 'binomial',data = H3a.5_df)
+# test for fit of grouping structure
+anova(m.1_H3a.5_HLM,m.0_H3a.5_HLM)
+
+# step 3: add the predictors
+m.2_H3a.5_HLM <- glmer(provknowcat ~ 
+                        LSM_function_mean, 
+                      (1|provider_id), family = 'binomial', data = H3a.5_df)
+anova(m.1_H3a.5_HLM,m.2_H3a.5_HLM)
+summary(m.2_H3a.5_HLM)
+
+sjPlot::tab_model(m.2_H3a.5_HLM)
 
 # model H3a.6
 ############
