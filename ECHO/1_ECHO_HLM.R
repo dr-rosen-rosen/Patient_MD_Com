@@ -1,6 +1,127 @@
 #############
 #### ECHO Scripts for HLM
 
+#packages
+library(lme4)
+library(jtools)
+library(sjPlot)
+
+# model H1.1
+############
+
+# step 1: Null model
+m.0_H1.1_HLM <- lm(LSM_function_mean ~ 1, data = H1.1_df)
+summary(m.0_H1.1_HLM)
+summ(m.0_H1.1_HLM)
+
+# step 2: add the culstering variable --> "provider_id"
+m.1_H1.1_HLM <- lmer(LSM_function_mean ~ 1 + (1|provider_id), 
+               data = H1.1_df)
+
+# test for fit of grouping structure
+anova(m.1_H1.1_HLM,m.0_H1.1_HLM)
+summ(m.1_H1.1_HLM)
+summary(m.1_H1.1_HLM)
+
+# step 3: add the predictors, racecat2
+m.2_H1.1_HLM <- lm(LSM_function_mean ~ 
+             racecat2, data = H1.1_df)
+anova(m.1_H1.1_HLM,m.2_H1.1_HLM)
+summary(m.2_H1.1_HLM)
+summ(m.2_H1.1_HLM)
+plot(m.2_H1.1_HLM)
+sjPlot::tab_model(m.2_H1.1_HLM)
+
+
+# model H1.2
+############
+
+m.0_H1.2_HLM <- lm(LSM_function_mean ~ 1, data = H1.2_df)
+summary(m.0_H1.2_HLM)
+summ(m.0_H1.2_HLM)
+
+# step 2: add the culstering variable --> "provider_id"
+m.1_H1.2_HLM <- lmer(LSM_function_mean ~ 1 + (1|provider_id), 
+                        data = H1.2_df)
+
+# test for fit of grouping structure
+anova(m.1_H1.2_HLM,m.0_H1.2_HLM)
+summ(m.1_H1.2_HLM)
+summary(m.1_H1.2_HLM)
+
+# step 3: add the predictors, raceconc
+m.2_H1.2_HLM <- lm(LSM_function_mean ~ 
+               raceconc, data = H1.2_df)
+anova(m.1_H1.2_HLM,m.2_H1.2_HLM)
+summary(m.2_H1.2_HLM)
+summ(m.2_H1.2_HLM)
+plot(m.2_H1.2_HLM)
+sjPlot::tab_model(m.2_H1.2_HLM)
+
+# model H1.3
+############
+
+
+m.0_H1.3_HLM <- lm(LSM_function_mean ~ 1, data = H1.3_df)
+summary(m.0_H1.3_HLM)
+summ(m.0_H1.3_HLM)
+
+# step 2: add the culstering variable --> "provider_id"
+m.1_H1.3_HLM <- lmer(LSM_function_mean ~ 1 + (1|provider_id), 
+                        data = H1.3_df)
+
+# test for fit of grouping structure
+anova(m.1_H1.3_HLM,m.0_H1.3_HLM)
+summ(m.1_H1.3_HLM)
+summary(m.1_H1.3_HLM)
+
+# step 3: add the predictors, cultdiss, cultdissmd
+m.2_H1.3_HLM <- lm(LSM_function_mean ~ 
+                     cultdiss +
+                     cultdissmd, data = H1.3_df)
+anova(m.1_H1.3_HLM,m.2_H1.3_HLM)
+summary(m.2_H1.3_HLM)
+summ(m.2_H1.3_HLM)
+plot(m.2_H1.3_HLM)
+sjPlot::tab_model(m.2_H1.3_HLM)
+
+
+
+
+# model H3a.1
+############
+
+
+# model H3a.2
+############
+
+# model H3a.3
+############
+
+# model H3a.4
+############
+
+# model H3a.5
+############
+
+# model H3a.6
+############
+
+
+# model H3b.1
+############
+
+
+
+
+
+###################################################################
+###################################################################
+###################################################################
+###################################################################
+
+
+
 # Hypothesis one: 
 # Ha: LSM will be [lower with racial/ethnic minority patients], 
 # and [higher within dyads characterized by race concordance], 
