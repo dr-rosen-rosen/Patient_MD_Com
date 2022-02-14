@@ -19,7 +19,7 @@ ECHO_LSM_MLM$LSM_function_mean_scaled <- scale(ECHO_LSM_MLM$LSM_function_mean)
 
 H1.1_df <- ECHO_LSM_MLM %>%
   dplyr::select(provider_id, LSM_function_mean, racecat2) %>%
-  #dplyr::filter(racecat2 !=4) %>%
+  dplyr::filter(racecat2 !=4) %>%
   #added levels to the factor because the order without it was 2, 1, 3
   mutate(racecat2 = factor(racecat2, levels = c("1","2","3"))) %>%
   #mutate(across(!provider_id & !racecat2, ~scale(.,center = TRUE, scale = TRUE))) %>%
@@ -32,8 +32,24 @@ H1.2_df <- ECHO_LSM_MLM %>%
 
 #need to add the dissimilarity distance variable
 H1.3_df <- ECHO_LSM_MLM %>%
-  dplyr::select(provider_id, LSM_function_mean, cultdiss, cultdissmd) %>%
-  tidyr::drop_na()
+  dplyr::select(provider_id, LSM_function_mean, 
+                cultdiss, cultdissmd,
+                cdspeak,cdreason,cdstyle,cdvalue,cdspirit,cdethnic,cdtype,cdrace,cdculture,cdskin,
+                cultdissmd1, cultdissmd2, cultdissmd3, cultdissmd4, cultdissmd5, cultdissmd6, cultdissmd7, cultdissmd8, cultdissmd9, cultdissmd10) %>%
+  tidyr::drop_na() %>% # take only rows with no NA;
+  mutate(
+    cdAvg_dist = abs(cultdiss - cultdissmd),
+    cdspeak_dist = abs(cdspeak - cultdissmd1),
+    cdreason_dist = abs(cdreason - cultdissmd2),
+    cdstyle_dist = abs(cdstyle - cultdissmd3),
+    cdvalue_dist = abs(cdvalue - cultdissmd4),
+    cdspirit_dist = abs(cdspirit - cultdissmd5),
+    cdethnic_dist = abs(cdethnic - cultdissmd6),
+    cdtype_dist = abs(cdtype - cultdissmd7),
+    cdrace_dist = abs(cdrace - cultdissmd8),
+    cdculture_dist = abs(cdculture - cultdissmd9),
+    cdskin_dist = abs(cdskin - cultdissmd10)
+  )
 
 H3a.1_df <- ECHO_LSM_MLM %>%
   dplyr::select(LSM_function_mean, provider_id, provcomm) %>%
