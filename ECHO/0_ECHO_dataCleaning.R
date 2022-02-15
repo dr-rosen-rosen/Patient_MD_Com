@@ -16,7 +16,6 @@ ECHO_LSM_MLM <- ECHO_LSM_MLM %>%
 ECHO_LSM_MLM$LSM_function_mean_scaled <- scale(ECHO_LSM_MLM$LSM_function_mean)
 
 
-
 H1.1_df <- ECHO_LSM_MLM %>%
   dplyr::select(provider_id, LSM_function_mean, racecat2) %>%
   dplyr::filter(racecat2 !=4) %>%
@@ -38,36 +37,62 @@ H1.3_df <- ECHO_LSM_MLM %>%
                 cultdissmd1, cultdissmd2, cultdissmd3, cultdissmd4, cultdissmd5, cultdissmd6, cultdissmd7, cultdissmd8, cultdissmd9, cultdissmd10) %>%
   tidyr::drop_na() %>% # take only rows with no NA;
   mutate(
-    cdAvg_dist = abs(cultdiss - cultdissmd),
-    cdspeak_dist = abs(cdspeak - cultdissmd1),
-    cdreason_dist = abs(cdreason - cultdissmd2),
-    cdstyle_dist = abs(cdstyle - cultdissmd3),
-    cdvalue_dist = abs(cdvalue - cultdissmd4),
-    cdspirit_dist = abs(cdspirit - cultdissmd5),
-    cdethnic_dist = abs(cdethnic - cultdissmd6),
-    cdtype_dist = abs(cdtype - cultdissmd7),
-    cdrace_dist = abs(cdrace - cultdissmd8),
-    cdculture_dist = abs(cdculture - cultdissmd9),
-    cdskin_dist = abs(cdskin - cultdissmd10)
+    cdAvg_dist_abs = abs(cultdiss - cultdissmd),
+    cdspeak_dist_abs = abs(cdspeak - cultdissmd1),
+    cdreason_dist_abs = abs(cdreason - cultdissmd2),
+    cdstyle_dist_abs = abs(cdstyle - cultdissmd3),
+    cdvalue_dist_abs = abs(cdvalue - cultdissmd4),
+    cdspirit_dist_abs = abs(cdspirit - cultdissmd5),
+    cdethnic_dist_abs = abs(cdethnic - cultdissmd6),
+    cdtype_dist_abs = abs(cdtype - cultdissmd7),
+    cdrace_dist_abs = abs(cdrace - cultdissmd8),
+    cdculture_dist_abs = abs(cdculture - cultdissmd9),
+    cdskin_dist_abs = abs(cdskin - cultdissmd10),
+    cdAvg_dist = (cultdiss - cultdissmd),
+    cdspeak_dist = (cdspeak - cultdissmd1),
+    cdreason_dist = (cdreason - cultdissmd2),
+    cdstyle_dist = (cdstyle - cultdissmd3),
+    cdvalue_dist = (cdvalue - cultdissmd4),
+    cdspirit_dist = (cdspirit - cultdissmd5),
+    cdethnic_dist = (cdethnic - cultdissmd6),
+    cdtype_dist = (cdtype - cultdissmd7),
+    cdrace_dist = (cdrace - cultdissmd8),
+    cdculture_dist = (cdculture - cultdissmd9),
+    cdskin_dist = (cdskin - cultdissmd10)
   )
 
 H3a.1_df <- ECHO_LSM_MLM %>%
-  dplyr::select(LSM_function_mean, provider_id, provcomm) %>%
+  dplyr::select(LSM_function_mean, provider_id, 
+                provcomm, pcwords, pcfast, pctime,	
+                pclisten, pcignore,	pcinfo,	pchealthprob,	
+                pcanytest, pcwhytest,	pchowtest, pcexamine,	
+                pcconfuse, pccarehome, pcsymp, pchowmeds, 	
+                pcgoovermeds,	pcwritemeds, pcreasonmeds,	
+                pcsemeds,	pcdiff,	pcactivities,	pcinvolvedec,	
+                pcfelttreat, pcprefopin, pcpressure, pcaskprob, pcunderprob) %>%
   tidyr::drop_na()
   
 
 H3a.2_df <- ECHO_LSM_MLM %>%
-  dplyr::select( provider_id, LSM_function_mean, overcomm) %>%
+  dplyr::select( provider_id, LSM_function_mean, overcomm, ocexplain,	
+                 ocgive, octell, occare, ocunderstand) %>%
   tidyr::drop_na()
 
 
 H3a.3_df <- ECHO_LSM_MLM %>%
-  dplyr::select(LSM_function_mean, provider_id, ipstyle) %>%
+  dplyr::select(LSM_function_mean, provider_id, ipstyle, 
+                ipfriend,	ipwelcome, iprude, ipcare,	
+                ipname,	iptalkfront, ippriv, ipinferior,	
+                ipnegattitude, ipdiscrimrace, ipdiscrimeduc,	
+                iplessworry, ipcompliment, ipcompassion) %>%
   tidyr::drop_na()
 
 
 H3a.4_df <- ECHO_LSM_MLM %>%
-  dplyr::select(LSM_function_mean, provider_id, iptrust) %>%
+  dplyr::select(LSM_function_mean, provider_id, iptrust, 
+                iptdoubtcare,	iptconsiderate,	iptadvice,	
+                ipttrue, iptdistrust, iptjudge,	iptnotdo,	
+                iptaboveall, iptwellqual, iptmistake, iptinfopriv) %>%
   tidyr::drop_na()
 
 
@@ -81,6 +106,6 @@ H3a.6_df <- ECHO_LSM_MLM %>%
   tidyr::drop_na()
 
 
-H3b.1 <- ECHO_LSM_MLM %>%
+H3b.1_df <- ECHO_LSM_MLM %>%
   dplyr::select(LSM_function_mean, provider_id, vlsup75) %>%
   tidyr::drop_na()
