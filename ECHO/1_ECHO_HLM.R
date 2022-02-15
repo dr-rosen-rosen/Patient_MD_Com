@@ -78,13 +78,35 @@ summary(m.1_H1.3_HLM)
 # step 3: add the predictors, cultdiss, cultdissmd
 m.2_H1.3_HLM <- lm(LSM_function_mean ~ 
                      cultdiss +
-                     cultdissmd, data = H1.3_df)
+                     cultdissmd +
+                     # cdAvg_dist_abs +
+                     # cdspeak_dist_abs +
+                     # cdreason_dist_abs +
+                     # cdstyle_dist_abs +
+                     # cdvalue_dist_abs +
+                     # cdspirit_dist_abs +
+                     # cdethnic_dist_abs +
+                     # cdtype_dist_abs +
+                     # cdrace_dist_abs +
+                     # cdculture_dist_abs +
+                     # cdskin_dist_abs +
+                     # cdAvg_dist +
+                     # cdspeak_dist +
+                     # cdreason_dist +
+                     # cdstyle_dist +
+                     # cdvalue_dist +
+                     # cdspirit_dist +
+                     # cdethnic_dist +
+                     # cdtype_dist +
+                     # cdrace_dist +
+                     # cdculture_dist +
+                     # cdskin_dist
+                   , data = H1.3_df)
 anova(m.1_H1.3_HLM,m.2_H1.3_HLM)
 summary(m.2_H1.3_HLM)
 summ(m.2_H1.3_HLM)
 plot(m.2_H1.3_HLM)
 sjPlot::tab_model(m.2_H1.3_HLM)
-
 
 
 
@@ -101,12 +123,13 @@ anova(m.1_H3a.1_HLM,m.0_H3a.1_HLM)
 
 # step 3: add the predictors
 m.2_H3a.1_HLM <- lmer(provcomm ~ 
-                  LSM_function_mean, 
+                  LSM_function_mean+  
                   (1|provider_id), data = H3a.1_df)
 anova(m.1_H3a.1_HLM,m.2_H3a.1_HLM)
 summary(m.2_H3a.1_HLM)
 
 sjPlot::tab_model(m.2_H3a.1_HLM)
+
 
 # model H3a.2
 ############
@@ -121,12 +144,13 @@ anova(m.1_H3a.2_HLM,m.0_H3a.2_HLM)
 
 # step 3: add the predictors
 m.2_H3a.2_HLM <- lmer(overcomm ~ 
-                        LSM_function_mean, 
+                        LSM_function_mean + 
                       (1|provider_id), data = H3a.2_df)
 anova(m.1_H3a.2_HLM,m.2_H3a.2_HLM)
 summary(m.2_H3a.2_HLM)
 
 sjPlot::tab_model(m.2_H3a.2_HLM)
+
 
 # model H3a.3
 ############
@@ -140,12 +164,13 @@ anova(m.1_H3a.3_HLM,m.0_H3a.3_HLM)
 
 # step 3: add the predictors
 m.2_H3a.3_HLM <- lmer(ipstyle ~ 
-                        LSM_function_mean, 
+                        LSM_function_mean + 
                       (1|provider_id), data = H3a.3_df)
 anova(m.1_H3a.3_HLM,m.2_H3a.3_HLM)
 summary(m.2_H3a.3_HLM)
 
 sjPlot::tab_model(m.2_H3a.3_HLM)
+
 
 # model H3a.4
 ############
@@ -160,12 +185,13 @@ anova(m.1_H3a.4_HLM,m.0_H3a.4_HLM)
 
 # step 3: add the predictors
 m.2_H3a.4_HLM <- lmer(iptrust ~ 
-                        LSM_function_mean, 
+                        LSM_function_mean + 
                       (1|provider_id), data = H3a.4_df)
 anova(m.1_H3a.4_HLM,m.2_H3a.4_HLM)
 summary(m.2_H3a.4_HLM)
 
 sjPlot::tab_model(m.2_H3a.4_HLM)
+
 
 # model H3a.5
 ############
@@ -180,7 +206,7 @@ anova(m.1_H3a.5_HLM,m.0_H3a.5_HLM)
 
 # step 3: add the predictors
 m.2_H3a.5_HLM <- glmer(provknowcat ~ 
-                        LSM_function_mean, 
+                        LSM_function_mean + 
                       (1|provider_id), family = 'binomial', data = H3a.5_df)
 anova(m.1_H3a.5_HLM,m.2_H3a.5_HLM)
 summary(m.2_H3a.5_HLM)
@@ -200,7 +226,7 @@ anova(m.1_H3a.6_HLM,m.0_H3a.6_HLM)
 
 # step 3: add the predictors
 m.2_H3a.6_HLM <- lmer(overallsat ~ 
-                         LSM_function_mean, 
+                         LSM_function_mean + 
                        (1|provider_id), data = H3a.6_df)
 anova(m.1_H3a.6_HLM,m.2_H3a.6_HLM)
 summary(m.2_H3a.6_HLM)
