@@ -5,7 +5,7 @@ library(tidyverse)
 library(here)
 library(config)
 
-Sys.setenv(R_CONFIG_ACTIVE = "mike") # 'default')#
+Sys.setenv(R_CONFIG_ACTIVE = "salar") # 'default')#
 config <- config::get()
 
 #open file
@@ -54,8 +54,10 @@ H1.3_df <- ECHO_LSM_MLM %>%
     cdtype_dist_abs = abs(cdtype - cultdissmd7),
     cdrace_dist_abs = abs(cdrace - cultdissmd8),
     cdculture_dist_abs = abs(cdculture - cultdissmd9),
-    cdskin_dist_abs = abs(cdskin - cultdissmd10),
-    cdAvg_dist = (cultdiss - cultdissmd),
+    cdskin_dist_abs = abs(cdskin - cultdissmd10))
+    
+H1.3_df <- H1.3_df %>%
+  mutate(cdAvg_dist = (cultdiss - cultdissmd),
     cdspeak_dist = (cdspeak - cultdissmd1),
     cdreason_dist = (cdreason - cultdissmd2),
     cdstyle_dist = (cdstyle - cultdissmd3),
@@ -67,6 +69,8 @@ H1.3_df <- ECHO_LSM_MLM %>%
     cdculture_dist = (cdculture - cultdissmd9),
     cdskin_dist = (cdskin - cultdissmd10)
   )
+
+
 
 H3a.1_df <- ECHO_LSM_MLM %>%
   dplyr::select(LSM_function_mean, provider_id, 
@@ -91,7 +95,12 @@ H3a.3_df <- ECHO_LSM_MLM %>%
                 ipfriend,	ipwelcome, iprude, ipcare,	
                 ipname,	iptalkfront, ippriv, ipinferior,	
                 ipnegattitude, ipdiscrimrace, ipdiscrimeduc,	
-                iplessworry, ipcompliment, ipcompassion) %>%
+                iplessworry, ipcompliment, ipcompassion, 
+                WC_D, WC_P, WPS_D, WPS_P, Sixltr_D, Sixltr_P, 
+                affiliation_D,affiliation_P, i_D, i_P, Clout_D, 
+                Clout_P, differ_D, differ_P, Clout_D, Clout_P, 
+                insight_D, insight_P, cause_D, cause_P,negemo_P, 
+                negemo_D) %>%
   tidyr::drop_na()
 
 
@@ -99,20 +108,40 @@ H3a.4_df <- ECHO_LSM_MLM %>%
   dplyr::select(LSM_function_mean, provider_id, iptrust, 
                 iptdoubtcare,	iptconsiderate,	iptadvice,	
                 ipttrue, iptdistrust, iptjudge,	iptnotdo,	
-                iptaboveall, iptwellqual, iptmistake, iptinfopriv) %>%
+                iptaboveall, iptwellqual, iptmistake, iptinfopriv,
+                WC_D, WC_P, WPS_D, WPS_P, Sixltr_D, Sixltr_P, 
+                affiliation_D,affiliation_P, i_D, i_P, Clout_D, 
+                Clout_P, differ_D, differ_P, Clout_D, Clout_P, 
+                insight_D, insight_P, cause_D, cause_P, negemo_P, 
+                negemo_D) %>%
   tidyr::drop_na()
 
 
 H3a.5_df <- ECHO_LSM_MLM %>%
-  dplyr::select(LSM_function_mean, provider_id, provknowcat) %>%
+  dplyr::select(LSM_function_mean, provider_id, provknowcat,
+                WC_D, WC_P, WPS_D, WPS_P, Sixltr_D, Sixltr_P, 
+                affiliation_D,affiliation_P, i_D, i_P, Clout_D, 
+                Clout_P, differ_D, differ_P, Clout_D, Clout_P, 
+                insight_D, insight_P, cause_D, cause_P, negemo_P, 
+                negemo_D) %>%
   tidyr::drop_na()
 
 
 H3a.6_df <- ECHO_LSM_MLM %>%
-  dplyr::select(LSM_function_mean, provider_id, overallsat) %>%
+  dplyr::select(LSM_function_mean, provider_id, overallsat,
+                WC_D, WC_P, WPS_D, WPS_P, Sixltr_D, Sixltr_P, 
+                affiliation_D,affiliation_P, i_D, i_P, Clout_D, 
+                Clout_P, differ_D, differ_P, Clout_D, Clout_P, 
+                insight_D, insight_P, cause_D, cause_P, negemo_P, 
+                negemo_D) %>%
   tidyr::drop_na()
 
 
 H3b.1_df <- ECHO_LSM_MLM %>%
-  dplyr::select(LSM_function_mean, provider_id, vlsup75) %>%
+  dplyr::select(LSM_function_mean, provider_id, vlsup75,
+                WC_D, WC_P, WPS_D, WPS_P, Sixltr_D, Sixltr_P, 
+                affiliation_D,affiliation_P, i_D, i_P, Clout_D, 
+                Clout_P, differ_D, differ_P, Clout_D, Clout_P, 
+                insight_D, insight_P, cause_D, cause_P, negemo_P, 
+                negemo_D) %>%
   tidyr::drop_na()
