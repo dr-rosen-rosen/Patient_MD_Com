@@ -1,6 +1,13 @@
 #############
 #### ECHO Scripts for data cleaning
 
+library(tidyverse)
+library(here)
+library(config)
+
+Sys.setenv(R_CONFIG_ACTIVE = "mike") # 'default')#
+config <- config::get()
+
 #open file
 ECHO_LSM_MLM <- read_csv(here(config$ECHO_LSM_MLM_path, config$ECHO_LSM_MLM_name))
 
@@ -13,7 +20,7 @@ ECHO_LSM_MLM <- ECHO_LSM_MLM %>%
   
 #Instead of attempt above, did scaling for LSM_function_mean using this method below...the values seem to be right
 #when I calculate values manually ((x- mean(x))/ sd(x))
-ECHO_LSM_MLM$LSM_function_mean_scaled <- scale(ECHO_LSM_MLM$LSM_function_mean)
+ECHO_LSM_MLM$LSM_function_mean_scaled <- scale(ECHO_LSM_MLM$LSM_function_mean, center = TRUE, scale = TRUE)
 
 
 H1.1_df <- ECHO_LSM_MLM %>%

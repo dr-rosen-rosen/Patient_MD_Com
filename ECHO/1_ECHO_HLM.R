@@ -67,7 +67,7 @@ summary(m.0_H1.3_HLM)
 summ(m.0_H1.3_HLM)
 
 # step 2: add the culstering variable --> "provider_id"
-m.1_H1.3_HLM <- lmer(LSM_function_mean ~ 1 + (1|provider_id), 
+m.1_H1.3_HLM <- lme4::lmer(LSM_function_mean ~ 1 + (1|provider_id), 
                         data = H1.3_df)
 
 # test for fit of grouping structure
@@ -77,8 +77,8 @@ summary(m.1_H1.3_HLM)
 
 # step 3: add the predictors, cultdiss, cultdissmd
 m.2_H1.3_HLM <- lm(LSM_function_mean ~ 
-                     cultdiss +
-                     cultdissmd +
+                     # cultdiss +
+                     # cultdissmd +
                      # cdAvg_dist_abs +
                      # cdspeak_dist_abs +
                      # cdreason_dist_abs +
@@ -89,18 +89,18 @@ m.2_H1.3_HLM <- lm(LSM_function_mean ~
                      # cdtype_dist_abs +
                      # cdrace_dist_abs +
                      # cdculture_dist_abs +
-                     # cdskin_dist_abs +
-                     # cdAvg_dist +
-                     # cdspeak_dist +
-                     # cdreason_dist +
-                     # cdstyle_dist +
-                     # cdvalue_dist +
-                     # cdspirit_dist +
-                     # cdethnic_dist +
-                     # cdtype_dist +
-                     # cdrace_dist +
-                     # cdculture_dist +
-                     # cdskin_dist
+                     # cdskin_dist_abs# +
+                     cdAvg_dist +
+                     cdspeak_dist +
+                     cdreason_dist +
+                     cdstyle_dist +
+                     cdvalue_dist +
+                     cdspirit_dist +
+                     cdethnic_dist +
+                     cdtype_dist +
+                     cdrace_dist +
+                     cdculture_dist +
+                     cdskin_dist
                    , data = H1.3_df)
 anova(m.1_H1.3_HLM,m.2_H1.3_HLM)
 summary(m.2_H1.3_HLM)
@@ -117,12 +117,12 @@ sjPlot::tab_model(m.2_H1.3_HLM)
 m.0_H3a.1_HLM <- lm(provcomm~ 1, data = H3a.1_df)
 
 # step 2: add the culstering variable.. MD
-m.1_H3a.1_HLM <- lmer(provcomm ~ 1 + (1|provider_id), data = H3a.1_df)
+m.1_H3a.1_HLM <- lme4::lmer(provcomm ~ 1 + (1|provider_id), data = H3a.1_df)
 # test for fit of grouping structure
 anova(m.1_H3a.1_HLM,m.0_H3a.1_HLM)
 
 # step 3: add the predictors
-m.2_H3a.1_HLM <- lmer(provcomm ~ 
+m.2_H3a.1_HLM <- lme4::lmer(provcomm ~ 
                   LSM_function_mean+  
                   (1|provider_id), data = H3a.1_df)
 anova(m.1_H3a.1_HLM,m.2_H3a.1_HLM)
