@@ -21,6 +21,45 @@ ECHO_LSM_MLM <- ECHO_LSM_MLM %>%
 #Instead of attempt above, did scaling for LSM_function_mean using this method below...the values seem to be right
 #when I calculate values manually ((x- mean(x))/ sd(x))
 ECHO_LSM_MLM$LSM_function_mean_scaled <- scale(ECHO_LSM_MLM$LSM_function_mean, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$LSM_WC_D_scaled <- scale(ECHO_LSM_MLM$WC_D, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$WC_P_scaled <- scale(ECHO_LSM_MLM$WC_P, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$WC_D_scaled <- scale(ECHO_LSM_MLM$WC_D, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$ WPS_P_scaled <- scale(ECHO_LSM_MLM$ WPS_P, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$WPS_D_scaled <- scale(ECHO_LSM_MLM$WPS_D, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$Sixltr_D_scaled <- scale(ECHO_LSM_MLM$Sixltr_D, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$Sixltr_P_scaled <- scale(ECHO_LSM_MLM$Sixltr_P, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$affiliation_D_scaled <- scale(ECHO_LSM_MLM$affiliation_D, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$affiliation_P_scaled <- scale(ECHO_LSM_MLM$affiliation_P, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$i_D_scaled <- scale(ECHO_LSM_MLM$i_D, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$i_P_scaled <- scale(ECHO_LSM_MLM$i_P, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$Clout_D_scaled <- scale(ECHO_LSM_MLM$Clout_D, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$Clout_P_scaled <- scale(ECHO_LSM_MLM$Clout_P, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$differ_D_scaled <- scale(ECHO_LSM_MLM$differ_D, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$differ_P_scaled <- scale(ECHO_LSM_MLM$differ_P, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$Clout_D_scaled <- scale(ECHO_LSM_MLM$Clout_D, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$Clout_P_scaled <- scale(ECHO_LSM_MLM$Clout_P, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$differ_D_scaled <- scale(ECHO_LSM_MLM$differ_D, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$differ_P_scaled <- scale(ECHO_LSM_MLM$differ_P, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$insight_D_scaled <- scale(ECHO_LSM_MLM$insight_D, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$cause_D_scaled <- scale(ECHO_LSM_MLM$cause_D, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$cause_P_scaled <- scale(ECHO_LSM_MLM$cause_P, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$insight_P_scaled <- scale(ECHO_LSM_MLM$insight_P, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$negemo_P_scaled <- scale(ECHO_LSM_MLM$negemo_P, center = TRUE, scale = TRUE)
+ECHO_LSM_MLM$negemo_D_scaled <- scale(ECHO_LSM_MLM$negemo_D, center = TRUE, scale = TRUE)
+
+
+
+
+
+# WC_D, WC_P, WPS_D, WPS_P, Sixltr_D, Sixltr_P, 
+# affiliation_D,affiliation_P, i_D, i_P, Clout_D, 
+# Clout_P, differ_D, differ_P, 
+# insight_D, insight_P, cause_D, cause_P, negemo_P, 
+# negemo_D
+
+
+
+
 
 
 H1.1_df <- ECHO_LSM_MLM %>%
@@ -80,13 +119,22 @@ H3a.1_df <- ECHO_LSM_MLM %>%
                 pcconfuse, pccarehome, pcsymp, pchowmeds, 	
                 pcgoovermeds,	pcwritemeds, pcreasonmeds,	
                 pcsemeds,	pcdiff,	pcactivities,	pcinvolvedec,	
-                pcfelttreat, pcprefopin, pcpressure, pcaskprob, pcunderprob) %>%
+                pcfelttreat, pcprefopin, pcpressure, pcaskprob, pcunderprob,
+                WC_D_scaled, WC_P_scaled, WPS_D_scaled, WPS_P_scaled, Sixltr_D_scaled, Sixltr_P_scaled, 
+                affiliation_D_scaled,affiliation_P_scaled, i_D_scaled, i_P_scaled, Clout_D_scaled, 
+                Clout_P_scaled, differ_D_scaled, differ_P_scaled, Clout_D_scaled, Clout_P_scaled, 
+                insight_D_scaled, insight_P_scaled, cause_D_scaled, cause_P_scaled, negemo_P_scaled, 
+                negemo_D_scaled) %>%
   tidyr::drop_na()
   
 
 H3a.2_df <- ECHO_LSM_MLM %>%
   dplyr::select( provider_id, LSM_function_mean, overcomm, ocexplain,	
-                 ocgive, octell, occare, ocunderstand) %>%
+                 ocgive, octell, occare, ocunderstand, WC_D_scaled, WC_P_scaled, WPS_D_scaled, WPS_P_scaled, Sixltr_D_scaled, Sixltr_P_scaled, 
+                 affiliation_D_scaled,affiliation_P_scaled, i_D_scaled, i_P_scaled, Clout_D_scaled, 
+                 Clout_P_scaled, differ_D_scaled, differ_P_scaled, Clout_D_scaled, Clout_P_scaled, 
+                 insight_D_scaled, insight_P_scaled, cause_D_scaled, cause_P_scaled, negemo_P_scaled, 
+                 negemo_D_scaled) %>%
   tidyr::drop_na()
 
 
@@ -96,11 +144,11 @@ H3a.3_df <- ECHO_LSM_MLM %>%
                 ipname,	iptalkfront, ippriv, ipinferior,	
                 ipnegattitude, ipdiscrimrace, ipdiscrimeduc,	
                 iplessworry, ipcompliment, ipcompassion, 
-                WC_D, WC_P, WPS_D, WPS_P, Sixltr_D, Sixltr_P, 
-                affiliation_D,affiliation_P, i_D, i_P, Clout_D, 
-                Clout_P, differ_D, differ_P, Clout_D, Clout_P, 
-                insight_D, insight_P, cause_D, cause_P,negemo_P, 
-                negemo_D) %>%
+                WC_D_scaled, WC_P_scaled, WPS_D_scaled, WPS_P_scaled, Sixltr_D_scaled, Sixltr_P_scaled, 
+                affiliation_D_scaled,affiliation_P_scaled, i_D_scaled, i_P_scaled, Clout_D_scaled, 
+                Clout_P_scaled, differ_D_scaled, differ_P_scaled, Clout_D_scaled, Clout_P_scaled, 
+                insight_D_scaled, insight_P_scaled, cause_D_scaled, cause_P_scaled, negemo_P_scaled, 
+                negemo_D_scaled) %>%
   tidyr::drop_na()
 
 
@@ -109,21 +157,21 @@ H3a.4_df <- ECHO_LSM_MLM %>%
                 iptdoubtcare,	iptconsiderate,	iptadvice,	
                 ipttrue, iptdistrust, iptjudge,	iptnotdo,	
                 iptaboveall, iptwellqual, iptmistake, iptinfopriv,
-                WC_D, WC_P, WPS_D, WPS_P, Sixltr_D, Sixltr_P, 
-                affiliation_D,affiliation_P, i_D, i_P, Clout_D, 
-                Clout_P, differ_D, differ_P, Clout_D, Clout_P, 
-                insight_D, insight_P, cause_D, cause_P, negemo_P, 
-                negemo_D) %>%
+                WC_D_scaled, WC_P_scaled, WPS_D_scaled, WPS_P_scaled, Sixltr_D_scaled, Sixltr_P_scaled, 
+                affiliation_D_scaled,affiliation_P_scaled, i_D_scaled, i_P_scaled, Clout_D_scaled, 
+                Clout_P_scaled, differ_D_scaled, differ_P_scaled, Clout_D_scaled, Clout_P_scaled, 
+                insight_D_scaled, insight_P_scaled, cause_D_scaled, cause_P_scaled, negemo_P_scaled, 
+                negemo_D_scaled) %>%
   tidyr::drop_na()
 
 
 H3a.5_df <- ECHO_LSM_MLM %>%
   dplyr::select(LSM_function_mean, provider_id, provknowcat,
-                WC_D, WC_P, WPS_D, WPS_P, Sixltr_D, Sixltr_P, 
-                affiliation_D,affiliation_P, i_D, i_P, Clout_D, 
-                Clout_P, differ_D, differ_P, Clout_D, Clout_P, 
-                insight_D, insight_P, cause_D, cause_P, negemo_P, 
-                negemo_D) %>%
+                WC_D_scaled, WC_P_scaled, WPS_D_scaled, WPS_P_scaled, Sixltr_D_scaled, Sixltr_P_scaled, 
+                affiliation_D_scaled,affiliation_P_scaled, i_D_scaled, i_P_scaled, Clout_D_scaled, 
+                Clout_P_scaled, differ_D_scaled, differ_P_scaled, Clout_D_scaled, Clout_P_scaled, 
+                insight_D_scaled, insight_P_scaled, cause_D_scaled, cause_P_scaled, negemo_P_scaled, 
+                negemo_D_scaled) %>%
   tidyr::drop_na()
 
 
@@ -139,9 +187,9 @@ H3a.6_df <- ECHO_LSM_MLM %>%
 
 H3b.1_df <- ECHO_LSM_MLM %>%
   dplyr::select(LSM_function_mean, provider_id, vlsup75,
-                WC_D, WC_P, WPS_D, WPS_P, Sixltr_D, Sixltr_P, 
-                affiliation_D,affiliation_P, i_D, i_P, Clout_D, 
-                Clout_P, differ_D, differ_P, Clout_D, Clout_P, 
-                insight_D, insight_P, cause_D, cause_P, negemo_P, 
-                negemo_D) %>%
+                WC_D_scaled, WC_P_scaled, WPS_D_scaled, WPS_P_scaled, Sixltr_D_scaled, Sixltr_P_scaled, 
+                affiliation_D_scaled,affiliation_P_scaled, i_D_scaled, i_P_scaled, Clout_D_scaled, 
+                Clout_P_scaled, differ_D_scaled, differ_P_scaled, Clout_D_scaled, Clout_P_scaled, 
+                insight_D_scaled, insight_P_scaled, cause_D_scaled, cause_P_scaled, negemo_P_scaled, 
+                negemo_D_scaled) %>%
   tidyr::drop_na()
