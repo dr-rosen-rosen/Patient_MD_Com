@@ -127,26 +127,27 @@ anova(m.1_H3a.1_HLM,m.0_H3a.1_HLM)
 # step 3: add the predictors
 m.2_H3a.1_HLM <- lme4::lmer(provcomm ~ 
                   LSM_function_mean+
-                  # WC_D+ 
-                  # WC_P+
-                  WPS_D+
-                  WPS_P+
-                  Sixltr_D+
-                  Sixltr_P+
-                  # affiliation_D+
-                  # affiliation_P+ 
-                  # i_D+
-                  # i_P+ 
-                  # Clout_D+ 
-                  # Clout_P+
-                  # differ_D+ 
-                  # differ_P+ 
-                  # Clout_D+ 
-                  # Clout_P+ 
-                  # insight_D+ 
-                  # insight_P+
-                  # cause_D+ 
-                  # cause_P+
+                    LSM_function_mean + 
+                    WC_D_scaled+
+                    WC_P_scaled+
+                    # WPS_D_scaled+
+                    # WPS_P_scaled+
+                    Sixltr_D_scaled+
+                    Sixltr_P_scaled+
+                    # affiliation_D_scaled+
+                    # affiliation_P_scaled+
+                    # i_D_scaled+
+                    # i_P_scaled+
+                    # Clout_D_scaled+
+                    # Clout_P_scaled+
+                    # differ_D_scaled+
+                    # differ_P_scaled+
+                    # Clout_D_scaled+
+                    # Clout_P_scaled+
+                    # insight_D_scaled+
+                    # insight_P_scaled+
+                    # cause_D_scaled+
+                    # cause_P_scaled+
                   (1|provider_id), data = H3a.1_df)
 anova(m.1_H3a.1_HLM,m.2_H3a.1_HLM)
 summary(m.2_H3a.1_HLM)
@@ -168,6 +169,26 @@ anova(m.1_H3a.2_HLM,m.0_H3a.2_HLM)
 # step 3: add the predictors
 m.2_H3a.2_HLM <- lmer(overcomm ~ 
                         LSM_function_mean + 
+                        WC_D_scaled+
+                        WC_P_scaled+
+                        WPS_D_scaled+
+                        WPS_P_scaled+
+                        Sixltr_D_scaled+
+                        Sixltr_P_scaled+
+                      affiliation_D_scaled+
+                      affiliation_P_scaled+
+                      i_D_scaled+
+                      i_P_scaled+
+                      Clout_D_scaled+
+                      Clout_P_scaled+
+                      differ_D_scaled+
+                      differ_P_scaled+
+                      Clout_D_scaled+
+                      Clout_P_scaled+
+                      insight_D_scaled+
+                      insight_P_scaled+
+                      cause_D_scaled+
+                      cause_P_scaled+
                       (1|provider_id), data = H3a.2_df)
 anova(m.1_H3a.2_HLM,m.2_H3a.2_HLM)
 summary(m.2_H3a.2_HLM)
@@ -188,26 +209,26 @@ anova(m.1_H3a.3_HLM,m.0_H3a.3_HLM)
 # step 3: add the predictors
 m.2_H3a.3_HLM <- lmer(ipstyle ~ 
                         LSM_function_mean +
-                        WC_D+
-                        WC_P+
-                        WPS_D+
-                        WPS_P+
-                        Sixltr_D+
-                        Sixltr_P+
-                        affiliation_D+
-                        affiliation_P+
-                        i_D+
-                        i_P+
-                        Clout_D+
-                        Clout_P+
-                        differ_D+
-                        differ_P+
-                        Clout_D+
-                        Clout_P+
-                        insight_D+
-                        insight_P+
-                        cause_D+
-                        cause_P+
+                        WC_D_scaled+
+                        WC_P_scaled+
+                        WPS_D_scaled+
+                        WPS_P_scaled+
+                        Sixltr_D_scaled+
+                        Sixltr_P_scaled+
+                        affiliation_D_scaled+
+                        affiliation_P_scaled+
+                        i_D_scaled+
+                        i_P_scaled+
+                        Clout_D_scaled+
+                        Clout_P_scaled+
+                        differ_D_scaled+
+                        differ_P_scaled+
+                        Clout_D_scaled+
+                        Clout_P_scaled+
+                        insight_D_scaled+
+                        insight_P_scaled+
+                        cause_D_scaled+
+                        cause_P_scaled+
                       (1|provider_id), data = H3a.3_df)
 anova(m.1_H3a.3_HLM,m.2_H3a.3_HLM)
 summary(m.2_H3a.3_HLM)
@@ -229,26 +250,26 @@ anova(m.1_H3a.4_HLM,m.0_H3a.4_HLM)
 # step 3: add the predictors
 m.2_H3a.4_HLM <- lmer(iptrust ~ 
                       LSM_function_mean + 
-                      WC_D+
-                      WC_P+
-                      WPS_D+
-                      WPS_P+
-                      Sixltr_D+
-                      Sixltr_P+
-                      affiliation_D+
-                      affiliation_P+
-                      i_D+
-                      i_P+
-                      Clout_D+
-                      Clout_P+
-                      differ_D+
-                      differ_P+
-                      Clout_D+
-                      Clout_P+
-                      insight_D+
-                      insight_P+
-                      cause_D+
-                      cause_P+
+                      WC_D_scaled+
+                      WC_P_scaled+
+                      WPS_D_scaled+
+                      WPS_P_scaled+
+                      Sixltr_D_scaled+
+                      Sixltr_P_scaled+
+                      affiliation_D_scaled+
+                      affiliation_P_scaled+
+                      i_D_scaled+
+                      i_P_scaled+
+                      Clout_D_scaled+
+                      Clout_P_scaled+
+                      differ_D_scaled+
+                      differ_P_scaled+
+                      Clout_D_scaled+
+                      Clout_P_scaled+
+                      insight_D_scaled+
+                      insight_P_scaled+
+                      cause_D_scaled+
+                      cause_P_scaled+
                       (1|provider_id), data = H3a.4_df)
 anova(m.1_H3a.4_HLM,m.2_H3a.4_HLM)
 summary(m.2_H3a.4_HLM)
@@ -311,10 +332,10 @@ summary(m.1_H3b.1_HLM)
 m.2_H3b.1_HLM <- glmer(factor(vlsup75) ~ 
                      LSM_function_mean +
                      LSM_function_mean + 
-                     i_D+
-                     i_P+
-                     negemo_D+
-                     negemo_P+
+                     i_D_scaled+
+                     i_P_scaled+
+                     negemo_D_scaled+
+                     negemo_P_scaled+
                    (1|provider_id),
                  family = 'binomial',
                  data = H3b.1_df)
