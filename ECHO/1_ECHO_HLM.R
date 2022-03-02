@@ -5,8 +5,10 @@
 library(lme4)
 library(jtools)
 library(sjPlot)
-install.packages("glmer")
-library(glmer)
+
+#Used lme4 to run glmer by adding  "family = 'binomial'" to code
+#install.packages("glmer")
+#library(glmer)
 
 # model H1.1.1: LSM(outcome) will be [lower with racial/ethnic minority patients]
 ############################################################################################################
