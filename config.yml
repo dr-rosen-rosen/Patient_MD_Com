@@ -3,6 +3,7 @@ default:
     liwc_f_name: "conv_LSM_df_LIWC2015_Results_notext.csv"
     liwc_f_V2_name: "conv_LSM_df_LIWC2015_Results_Update.xlsx"
     ECHO_LSM_MLM_name: "ECHO_LSM_MLM.csv"
+    ECHO_LSM_TbyT_name: "rLSM.csv"
     
 mike:
     transcript_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
@@ -10,9 +11,11 @@ mike:
     liwc_f_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis'
     liwc_f_V2_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis'
     ECHO_LSM_MLM_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
+    ECHO_LSM_TbyT_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
 salar:
     transcript_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
     annies_role_file: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/MaRIPOHSA_Transcripts_SpeakerRole_Annie.csv'
     liwc_f_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis'
     liwc_f_V2_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis'
     ECHO_LSM_MLM_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
+    ECHO_LSM_TbyT_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
