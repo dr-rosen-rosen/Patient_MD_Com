@@ -16,21 +16,26 @@ library(sjPlot)
 ############################################################################################################
 
 # step 1: Null model
-m.0_H1.1_HLM <- lm(LSM_function_mean ~ 1, data = H1.1_df)
+m.0_H1.1_HLM <- lm(
+  # LSM_function_mean ~ 1, 
+  # rLSM.D ~ 1,
+  rLSM.D ~ 1,
+  data = H1.1_df)
 summary(m.0_H1.1_HLM)
 summ(m.0_H1.1_HLM)
 
 # step 2: add the culstering variable --> "provider_id"
-m.1_H1.1_HLM <- lmer(LSM_function_mean ~ 1 + (1|provider_id), 
+m.1_H1.1_HLM <- lmer(rLSM.P ~ 1 + (1|provider_id), 
                      data = H1.1_df)
 
 # test for fit of grouping structure
 anova(m.1_H1.1_HLM,m.0_H1.1_HLM)
 summ(m.1_H1.1_HLM)
 summary(m.1_H1.1_HLM)
+sjPlot::tab_model(m.1_H1.1_HLM)
 
 # step 3: add the predictors, racecat2
-m.2_H1.1_HLM <- lm(LSM_function_mean ~ 
+m.2_H1.1_HLM_rLSM.D <- lm(rLSM.D ~ 
                        racecat2 +
                        cdspeak + 
                        cdreason +
@@ -48,6 +53,7 @@ summary(m.2_H1.1_HLM)
 summ(m.2_H1.1_HLM)
 plot(m.2_H1.1_HLM)
 sjPlot::tab_model(m.2_H1.1_HLM)
+sjPlot::tab_model(m.2_H1.1_HLM_conv,m.2_H1.1_HLM_rLSM.P,m.2_H1.1_HLM_rLSM.D)
 
 
 ############################################################################################################
@@ -68,7 +74,7 @@ summ(m.1_H1.2_HLM)
 summary(m.1_H1.2_HLM)
 
 # step 3: add the predictors, raceconc
-m.2_H1.2_HLM <- lmer(LSM_function_mean ~ 
+m.2_H1.2_HLM <- lm(LSM_function_mean ~ 
                raceconc, data = H1.2_df)
 anova(m.1_H1.2_HLM,m.2_H1.2_HLM)
 summary(m.2_H1.2_HLM)
@@ -100,20 +106,23 @@ summary(m.1_H1.3_HLM)
 ##NOTE: This error message "boundary (singular) fit: see ?isSingular"
 ##means the random effects is very small so I changed it to a simple lm.
 # step 3: add the predictors, cultdiss, cultdissmd
-m.2_H1.3_HLM <- lm(LSM_function_mean ~ 
-                     cultdiss +
-                     cultdissmd +
-                     cdAvg_dist_abs +
-                     cdspeak_dist_abs +
-                     cdreason_dist_abs +
-                     cdstyle_dist_abs +
-                     cdvalue_dist_abs +
-                     cdspirit_dist_abs +
-                     cdethnic_dist_abs +
-                     cdtype_dist_abs +
-                     cdrace_dist_abs +
-                     cdculture_dist_abs +
-                     cdskin_dist_abs +
+m.2_H1.3_HLM_rLSM.P <- lm(
+  # LSM_function_mean ~
+  rLSM.D ~
+  # rLSM.P ~
+                     # cultdiss +
+                     # cultdissmd +
+                     # cdAvg_dist_abs +
+                     # cdspeak_dist_abs +
+                     # cdreason_dist_abs +
+                     # cdstyle_dist_abs +
+                     # cdvalue_dist_abs +
+                     # cdspirit_dist_abs +
+                     # cdethnic_dist_abs +
+                     # cdtype_dist_abs +
+                     # cdrace_dist_abs +
+                     # cdculture_dist_abs +
+                     # cdskin_dist_abs +
                      # cdAvg_dist +
                      # cdspeak_dist +
                      # cdreason_dist +
@@ -122,10 +131,11 @@ m.2_H1.3_HLM <- lm(LSM_function_mean ~
                      # cdspirit_dist +
                      # cdethnic_dist +
                      # cdtype_dist +
-                     # cdrace_dist +
+                     cdrace_dist,# +
                      # cdculture_dist+
-                     # cdskin_dist+
-                      racecat2,
+                     # cdskin_dist,# +
+                     #  racecat2 + 
+                     # hsdegree,
                      # (1|provider_id),
                    data = H1.3_df)
 
@@ -133,7 +143,8 @@ anova(m.1_H1.3_HLM,m.2_H1.3_HLM)
 summary(m.2_H1.3_HLM)
 summ(m.2_H1.3_HLM)
 #plot(m.2_H1.3_HLM)
-sjPlot::tab_model(m.2_H1.3_HLM)
+sjPlot::tab_model(m.2_H1.3_HLM_rLSM.P)
+sjPlot::tab_model(m.2_H1.3_HLM_conv,m.2_H1.3_HLM_rLSM.D,m.2_H1.3_HLM_rLSM.P)
 
 
 ############################################################################################################
@@ -153,10 +164,17 @@ m.1_H3a.1_HLM <- lme4::lmer(provcomm ~ 1 + (1|provider_id), data = H3a.1_df)
 anova(m.1_H3a.1_HLM,m.0_H3a.1_HLM)
 
 # step 3: add the predictors
-m.2_H3a.1_HLM <- lme4::lmer(provcomm ~ 
-                  LSM_function_mean+
-                    #rLSM.P+
-                    #rLSM.D+
+m.2_H3a.1_HLM_rLSM.D <- lme4::lmer(provcomm ~ 
+                  # LSM_function_mean+
+                    # rLSM.P +
+                    # rLSM.D +
+                  #   WPS_avg.D +
+                  #   WPS_avg.P +
+                  #   WC_sum.D +
+                  #   WC_sum.P +
+                    # mean.rLSM +
+                    # ratio.rLSM +
+                    # verb_dom +
                     # WC_D_scaled+
                     # WC_P_scaled+
                     # WPS_D_scaled+
@@ -177,14 +195,18 @@ m.2_H3a.1_HLM <- lme4::lmer(provcomm ~
                     # insight_P_scaled+
                     # cause_D_scaled+
                     # cause_P_scaled+
-                  provider_style_sd +
-                    racecat2+
-                    #LSM_function_mean*racecat2 +
+                    # provider_style_sd +
+                    # provider_rLSM_sd +
+                    racecat2 +
+                    # hsdegree +
+                    # LSM_function_mean*racecat2 +
+                    # rLSM.D*racecat2 +
+                    # rLSM.P*racecat2 +
                   (1|provider_id), data = H3a.1_df)
 anova(m.1_H3a.1_HLM,m.2_H3a.1_HLM)
-summary(m.2_H3a.1_HLM)
-
-sjPlot::tab_model(m.2_H3a.1_HLM)
+summary(m.2_H3a.1_HLM_rLSM.D)
+sjPlot::tab_model(m.2_H3a.1_HLM_rLSM.D)
+sjPlot::tab_model(m.2_H3a.1_HLM_conv,m.2_H3a.1_HLM_rLSM.D,m.2_H3a.1_HLM_rLSM.P)
 
 
 ############################################################################################################
@@ -201,10 +223,20 @@ m.1_H3a.2_HLM <- lmer(overcomm ~ 1 + (1|provider_id), data = H3a.2_df)
 anova(m.1_H3a.2_HLM,m.0_H3a.2_HLM)
 
 # step 3: add the predictors
-m.2_H3a.2_HLM <- lmer(ocunderstand ~ 
-                      #LSM_function_mean + 
-                       rLSM.P+
-                       #rLSM.D+
+m.2_H3a.2_HLM <- lmer(
+  overcomm ~
+  # occare ~
+  # ocunderstand ~
+                      # LSM_function_mean+
+                        # rLSM.P +
+                        # rLSM.D +
+                      #   WPS_avg.D +
+                      #   WPS_avg.P +
+                      #   WC_sum.D +
+                      #   WC_sum.P +
+                      # mean.rLSM +
+                      # ratio.rLSM +
+                      # verb_dom +
                       #   WC_D_scaled+
                       #   WC_P_scaled+
                       #   WPS_D_scaled+
@@ -225,13 +257,19 @@ m.2_H3a.2_HLM <- lmer(ocunderstand ~
                       # insight_P_scaled+
                       # cause_D_scaled+
                       # cause_P_scaled+
-                      #provider_style_sd+
-                      racecat2+
+                      # provider_style_sd+
+                      # provider_rLSM_sd +
+                      racecat2 +
+                      # hsdegree + 
+                      # rLSM.P*racecat2 +
+                      # rLSM.D*racecat2 +
                       # LSM_function_mean*racecat2 +
                       (1|provider_id), data = H3a.2_df)
 anova(m.1_H3a.2_HLM,m.2_H3a.2_HLM)
 summary(m.2_H3a.2_HLM)
 sjPlot::tab_model(m.2_H3a.2_HLM)
+
+sjPlot::tab_model(m.2_H3a.2_HLM_conv,m.2_H3a.2_HLM_rLSM.P,m.2_H3a.2_HLM_rLSM.D)
 
 
 ############################################################################################################
@@ -248,10 +286,16 @@ m.1_H3a.3_HLM <- lmer(ipstyle ~ 1 + (1|provider_id), data = H3a.3_df)
 anova(m.1_H3a.3_HLM,m.0_H3a.3_HLM)
 
 # step 3: add the predictors
-m.2_H3a.3_HLM <- lmer(ipstyle ~ 
-                        LSM_function_mean +
-                        #rLSM.P+
-                        #rLSM.D+
+m.2_H3a.3_HLM <- lm(ipstyle ~ 
+                           # LSM_function_mean+
+                           #   rLSM.P +
+                           #   rLSM.D +
+                           #   WPS_avg.D +
+                           #   WPS_avg.P +
+                           #   WC_sum.D +
+                           #   WC_sum.P +
+                           # mean.rLSM +
+                           # ratio.rLSM,# +
                         # WC_D_scaled+
                         # WC_P_scaled+
                         # WPS_D_scaled+
@@ -272,14 +316,14 @@ m.2_H3a.3_HLM <- lmer(ipstyle ~
                         # insight_P_scaled+
                         # cause_D_scaled+
                         # cause_P_scaled+
-                        racecat2+
-                        provider_style_sd+
-                      (1|provider_id), data = H3a.3_df)
+                        racecat2,#+
+                        # provider_style_sd, 
+                    data = H3a.3_df)
 anova(m.1_H3a.3_HLM,m.2_H3a.3_HLM)
 summary(m.2_H3a.3_HLM)
 
 sjPlot::tab_model(m.2_H3a.3_HLM)
-
+sjPlot::tab_model(m.2_H3a.3_HLM_conv,m.2_H3a.3_HLM_rLSM.D,m.2_H3a.3_HLM_rLSM.P)
 
 ############################################################################################################
 # model H3a.4: Using LSM_function_mean to predict interpersonal trust (iptrust)
@@ -296,10 +340,16 @@ m.1_H3a.4_HLM <- lmer(iptrust ~ 1 + (1|provider_id), data = H3a.4_df)
 anova(m.1_H3a.4_HLM,m.0_H3a.4_HLM)
 
 # step 3: add the predictors
-m.2_H3a.4_HLM <- lmer(iptrust ~ 
-                      LSM_function_mean + 
-                        #rLSM.P+
-                        #rLSM.D+
+m.2_H3a.4_HLM_rLSM <- lmer(iptrust ~ 
+                               # LSM_function_mean+
+                               #   rLSM.P +
+                               #   rLSM.D +
+                               #   WPS_avg.D +
+                               #   WPS_avg.P +
+                               #   WC_sum.D +
+                               #   WC_sum.P +
+                               # mean.rLSM +
+                               # ratio.rLSM +
                         racecat2+
                       # WC_D_scaled+
                       # WC_P_scaled+
@@ -319,20 +369,20 @@ m.2_H3a.4_HLM <- lmer(iptrust ~
                       # insight_P_scaled+
                       # cause_D_scaled+
                       # cause_P_scaled+
-                      provider_style_sd+
+                      # provider_style_sd+
                       (1|provider_id), data = H3a.4_df)
 anova(m.1_H3a.4_HLM,m.2_H3a.4_HLM)
 summary(m.2_H3a.4_HLM)
 
-sjPlot::tab_model(m.2_H3a.4_HLM)
-
+sjPlot::tab_model(m.2_H3a.4_HLM_rLSM)
+sjPlot::tab_model(m.2_H3a.4_HLM_conv,m.2_H3a.4_HLM_rLSM.D,m.2_H3a.4_HLM_rLSM.P)
 
 ############################################################################################################
 # model H3a.5: Using LSM_function_mean to predict if patient reports that provider knows them as a person (provknowcat)
 ############################################################################################################
 
 # step 1: Null model
-m.0_H3a.5_HLM <- glm(provknowcat~ 1, data = H3a.5_df)
+m.0_H3a.5_HLM <- glm(provknowcat ~ 1, data = H3a.5_df)
 
 # step 2: add the culstering variable.. MD
 m.1_H3a.5_HLM <- glmer(provknowcat ~ 1 + (1|provider_id), family = 'binomial',data = H3a.5_df)
@@ -340,10 +390,16 @@ m.1_H3a.5_HLM <- glmer(provknowcat ~ 1 + (1|provider_id), family = 'binomial',da
 anova(m.1_H3a.5_HLM,m.0_H3a.5_HLM)
 
 # step 3: add the predictors
-m.2_H3a.5_HLM <- glmer(provknowcat ~ 
-                        #LSM_function_mean + 
-                         #rLSM.D +
-                         rLSM.P +
+m.2_H3a.5_HLM <- glm(provknowcat ~ 
+                              # LSM_function_mean+
+                              #   rLSM.P +
+                              #   rLSM.D +
+                              #   WPS_avg.D +
+                              #   WPS_avg.P +
+                              #   WC_sum.D +
+                              #   WC_sum.P +
+                              mean.rLSM +
+                              ratio.rLSM,# +
                          # WC_D_scaled+
                          # WC_P_scaled+
                          # WPS_D_scaled+
@@ -362,13 +418,16 @@ m.2_H3a.5_HLM <- glmer(provknowcat ~
                          # insight_P_scaled+
                          # cause_D_scaled+
                          # cause_P_scaled+
-                         provider_style_sd+
-                      (1|provider_id), family = 'binomial', data = H3a.5_df)
+                         # provider_style_sd +
+                      # (1|provider_id), 
+                      # family = 'binomial', 
+                      data = H3a.5_df)
 anova(m.1_H3a.5_HLM,m.2_H3a.5_HLM)
 summary(m.2_H3a.5_HLM)
 
 sjPlot::tab_model(m.2_H3a.5_HLM)
 
+sjPlot::tab_model(m.2_H3a.5_HLM_conv,m.2_H3a.5_HLM_rLSM.D,m.2_H3a.5_HLM_rLSM.P)
 ############################################################################################################
 # model H3a.6: Using LSM_function_mean to predict overall patient satisfaction (overallsat)
 ############################################################################################################
@@ -384,9 +443,9 @@ anova(m.1_H3a.6_HLM,m.0_H3a.6_HLM)
 # step 3: add the predictors
 m.2_H3a.6_HLM <- lmer(overallsat ~ 
                          # LSM_function_mean +
-                        rLSM.P+
-                        # rLSM.D+
-                         racecat2 +
+                        # rLSM.P+
+                        rLSM.D+
+                         # racecat2 +
                          # LSM_function_mean*racecat2+
                          # provider_style_sd+
                        (1|provider_id), data = H3a.6_df)
@@ -409,16 +468,20 @@ m.1_H3b.1_HLM <- glmer(factor(vlsup75) ~ 1 + (1|provider_id), family = 'binomial
 anova(m.0_H3b.1_HLM,m.1_H3b.1_HLM)
 summary(m.1_H3b.1_HLM)
 # step 3: add the predictors
-m.2_H3b.1_HLM <- glmer(factor(vlsup75) ~ 
+m.2_H3b.1_HLM <- glm(factor(vlsup75) ~ 
                      LSM_function_mean +
-                     i_D_scaled+
-                     i_P_scaled+
-                     negemo_D_scaled+
-                     negemo_P_scaled+
+                       rLSM.D +
+                       rLSM.P +
+                       # rLSM.D*rLSM.P +
+                     # i_D_scaled+
+                     # i_P_scaled+
+                     # negemo_D_scaled+
+                     # negemo_P_scaled+
                      racecat2 +
-                     LSM_function_mean*racecat2+
-                     # provider_style_sd+
-                   (1|provider_id),
+                       hsdegree,# +
+                     # rLSM.D*racecat2+
+                     # provider_rLSM_sd+
+                  # (1|provider_id),
                  family = 'binomial',
                  data = H3b.1_df)
 anova(m.1_H3b.1_HLM,m.2_H3b.1_HLM)
@@ -436,19 +499,19 @@ summary(m.1_H3b.1_HLM)
 ############################################################################################################
 
 # step 1: Null model
-m.0_H4_HLM <- glm(adhard~ 1, family = 'binomial', data = H4_df)
+m.0_H4_HLM <- glm(missany~ 1, family = 'binomial', data = H4_df)
 
 # step 2: add the culstering variable.. MD
-m.1_H4_HLM <- lmer(adhard ~ 1 + (1|provider_id), family = 'binomial', data = H4_df)
+m.1_H4_HLM <- glmer(missany ~ 1 + (1|provider_id), family = 'binomial', data = H4_df)
 # test for fit of grouping structure
 anova(m.1_H4_HLM,m.0_H4_HLM)
 
 # step 3: add the predictors
 m.2_H4_HLM <- glm(missany ~ 
-                        #LSM_function_mean +
-                        rLSM.D +
-                        #rLSM.P +
-                        racecat2+
+                        LSM_function_mean,# +
+                        # rLSM.D,# +
+                        # rLSM.P,# +
+                        # racecat2+
                         # WC_D_scaled+
                         # WC_P_scaled+
                         # WPS_D_scaled+

@@ -81,21 +81,44 @@ wp(H1.3_gamlss)
 #########################################
 
 ######### H3a.1
-H3a.1.fit <- gamlss::fitDist(H3a.1_df$pcfast, type = 'realplus')
+H3a.1.fit <- gamlss::fitDist(H3a.1_df$provcomm, type = 'realplus')
 H3a.1.fit$fits
 H3a.1.fit.hist <- gamlss::histDist(provcomm, family = BCCG, nbins = 30, data = H3a.1_df)
 
 ## Fit model
-H3a.1_gamlss <- gamlss::gamlss(
+H3a.1_gamlss_conv <- gamlss::gamlss(
   formula = provcomm ~ LSM_function_mean + re(random = ~1|provider_id),
   family = BCCG(), data = H3a.1_df, trace = FALSE,
   control = gamlss.control(n.cyc = 2000)
 )
+H3a.1_gamlss_rLSM.D <- gamlss::gamlss(
+  formula = provcomm ~ 
+    rLSM.D + 
+    rLSM.P + 
+    racecat2 +
+    # provider_rLSM_sd +
+    re(random = ~1|provider_id),
+  family = BCCG(), data = H3a.1_df, trace = FALSE,
+  control = gamlss.control(n.cyc = 2000)
+)
+
 ## Evaluate
-summary(H3a.1_gamlss)
-Rsq(H3a.1_gamlss)
-plot(H3a.1_gamlss)
-wp(H3a.1_gamlss)
+summary(H3a.1_gamlss_rLSM.D)
+Rsq(H3a.1_gamlss_rLSM.D)
+plot(H3a.1_gamlss_rLSM.D)
+wp(H3a.1_gamlss_rLSM.D)
+
+H3a.1_gamlss_rLSM.P <- gamlss::gamlss(
+  formula = provcomm ~ rLSM.P + re(random = ~1|provider_id),
+  family = BCCG(), data = H3a.1_df, trace = FALSE,
+  control = gamlss.control(n.cyc = 2000)
+)
+
+## Evaluate
+summary(H3a.1_gamlss_rLSM.P)
+Rsq(H3a.1_gamlss_rLSM.P)
+plot(H3a.1_gamlss_rLSM.P)
+wp(H3a.1_gamlss_rLSM.P)
 
 
 ######### H3a.2
@@ -105,7 +128,12 @@ H3a.2.fit.hist <- gamlss::histDist(overcomm, family = BCCG, nbins = 30, data = H
 
 ## Fit model
 H3a.2_gamlss <- gamlss::gamlss(
-  formula = overcomm ~ LSM_function_mean + re(random = ~1|provider_id),
+  formula = overcomm ~ 
+    LSM_function_mean + 
+    rLSM.D +
+    rLSM.P +
+    racecat2 +
+    re(random = ~1|provider_id),
   family = BCCG(), data = H3a.2_df, trace = FALSE,
   control = gamlss.control(n.cyc = 2000)
 )
@@ -123,7 +151,12 @@ H3a.3.fit.hist <- gamlss::histDist(ipstyle, family = BCCG, nbins = 30, data = H3
 
 ## Fit model
 H3a.3_gamlss <- gamlss::gamlss(
-  formula = ipstyle ~ LSM_function_mean + re(random = ~1|provider_id),
+  formula = ipstyle ~ 
+    LSM_function_mean + 
+    rLSM.D +
+    rLSM.P +
+    racecat2,# +
+    # re(random = ~1|provider_id),
   family = BCCG(), data = H3a.3_df, trace = FALSE,
   control = gamlss.control(n.cyc = 2000)
 )
@@ -140,7 +173,11 @@ H3a.4.fit.hist <- gamlss::histDist(iptrust, family = BCCG, nbins = 30, data = H3
 
 ## Fit model
 H3a.4_gamlss <- gamlss::gamlss(
-  formula = iptrust ~ LSM_function_mean + re(random = ~1|provider_id),
+  formula = iptrust ~ 
+    # LSM_function_mean + 
+    # rLSM.D +
+    rLSM.P +
+    re(random = ~1|provider_id),
   family = BCCG(), data = H3a.4_df, trace = FALSE,
   control = gamlss.control(n.cyc = 2000)
 )
@@ -160,7 +197,11 @@ H3a.5.fit.hist <- gamlss::histDist(provknowcat, family = BI, nbins = 30, data = 
 
 ## Fit model
 H3a.5_gamlss <- gamlss::gamlss(
-  formula = provknowcat ~ LSM_function_mean + re(random = ~1|provider_id),
+  formula = provknowcat ~ 
+    LSM_function_mean + 
+    rLSM.D +
+    rLSM.P,
+    #re(random = ~1|provider_id),
   family = BI(), data = H3a.5_df, trace = FALSE,
   control = gamlss.control(n.cyc = 2000)
 )
@@ -178,7 +219,11 @@ H3a.6.fit.hist <- gamlss::histDist(overallsat, family = BI, nbins = 30, data = H
 
 ## Fit model
 H3a.6_gamlss <- gamlss::gamlss(
-  formula = overallsat ~ LSM_function_mean + re(random = ~1|provider_id),
+  formula = overallsat ~ 
+    LSM_function_mean + 
+    rLSM.D +
+    rLSM.P,
+    #re(random = ~1|provider_id),
   family = BI(), data = H3a.6_df, trace = FALSE,
   control = gamlss.control(n.cyc = 2000)
 )
@@ -197,7 +242,11 @@ H3b.1.fit.hist <- gamlss::histDist(vlsup75, family = BI, nbins = 30, data = H3b.
 
 ## Fit model
 H3b.1_gamlss <- gamlss::gamlss(
-  formula = vlsup75 ~ LSM_function_mean + re(random = ~1|provider_id),
+  formula = vlsup75 ~ 
+    LSM_function_mean + 
+    rLSM.P +
+    rLSM.D,
+    #re(random = ~1|provider_id),
   family = BI(), data = H3b.1_df, trace = FALSE,
   control = gamlss.control(n.cyc = 2000)
 )

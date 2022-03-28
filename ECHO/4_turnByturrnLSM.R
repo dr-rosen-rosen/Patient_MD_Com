@@ -7,7 +7,7 @@ df_tbyt <- read.csv('/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patien
 
 
 rLSM_df <- df_tbyt %>%
-  dplyr::select(File, Speaker, Sequence, auxverb, article, adverb, ipron, 
+  dplyr::select(File, Speaker, WC, WPS, Sequence, auxverb, article, adverb, ipron, 
                 prep, negate, conj, quant, ppron) %>%
   group_by(File) %>%
   #rowwise() %>%
@@ -22,12 +22,25 @@ rLSM_df <- df_tbyt %>%
     negate.lag = lag(negate),
     conj.lag = lag(conj),
     quant.lag = lag(quant),
-    ppron.lag = lag(ppron)) %>%
+    ppron.lag = lag(ppron),
+    WC.lag = lag(WC)) %>%
   ungroup() %>%
+  filter(WC > 1 & WC.lag >1) %>% # drops all exchanges with one word utterances
   # This makes sure that only liwc categories prersent in the first statement are used for rlsm
   mutate(across(c(auxverb.lag, article.lag, adverb.lag, ipron.lag, 
                   prep.lag, negate.lag, conj.lag, quant.lag, ppron.lag), 
                 ~ if_else(. > 0,.,as.numeric(NA)))) %>%
+  mutate(
+    auxverb = if_else(is.na(auxverb.lag),as.numeric(NA),auxverb),
+    article = if_else(is.na(article.lag),as.numeric(NA),article),
+    adverb = if_else(is.na(adverb.lag),as.numeric(NA),adverb),
+    ipron = if_else(is.na(ipron.lag),as.numeric(NA),ipron),
+    prep = if_else(is.na(prep.lag),as.numeric(NA),prep),
+    negate = if_else(is.na(negate.lag),as.numeric(NA),negate),
+    conj = if_else(is.na(conj.lag),as.numeric(NA),conj),
+    quant = if_else(is.na(quant.lag),as.numeric(NA),quant),
+    ppron = if_else(is.na(ppron.lag),as.numeric(NA),ppron)
+  ) %>%
   rowwise() %>%
   mutate(
     auxverb.rLSM = 1 - (abs(auxverb - auxverb.lag) / (auxverb + auxverb.lag + .0001)),
@@ -41,13 +54,32 @@ rLSM_df <- df_tbyt %>%
     ppron.rLSM = 1 - (abs(ppron - ppron.lag) / (ppron + ppron.lag + .0001))
   ) %>%
   ungroup() %>%
-  # creates an averrage rLSM across separrate featurers
-  mutate(rLSM = rowMeans(select(.,contains('.rLSM')),na.rm = TRUE)) %>%
-  mutate(rLSM = ifelse(is.na(rLSM), 0, rLSM)) %>% # replaces NAs with 0
+  # creates an average rLSM across separrate featurers
+  # mutate(rLSM = rowMeans(select(.,contains('.rLSM')),na.rm = TRUE)) %>%
+  # mutate(rLSM = ifelse(is.na(rLSM), 0, rLSM)) %>% # replaces NAs with 0
+  # group_by(File,Speaker) %>%
+  # summarize(rLSM = mean(rLSM)) %>%
+  # ungroup() %>%
   group_by(File,Speaker) %>%
-  summarize(rLSM = mean(rLSM)) %>%
+  summarize(
+    across(contains('.rLSM'), .fns = ~ mean(.x,na.rm=TRUE)),
+    WC_sum = sum(WC),
+    WPS_avg = mean(WPS)) %>%
   ungroup() %>%
-  pivot_wider(id_cols = File, names_from = Speaker, values_from = rLSM, names_prefix = 'rLSM.')
+  mutate(rLSM = rowMeans(select(.,contains('.rLSM')),na.rm = TRUE)) %>%
+  pivot_wider(
+    id_cols = File, 
+    names_from = Speaker, 
+    values_from = c(rLSM,WPS_avg,WC_sum), 
+    # names_prefix = 'rLSM.'
+    names_glue = "{.value}.{Speaker}"
+    ) %>%
+  drop_na() %>% # find out where these are coming from
+  mutate(
+    mean.rLSM = rowMeans(select(.,contains('rLSM')),na.rm = TRUE),
+    ratio.rLSM = rLSM.D / rLSM.P,
+    verb_dom = WC_sum.D / WC_sum.P
+  )
 
 readr::write_csv(rLSM_df , 'rLSM.csv')
 
