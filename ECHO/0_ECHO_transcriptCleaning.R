@@ -29,7 +29,7 @@ ECHO_Transcripts_Complete_TbyT <- ECHO_Transcripts_Complete_TbyT %>%
   filter(Speaker != "Missing_2")
 
 
-ECHO_proportions <- ECHO_Transcripts_Complete %>% 
+ECHO_proportions <- ECHO_Transcripts_Complete_TbyT %>% 
   group_by(File) %>%
   summarise(D = sum(Speaker == "D"), 
             P = sum(Speaker == "P"), 
@@ -81,8 +81,18 @@ ECHO_transcript_exclude_remove <- c("JC04P03", "JC05P03", "JC09P06", "JC10P01", 
 ECHO_Transcripts_Complete_TbyT <- ECHO_Transcripts_Complete_TbyT %>% 
   filter(!(File %in% ECHO_transcript_exclude_remove))
 
+
+#ECHO_Transcripts_Complete_TbyT$Speaker <- gsub("[[:space:]]", "", ECHO_Transcripts_Complete_TbyT$Speaker)
+#ECHO_Transcripts_Complete_TbyT$Speaker <- str_trim(ECHO_Transcripts_Complete_TbyT$Speaker, "both")
+
+
+ECHO_Speaker_exclude <- c("D1", "UF", "UM", "PA", "P2", "D2", "GD", 
+                       "C", "N", "NP", "PM", "PF", "DM", "RN", 
+                       "Q", "UM1", "UM2")
+
+
 ECHO_Transcripts_Complete_TbyT <- ECHO_Transcripts_Complete_TbyT %>%
-  filter(Speaker == c("D", "P"))
+  filter(!(Speaker %in% ECHO_Speaker_exclude))
 
 
 ECHO_Transcripts_Complete_TbyT$Word_count <- str_count(ECHO_Transcripts_Complete_TbyT$Text, "\\w+")
@@ -92,4 +102,3 @@ ECHO_Transcripts_Complete_TbyT <- ECHO_Transcripts_Complete_TbyT %>%
 
 
 #write.xlsx(ECHO_Transcripts_Complete_TbyT, file = "ECHO_Transcripts_Complete_TbyT.xlsx")
-
