@@ -6,9 +6,34 @@ library(tidyverse)
 df_tbyt <- read.csv('/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study/ECHO_Transcripts_Complete_TbyT_LIWC_031222.csv')
 
 
+# test <- df_tbyt %>%
+#   dplyr::select(File, Speaker) %>%
+#   group_by(File) %>%
+#   mutate(
+#     Speaker.lag = lag(Speaker)
+#   ) %>%
+#   ungroup() %>%
+#   mutate(
+#     speaker_match = if_else(Speaker == Speaker.lag,1,0)
+#   )
+# table(test$speaker_match)
+
 rLSM_df <- df_tbyt %>%
   dplyr::select(File, Speaker, WC, WPS, Sequence, auxverb, article, adverb, ipron, 
                 prep, negate, conj, quant, ppron) %>%
+  # Adding quick way to drop turn by turns from the same speaker
+  group_by(File) %>%
+  mutate(
+    Speaker.lag = lag(Speaker)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    speaker_match = if_else(Speaker == Speaker.lag,1,0)
+  ) %>%
+  ungroup() %>%
+  filter(speaker_match == 0) %>%
+  # End dropping same speaker turns
+  
   group_by(File) %>%
   #rowwise() %>%
   # This puts the turn before the current one on the same row with a .lag suffix
@@ -79,6 +104,9 @@ rLSM_df <- df_tbyt %>%
     mean.rLSM = rowMeans(select(.,contains('rLSM')),na.rm = TRUE),
     ratio.rLSM = rLSM.D / rLSM.P,
     verb_dom = WC_sum.D / WC_sum.P
+  ) %>%
+  filter(
+    WC_sum.D >= 100 & WC_sum.P >= 100
   )
 
 readr::write_csv(rLSM_df , 'rLSM.csv')
