@@ -13,9 +13,9 @@ config <- config::get()
 ECHO_LSM_MLM <- read_csv(here(config$ECHO_LSM_MLM_path, config$ECHO_LSM_MLM_name))
 # ECHO_LSM_TbyT <- read_csv(here(config$ECHO_LSM_TbyT_path, config$ECHO_LSM_TbyT_name))
 
-ECHO_LSM_TbyT <- rLSM_df
+ECHO_LSM_TbyT_rLSM <- rLSM_df
 #merge TbyT scores with main dataframe
-ECHO_LSM_MLM <-left_join(ECHO_LSM_MLM, ECHO_LSM_TbyT, by = "File")
+ECHO_LSM_MLM <-left_join(ECHO_LSM_MLM, ECHO_LSM_TbyT_rLSM, by = "File")
 
 
 #making a race concordance variable "raceconc" between patient and provider race
