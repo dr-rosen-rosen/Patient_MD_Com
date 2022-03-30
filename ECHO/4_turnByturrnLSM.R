@@ -3,8 +3,17 @@
 #########################################
 library(tidyverse)
 # read in turn by turn LIWC file
-df_tbyt <- read.csv('/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study/ECHO_Transcripts_Complete_TbyT_LIWC_031222.csv')
+#df_tbyt <- read.csv('/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study/ECHO_Transcripts_Complete_TbyT_LIWC_031222.csv')
 
+df_tbyt <- read_csv(here(config$ECHO_LSM_TbyT_path, config$ECHO_LSM_TbyT_name))
+
+df_tbyt <- df_tbyt %>%
+rename(output_order = A) %>%
+  rename(File = B) %>%
+  rename(Speaker = C) %>%
+  rename(Text = D) %>%
+  select(-E) %>%
+  select(-F)
 
 # test <- df_tbyt %>%
 #   dplyr::select(File, Speaker) %>%
@@ -18,8 +27,9 @@ df_tbyt <- read.csv('/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patien
 #   )
 # table(test$speaker_match)
 
+#SK: had to delete sequence from the list right below with select()
 rLSM_df <- df_tbyt %>%
-  dplyr::select(File, Speaker, WC, WPS, Sequence, auxverb, article, adverb, ipron, 
+  dplyr::select(File, Speaker, WC, WPS, auxverb, article, adverb, ipron, 
                 prep, negate, conj, quant, ppron) %>%
   # Adding quick way to drop turn by turns from the same speaker
   group_by(File) %>%
