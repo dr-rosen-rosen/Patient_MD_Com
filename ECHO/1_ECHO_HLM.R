@@ -165,15 +165,15 @@ anova(m.1_H3a.1_HLM,m.0_H3a.1_HLM)
 
 # step 3: add the predictors
 m.2_H3a.1_HLM_rLSM.D <- lme4::lmer(provcomm ~ 
-                  LSM_function_mean+
-                    rLSM.P +
-                    rLSM.D +
+                  # LSM_function_mean+
+                    # rLSM.P +
+                    # rLSM.D +
                   #   WPS_avg.D +
                   #   WPS_avg.P +
                   #   WC_sum.D +
                   #   WC_sum.P +
-                    # mean.rLSM +
-                    # ratio.rLSM +
+                    mean.rLSM +
+                    ratio.rLSM +
                     # verb_dom +
                     # WC_D_scaled+
                     # WC_P_scaled+
@@ -197,7 +197,7 @@ m.2_H3a.1_HLM_rLSM.D <- lme4::lmer(provcomm ~
                     # cause_P_scaled+
                     # provider_style_sd +
                     # provider_rLSM_sd +
-                    # racecat2 +
+                    racecat2 +
                     # hsdegree +
                     # LSM_function_mean*racecat2 +
                     # rLSM.D*racecat2 +

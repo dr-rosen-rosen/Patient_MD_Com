@@ -87,14 +87,16 @@ H3a.1.fit.hist <- gamlss::histDist(provcomm, family = BCCG, nbins = 30, data = H
 
 ## Fit model
 H3a.1_gamlss_conv <- gamlss::gamlss(
-  formula = provcomm ~ LSM_function_mean + re(random = ~1|provider_id),
+  formula = provcomm ~ 
+    LSM_function_mean + 
+    re(random = ~1|provider_id),
   family = BCCG(), data = H3a.1_df, trace = FALSE,
   control = gamlss.control(n.cyc = 2000)
 )
 H3a.1_gamlss_rLSM.D <- gamlss::gamlss(
   formula = provcomm ~ 
     rLSM.D + 
-    rLSM.P + 
+    # rLSM.P + 
     racecat2 +
     # provider_rLSM_sd +
     re(random = ~1|provider_id),

@@ -116,7 +116,7 @@ rLSM_df <- df_tbyt %>%
     verb_dom = WC_sum.D / WC_sum.P
   ) %>%
   filter(
-    WC_sum.D >= 100 & WC_sum.P >= 100
+    WC_sum.D >= 50 & WC_sum.P >= 50
   )
 
 readr::write_csv(rLSM_df , 'rLSM.csv')
