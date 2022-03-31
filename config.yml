@@ -7,7 +7,7 @@ default:
     ECHO_Transcript_name: "ECHO1_transcripts_complete.csv"
     ECHO_survey_data_name: "echo1.dta"
     ECHO_ID_key_name: "ECHO_ID_key.csv"
-    ECHO_LSM_TbyT_Smoothed_name: "ECHO_Transcripts_Complete_TbyT_SMOOTHED.CSV"
+    ECHO_LSM_TbyT_Smoothed_name: "ECHO_LSM_TbyT_SMOOTHED.CSV"
     
 mike:
     transcript_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
