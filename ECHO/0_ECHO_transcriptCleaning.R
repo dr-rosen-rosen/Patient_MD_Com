@@ -7,7 +7,7 @@ library(haven)
 library(skimr)
 
 
-Sys.setenv(R_CONFIG_ACTIVE = "salar") # 'default')#
+Sys.setenv(R_CONFIG_ACTIVE = "mike") # 'default')#
 config <- config::get()
 
 ECHO_Transcripts_Complete_TbyT <- read_csv(here(config$ECHO_Transcript_path, config$ECHO_Transcript_name))
@@ -106,6 +106,45 @@ ECHO_Transcripts_Complete_TbyT$Word_count <- str_count(ECHO_Transcripts_Complete
 ECHO_Transcripts_Complete_TbyT <- ECHO_Transcripts_Complete_TbyT %>%
   filter(Word_count != 0)
 
+###########################
+############# Speaker Smoothing
+###########################
+
+smoothed_tByT_df <- data.frame( # Empty dataframe to store results
+  File = character(),
+  Speaker = character(),
+  Text = character(),
+  Sequence = numeric(),
+  Word_count = integer()
+)
+
+for (f in unique(ECHO_Transcripts_Complete_TbyT$File)) { # Iterate through each file
+  file_df <- data.frame( # create a df with just that files data; probably ineffecient, but...
+    ECHO_Transcripts_Complete_TbyT[which(ECHO_Transcripts_Complete_TbyT$File == f),]
+  )
+  first <- TRUE
+  smoothed_chunk <- data.frame( # Create empty dataframe to store smoothed speakers for that file
+    File = character(),
+    Speaker = character(),
+    Text = character(),
+    Sequence = numeric(),
+    Word_count = integer()
+  )
+  for (i in seq_len(nrow(file_df))) { # Iterate through each row in a given file
+    if (first == TRUE) { # Just add the first row to the empty df for the file
+      smoothed_chunk <- rbind(smoothed_chunk,file_df[i,])
+      first <- FALSE
+    } else if (file_df[i,'Speaker'] == file_df[i-1,'Speaker']) {
+      # This tests to see of the current row's speaker is the same as the previous; if so, it appends the current row's text to the previous one
+      smoothed_chunk[nrow(smoothed_chunk),'Text'] <- paste(smoothed_chunk[nrow(smoothed_chunk),'Text'],file_df[i,'Text'])
+      smoothed_chunk[nrow(smoothed_chunk),'Word_count'] <- smoothed_chunk[nrow(smoothed_chunk),'Word_count'] + file_df[i,'Word_count']
+    } else { # if speakers don't match, just add row to the smoothed df for that file
+      smoothed_chunk <- rbind(smoothed_chunk,file_df[i,])
+    }
+  }
+  smoothed_tByT_df <- rbind(smoothed_tByT_df,smoothed_chunk) # add the smoothed file to overall smoothed results
+}
+write.csv(smoothed_tByT_df, "ECHO_Transcripts_Complete_TbyT_SMOOTHED.csv")
 
 #write.xlsx(ECHO_Transcripts_Complete_TbyT, file = "ECHO_Transcripts_Complete_TbyT.xlsx")
 write.csv(ECHO_Transcripts_Complete_TbyT, "ECHO_Transcripts_Complete_TbyT.csv")

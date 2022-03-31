@@ -15,7 +15,7 @@ rename(output_order = A) %>%
   select(-E) %>%
   select(-F)
 
-# test <- df_tbyt %>%
+# test <- smoothed_tByT_df %>%
 #   dplyr::select(File, Speaker) %>%
 #   group_by(File) %>%
 #   mutate(
