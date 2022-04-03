@@ -6,12 +6,12 @@ library(here)
 library(config)
 library(gdata)
 
-Sys.setenv(R_CONFIG_ACTIVE = "mike") # 'default')#
+Sys.setenv(R_CONFIG_ACTIVE = "salar") # 'default')#
 config <- config::get()
 
 #open files
-ECHO_LSM_MLM <- read_csv(here(config$ECHO_LSM_MLM_path, config$ECHO_LSM_MLM_name))
-# ECHO_LSM_TbyT <- read_csv(here(config$ECHO_LSM_TbyT_path, config$ECHO_LSM_TbyT_name))
+#ECHO_LSM_MLM <- read_csv(here(config$ECHO_LSM_MLM_path, config$ECHO_LSM_MLM_name))
+#ECHO_LSM_TbyT <- read_csv(here(config$ECHO_LSM_TbyT_path, config$ECHO_LSM_TbyT_name))
 
 ECHO_LSM_TbyT_rLSM <- rLSM_df
 #merge TbyT scores with main dataframe
