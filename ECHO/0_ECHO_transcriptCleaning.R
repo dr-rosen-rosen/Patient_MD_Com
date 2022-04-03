@@ -7,7 +7,7 @@ library(haven)
 library(skimr)
 
 
-Sys.setenv(R_CONFIG_ACTIVE = "mike") # 'default')#
+Sys.setenv(R_CONFIG_ACTIVE = "salar") # 'default')#
 config <- config::get()
 
 ECHO_Transcripts_Complete_TbyT <- read_csv(here(config$ECHO_Transcript_path, config$ECHO_Transcript_name))
@@ -164,15 +164,13 @@ write.csv(ECHO_LSM_Prep, "ECHO_LSM_Prep.csv")
 ##################################################################################################
 #Calculating LSM, adding back LIWC metrics, merging survey data
 
-
+#Opening all files
 ECHO_LSM_MLM <- read_csv(here(config$ECHO_LSM_MLM_path, config$ECHO_LSM_MLM_name))
 ECHO_survey_data <- read_dta(here(config$ECHO_survey_data_path, config$ECHO_survey_data_name))
 ECHO_ID_key <- read_csv(here(config$ECHO_ID_key_path, config$ECHO_ID_key_name))
-#ECHO_survey_data <- read_dta("echo1.dta")
-#ECHO_ID_key <- read_csv("ECHO_ID_key.csv")
 
 
-
+#Here is the code for creating the LIWC values for patient and doctor as individual variables
 ECHO_LSM_LIWC_Components <- ECHO_LSM_MLM%>%
   rename(output_order = 'Source (A)') %>%
   rename(File = 'Source (B)') %>%
@@ -187,7 +185,7 @@ ECHO_LSM_LIWC_Components <- ECHO_LSM_MLM%>%
   pivot_wider(names_from = c(name, Speaker), values_from = value) 
 
 
-
+#This is for calculating LSM for this data
 ECHO_LSM_MLM <- ECHO_LSM_MLM %>%
   rename(output_order = 'Source (A)') %>%
   rename(File = 'Source (B)') %>%
@@ -220,11 +218,36 @@ ECHO_LSM_MLM <- ECHO_LSM_MLM%>%
   mutate(LSM_function_mean = mean(c(LSM_auxverb, LSM_article, LSM_adverb, LSM_ipron, LSM_prep, 
                                     LSM_negate, LSM_conj, LSM_quant, LSM_ppron)))
 
-
 #Adding LIWC components back to LSM file
 ECHO_LSM_MLM <- left_join(ECHO_LSM_MLM, ECHO_LSM_LIWC_Components, by = "File")
 
+#Making the provider_id variable
 ECHO_LSM_MLM <- mutate(ECHO_LSM_MLM,
                        provider_id = str_sub(File, 1, 4))
 
+#merge ECHO_LSM_MLM and ECHO_ID_key by "File"
+ECHO_LSM_MLM <- left_join(ECHO_LSM_MLM, ECHO_ID_key, by = "File" )
+
+#merge ECHO_LSM_MLM and ECHO_survey_data by "tapeid" to include survey data
+ECHO_LSM_MLM <- left_join(ECHO_LSM_MLM, ECHO_survey_data, by = "tapeid")
+
+
+
+
+
+#Script for creating the chunks which will be used of studying linguistic accommodation
+ECHO_Transcript_chunks <- ECHO_Transcripts_Complete_TbyT %>% 
+  group_by(File) %>%
+  mutate(word_count = str_count(Text,"\\w+"), 
+         cumulative = cumsum(word_count), 
+         chunk = case_when(cumulative < (max(cumulative)/3) ~ 1, 
+                           cumulative < (max(cumulative/3))*2 ~ 2, 
+                           TRUE ~ 3) 
+  ) %>%
+  ungroup() 
+
+ECHO_Transcript_chunks <- ECHO_Transcript_chunks %>%
+  group_by(File, chunk, Speaker) %>%
+  summarise(words = paste(Text,collapse = " ")) %>%
+  ungroup()
 
