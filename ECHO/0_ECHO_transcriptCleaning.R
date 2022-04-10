@@ -235,8 +235,10 @@ ECHO_LSM_MLM <- left_join(ECHO_LSM_MLM, ECHO_survey_data, by = "tapeid")
 
 
 
+
 #Script for creating the chunks which will be used of studying linguistic accommodation
-ECHO_Transcript_chunks <- ECHO_Transcripts_Complete_TbyT %>% 
+#chunks created based on word count
+ECHO_Transcript_chunks_wc <- ECHO_Transcripts_Complete_TbyT %>% 
   group_by(File) %>%
   mutate(word_count = str_count(Text,"\\w+"), 
          cumulative = cumsum(word_count), 
@@ -246,8 +248,90 @@ ECHO_Transcript_chunks <- ECHO_Transcripts_Complete_TbyT %>%
   ) %>%
   ungroup() 
 
-ECHO_Transcript_chunks <- ECHO_Transcript_chunks %>%
+ECHO_Transcript_chunks_wc <- ECHO_Transcript_chunks_wc %>%
   group_by(File, chunk, Speaker) %>%
   summarise(words = paste(Text,collapse = " ")) %>%
   ungroup()
+
+
+#Script for creating the chunks which will be used of studying linguistic accommodation
+#chunks created based on turns
+ECHO_Transcript_chunks_turns <- ECHO_Transcripts_Complete_TbyT %>% 
+  mutate(turn = 1) %>%
+  group_by(File) %>%
+  mutate(cumulative = cumsum(turn),
+         chunk = case_when(cumulative < (max(cumulative)/3) ~ 1, 
+                           cumulative < (max(cumulative/3))*2 ~ 2, 
+                           TRUE ~ 3)
+  ) %>%
+  ungroup() 
+
+ECHO_Transcript_chunks_turns <- ECHO_Transcript_chunks_turns %>%
+  group_by(File, chunk, Speaker) %>%
+  summarise(words = paste(Text,collapse = " ")) %>%
+  ungroup()
+
+
+
+#ECHO_Transcript_chunks_turns$wordcount <- str_count(ECHO_Transcript_chunks_turns$words, "\\w+")
+  
+
+
+##################################################################
+#Script for making one, two, and three word turn tables to share with team
+
+ECHO_turns_one_word <- ECHO_Transcripts_Complete_TbyT %>%
+  filter(Word_count == 1)
+ECHO_turns_one_word$Text <- str_trim(ECHO_turns_one_word$Text)
+
+ECHO_turns_two_words <- ECHO_Transcripts_Complete_TbyT %>%
+  filter(Word_count == 2)
+ECHO_turns_two_words$Text <- str_trim(ECHO_turns_two_words$Text)
+ECHO_turns_two_words$Text <- str_squish(ECHO_turns_two_words$Text)
+
+ECHO_turns_three_words <- ECHO_Transcripts_Complete_TbyT %>%
+  filter(Word_count == 3)
+ECHO_turns_three_words$Text <- str_trim(ECHO_turns_three_words$Text)
+ECHO_turns_two_words$Text <- str_squish(ECHO_turns_two_words$Text)
+
+
+
+ECHO_turns_one_word_table <- data_frame(text = ECHO_turns_one_word$Text) %>% 
+  mutate(text = tolower(text)) %>% 
+  # mutate(text = str_remove_all(text, '[[:punct:]]')) %>% 
+  mutate(tokens = str_split(text, "\\s+")) %>%
+  unnest() %>% 
+  count(tokens) %>% 
+  # filter(!tokens %in% stop_words) %>% 
+  mutate(freq = n / sum(n)) %>% 
+  arrange(desc(n))
+
+
+#counting frequency of two-word strings
+ECHO_turns_two_words_table <- data_frame(text = ECHO_turns_two_words$Text) %>% 
+  mutate(text = tolower(text)) %>% 
+  # mutate(text = str_remove_all(text, '[[:punct:]]')) %>% 
+  # mutate(tokens = str_split(text, "\\s+")) %>%
+  # unnest() %>% 
+  count(text) %>% 
+  # filter(!tokens %in% stop_words) %>% 
+  mutate(freq = n / sum(n)) %>% 
+  arrange(desc(n))
+
+ECHO_turns_three_words_table <- data_frame(text = ECHO_turns_three_words$Text) %>% 
+  mutate(text = tolower(text)) %>% 
+  # mutate(text = str_remove_all(text, '[[:punct:]]')) %>% 
+  # mutate(tokens = str_split(text, "\\s+")) %>%
+  # unnest() %>% 
+  count(text) %>% 
+  # filter(!tokens %in% stop_words) %>% 
+  mutate(freq = n / sum(n)) %>% 
+  arrange(desc(n))
+
+
+
+write.csv(ECHO_turns_one_word_table, "ECHO_oneword_turns.csv")
+write.csv(ECHO_turns_two_words_table, "ECHO_twowords_turns.csv")
+write.csv(ECHO_turns_three_words_table, "ECHO_threewords_turns.csv")
+
 
