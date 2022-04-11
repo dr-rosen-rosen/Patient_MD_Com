@@ -8,6 +8,8 @@ default:
     ECHO_survey_data_name: "echo1.dta"
     ECHO_ID_key_name: "ECHO_ID_key.csv"
     ECHO_LSM_TbyT_Smoothed_name: "ECHO_LSM_TbyT_SMOOTHED.CSV"
+    ECHO_LSM_MLM_chunks_wc_name: "ECHO_LSM_MLM_chunks_wc.csv"
+    ECHO_LSM_MLM_chunks_turns_name: "ECHO_LSM_MLM_chunks_turns.csv"
     
 mike:
     transcript_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
@@ -20,6 +22,8 @@ mike:
     ECHO_Transcript_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_survey_data_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_ID_key_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
+    ECHO_LSM_MLM_chunks_wc_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
+    ECHO_LSM_MLM_chunks_turns_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     
 salar:
     transcript_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
@@ -32,3 +36,5 @@ salar:
     ECHO_Transcript_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_survey_data_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_ID_key_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
+    ECHO_LSM_MLM_chunks_wc_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
+    ECHO_LSM_MLM_chunks_turns_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
