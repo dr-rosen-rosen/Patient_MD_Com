@@ -232,7 +232,9 @@ ECHO_LSM_MLM <- left_join(ECHO_LSM_MLM, ECHO_ID_key, by = "File" )
 ECHO_LSM_MLM <- left_join(ECHO_LSM_MLM, ECHO_survey_data, by = "tapeid")
 
 
-
+##################################################################
+##################################################################
+##################################################################
 
 
 
@@ -253,6 +255,7 @@ ECHO_Transcript_chunks_wc <- ECHO_Transcript_chunks_wc %>%
   summarise(words = paste(Text,collapse = " ")) %>%
   ungroup()
 
+write.csv(ECHO_Transcript_chunks_wc, "ECHO_Transcript_chunks_wc.csv")
 
 #Script for creating the chunks which will be used of studying linguistic accommodation
 #chunks created based on turns
@@ -272,11 +275,154 @@ ECHO_Transcript_chunks_turns <- ECHO_Transcript_chunks_turns %>%
   ungroup()
 
 
+write.csv(ECHO_Transcript_chunks_turns, "ECHO_Transcript_chunks_turns.csv")
+
 
 #ECHO_Transcript_chunks_turns$wordcount <- str_count(ECHO_Transcript_chunks_turns$words, "\\w+")
-  
+ 
 
 
+
+##################################################################
+##################################################################
+##################################################################
+#Running LSM on two different transcript chunk versions
+
+
+#Opening all files
+ECHO_LSM_MLM_chunks_wc <- read_csv(here(config$ECHO_LSM_MLM_chunks_wc_path, config$ECHO_LSM_MLM_chunks_wc_name))
+ECHO_LSM_MLM_chunks_turns <- read_csv(here(config$ECHO_LSM_MLM_chunks_turns_path, config$ECHO_LSM_MLM_chunks_turns_name))
+ECHO_survey_data <- read_dta(here(config$ECHO_survey_data_path, config$ECHO_survey_data_name))
+ECHO_ID_key <- read_csv(here(config$ECHO_ID_key_path, config$ECHO_ID_key_name))
+
+
+#Here is the code for creating the LIWC values for patient and doctor as individual variables
+ECHO_LSM_LIWC_Components_chunks_wc <- ECHO_LSM_MLM_chunks_wc %>%
+  rename(output_order = 'Source (A)') %>%
+  rename(File = 'Source (B)') %>%
+  rename(Speaker = 'Source (C)') %>%
+  rename(Text = 'Source (D)') %>%
+  select(-one_of(c("AllPunc","Period","Comma", "Colon", "SemiC","QMark",
+                   "Exclam", "Dash", "Quote", "Apostro", "Parenth", "OtherP"))) %>%
+  ungroup()%>%
+  select(-Text) %>%
+  select(-output_order) %>%
+  pivot_longer(WC:filler) %>%
+  pivot_wider(names_from = c(name, Speaker), values_from = value) 
+
+
+#This is for calculating LSM for this data
+ECHO_LSM_MLM_chunks_wc <- ECHO_LSM_MLM_chunks_wc %>%
+  rename(output_order = 'Source (A)') %>%
+  rename(File = 'Source (B)') %>%
+  rename(Speaker = 'Source (C)') %>%
+  rename(Text = 'Source (D)')
+
+ECHO_LSM_MLM_chunks_wc <- ECHO_LSM_MLM_chunks_wc %>%
+  #deleting all punctuations
+  select(-one_of(c("AllPunc","Period","Comma", "Colon", "SemiC","QMark",
+                   "Exclam", "Dash", "Quote", "Apostro", "Parenth", "OtherP")))
+
+#renamed function variable to funct as indicated on LIWC manual
+ECHO_LSM_MLM_chunks_wc <- rename(ECHO_LSM_MLM_chunks_wc, funct = "function")
+
+ECHO_LSM_MLM_chunks_wc <- ECHO_LSM_MLM_chunks_wc%>%
+  select(-Text) %>%
+  select(-output_order) %>%
+  pivot_longer(WC:filler) %>%
+  pivot_wider(names_from = Speaker, values_from = value) %>%
+  mutate(LIWC_new = (1 - abs(D - P) / (D + P + .0001))) %>%
+  select(-D, -P) %>%
+  pivot_wider(names_from = name, names_prefix = "LSM_", values_from = LIWC_new)
+
+
+#creating overall LSM metric for functions by getting average of auxiliary verbs, 
+#articles, common adverbs, personal pronouns, indefinite pronouns, prepositions, 
+#negations, conjunctions, quantifiers (missing LSM_ppronoun for now)
+ECHO_LSM_MLM_chunks_wc <- ECHO_LSM_MLM_chunks_wc%>%
+  rowwise() %>%
+  mutate(LSM_function_mean = mean(c(LSM_auxverb, LSM_article, LSM_adverb, LSM_ipron, LSM_prep, 
+                                    LSM_negate, LSM_conj, LSM_quant, LSM_ppron)))
+
+#Adding LIWC components back to LSM file
+ECHO_LSM_MLM_chunks_wc <- left_join(ECHO_LSM_MLM_chunks_wc, ECHO_LSM_LIWC_Components_chunks_wc, by = "File")
+
+#Making the provider_id variable
+ECHO_LSM_MLM_chunks_wc <- mutate(ECHO_LSM_MLM_chunks_wc,
+                       provider_id = str_sub(File, 1, 4))
+
+#merge ECHO_LSM_MLM_chunks_wc and ECHO_ID_key by "File"
+ECHO_LSM_MLM_chunks_wc <- left_join(ECHO_LSM_MLM_chunks_wc, ECHO_ID_key, by = "File" )
+
+#merge ECHO_LSM_MLM_chunks_wc and ECHO_survey_data by "tapeid" to include survey data
+ECHO_LSM_MLM_chunks_wc <- left_join(ECHO_LSM_MLM_chunks_wc, ECHO_survey_data, by = "tapeid")
+
+
+
+
+#Here is the code for creating the LIWC values for patient and doctor as individual variables
+ECHO_LSM_LIWC_Components_chunks_turns <- ECHO_LSM_MLM_chunks_turns %>%
+  rename(output_order = 'Source (A)') %>%
+  rename(File = 'Source (B)') %>%
+  rename(Speaker = 'Source (C)') %>%
+  rename(Text = 'Source (D)') %>%
+  select(-one_of(c("AllPunc","Period","Comma", "Colon", "SemiC","QMark",
+                   "Exclam", "Dash", "Quote", "Apostro", "Parenth", "OtherP"))) %>%
+  ungroup()%>%
+  select(-Text) %>%
+  select(-output_order) %>%
+  pivot_longer(WC:filler) %>%
+  pivot_wider(names_from = c(name, Speaker), values_from = value) 
+
+
+#This is for calculating LSM for this data
+ECHO_LSM_MLM_chunks_turns <- ECHO_LSM_MLM_chunks_turns %>%
+  rename(output_order = 'Source (A)') %>%
+  rename(File = 'Source (B)') %>%
+  rename(Speaker = 'Source (C)') %>%
+  rename(Text = 'Source (D)')
+
+ECHO_LSM_MLM_chunks_turns <- ECHO_LSM_MLM_chunks_turns %>%
+  #deleting all punctuations
+  select(-one_of(c("AllPunc","Period","Comma", "Colon", "SemiC","QMark",
+                   "Exclam", "Dash", "Quote", "Apostro", "Parenth", "OtherP")))
+
+#renamed function variable to funct as indicated on LIWC manual
+ECHO_LSM_MLM_chunks_turns <- rename(ECHO_LSM_MLM_chunks_turns, funct = "function")
+
+ECHO_LSM_MLM_chunks_turns <- ECHO_LSM_MLM_chunks_turns%>%
+  select(-Text) %>%
+  select(-output_order) %>%
+  pivot_longer(WC:filler) %>%
+  pivot_wider(names_from = Speaker, values_from = value) %>%
+  mutate(LIWC_new = (1 - abs(D - P) / (D + P + .0001))) %>%
+  select(-D, -P) %>%
+  pivot_wider(names_from = name, names_prefix = "LSM_", values_from = LIWC_new)
+
+
+#creating overall LSM metric for functions by getting average of auxiliary verbs, 
+#articles, common adverbs, personal pronouns, indefinite pronouns, prepositions, 
+#negations, conjunctions, quantifiers (missing LSM_ppronoun for now)
+ECHO_LSM_MLM_chunks_turns <- ECHO_LSM_MLM_chunks_turns%>%
+  rowwise() %>%
+  mutate(LSM_function_mean = mean(c(LSM_auxverb, LSM_article, LSM_adverb, LSM_ipron, LSM_prep, 
+                                    LSM_negate, LSM_conj, LSM_quant, LSM_ppron)))
+
+#Adding LIWC components back to LSM file
+ECHO_LSM_MLM_chunks_turns <- left_join(ECHO_LSM_MLM_chunks_turns, ECHO_LSM_LIWC_Components_chunks_turns, by = "File")
+
+#Making the provider_id variable
+ECHO_LSM_MLM_chunks_turns <- mutate(ECHO_LSM_MLM_chunks_turns,
+                                 provider_id = str_sub(File, 1, 4))
+
+#merge ECHO_LSM_MLM_chunks_turns and ECHO_ID_key by "File"
+ECHO_LSM_MLM_chunks_turns <- left_join(ECHO_LSM_MLM_chunks_turns, ECHO_ID_key, by = "File" )
+
+#merge ECHO_LSM_MLM_chunks_turns and ECHO_survey_data by "tapeid" to include survey data
+ECHO_LSM_MLM_chunks_turns <- left_join(ECHO_LSM_MLM_chunks_turns, ECHO_survey_data, by = "tapeid")
+
+##################################################################
+##################################################################
 ##################################################################
 #Script for making one, two, and three word turn tables to share with team
 
