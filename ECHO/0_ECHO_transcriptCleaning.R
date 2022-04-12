@@ -264,7 +264,7 @@ ECHO_Transcript_chunks_turns <- ECHO_Transcripts_Complete_TbyT %>%
   group_by(File) %>%
   mutate(cumulative = cumsum(turn),
          chunk = case_when(cumulative < (max(cumulative)/3) ~ 1, 
-                           cumulative < (max(cumulative/3))*2 ~ 2, 
+                           cumulative < (max(cumulative)/3)*2 ~ 2, 
                            TRUE ~ 3)
   ) %>%
   ungroup() 
@@ -300,8 +300,9 @@ ECHO_ID_key <- read_csv(here(config$ECHO_ID_key_path, config$ECHO_ID_key_name))
 ECHO_LSM_LIWC_Components_chunks_wc <- ECHO_LSM_MLM_chunks_wc %>%
   rename(output_order = 'Source (A)') %>%
   rename(File = 'Source (B)') %>%
-  rename(Speaker = 'Source (C)') %>%
-  rename(Text = 'Source (D)') %>%
+  rename(Chunk = 'Source (C)') %>%
+  rename(Speaker = 'Source (D)') %>%
+  rename(Text = 'Source (E)') %>%
   select(-one_of(c("AllPunc","Period","Comma", "Colon", "SemiC","QMark",
                    "Exclam", "Dash", "Quote", "Apostro", "Parenth", "OtherP"))) %>%
   ungroup()%>%
@@ -315,8 +316,9 @@ ECHO_LSM_LIWC_Components_chunks_wc <- ECHO_LSM_MLM_chunks_wc %>%
 ECHO_LSM_MLM_chunks_wc <- ECHO_LSM_MLM_chunks_wc %>%
   rename(output_order = 'Source (A)') %>%
   rename(File = 'Source (B)') %>%
-  rename(Speaker = 'Source (C)') %>%
-  rename(Text = 'Source (D)')
+  rename(Chunk = 'Source (C)') %>%
+  rename(Speaker = 'Source (D)') %>%
+  rename(Text = 'Source (E)')
 
 ECHO_LSM_MLM_chunks_wc <- ECHO_LSM_MLM_chunks_wc %>%
   #deleting all punctuations
@@ -324,7 +326,7 @@ ECHO_LSM_MLM_chunks_wc <- ECHO_LSM_MLM_chunks_wc %>%
                    "Exclam", "Dash", "Quote", "Apostro", "Parenth", "OtherP")))
 
 #renamed function variable to funct as indicated on LIWC manual
-ECHO_LSM_MLM_chunks_wc <- rename(ECHO_LSM_MLM_chunks_wc, funct = "function")
+# ECHO_LSM_MLM_chunks_wc <- rename(ECHO_LSM_MLM_chunks_wc, funct = "function")
 
 ECHO_LSM_MLM_chunks_wc <- ECHO_LSM_MLM_chunks_wc%>%
   select(-Text) %>%
@@ -357,7 +359,22 @@ ECHO_LSM_MLM_chunks_wc <- left_join(ECHO_LSM_MLM_chunks_wc, ECHO_ID_key, by = "F
 #merge ECHO_LSM_MLM_chunks_wc and ECHO_survey_data by "tapeid" to include survey data
 ECHO_LSM_MLM_chunks_wc <- left_join(ECHO_LSM_MLM_chunks_wc, ECHO_survey_data, by = "tapeid")
 
+ECHO_LSM_MLM_chunks_wc_TEST <- ECHO_LSM_MLM_chunks_wc %>%
+  select((c(File, Chunk, LSM_auxverb, LSM_article, LSM_adverb, LSM_ipron, LSM_prep, 
+            LSM_negate, LSM_conj, LSM_quant, LSM_ppron, LSM_function_mean ))) %>%
+  pivot_longer(LSM_auxverb:LSM_function_mean) %>%
+  pivot_wider(names_from = c(name, Chunk), values_from = value) %>%
+  select((c(File, LSM_function_mean_1, LSM_function_mean_2, LSM_function_mean_3)))
+  
 
+
+
+
+#####
+library(esquisse)
+esquisser(ECHO_LSM_MLM_chunks_wc)
+
+#####
 
 
 #Here is the code for creating the LIWC values for patient and doctor as individual variables
