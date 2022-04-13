@@ -1,5 +1,5 @@
 #########################################
-#### tur by turn LSM
+#### turn by turn LSM
 #########################################
 library(tidyverse)
 # read in turn by turn LIWC file
@@ -32,6 +32,7 @@ rLSM_df <- df_tbyt %>%
   dplyr::select(File, Speaker, WC, WPS, auxverb, article, adverb, ipron, 
                 prep, negate, conj, quant, ppron) %>%
   # Adding quick way to drop turn by turns from the same speaker
+  ### WE NEED TO THINK ABOUT FLOW. WHERE WE"RE DOING SMOOTHING, ETC> (here or in cleaning)
   group_by(File) %>%
   mutate(
     Speaker.lag = lag(Speaker)
@@ -60,11 +61,13 @@ rLSM_df <- df_tbyt %>%
     ppron.lag = lag(ppron),
     WC.lag = lag(WC)) %>%
   ungroup() %>%
-  filter(WC > 1 & WC.lag >1) %>% # drops all exchanges with one word utterances
+  # filter(WC > 1 & WC.lag >1) %>% # drops all exchanges with one word utterances
   # This makes sure that only liwc categories prersent in the first statement are used for rlsm
   mutate(across(c(auxverb.lag, article.lag, adverb.lag, ipron.lag, 
                   prep.lag, negate.lag, conj.lag, quant.lag, ppron.lag), 
                 ~ if_else(. > 0,.,as.numeric(NA)))) %>%
+  # This sets liwc categories in the responders speech to NA if that category was NA in the first person's speech
+  # Per the rLSM paper
   mutate(
     auxverb = if_else(is.na(auxverb.lag),as.numeric(NA),auxverb),
     article = if_else(is.na(article.lag),as.numeric(NA),article),

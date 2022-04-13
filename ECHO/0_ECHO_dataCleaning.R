@@ -6,7 +6,7 @@ library(here)
 library(config)
 library(gdata)
 
-Sys.setenv(R_CONFIG_ACTIVE = "salar") # 'default')#
+Sys.setenv(R_CONFIG_ACTIVE = "mike") # 'default')#
 config <- config::get()
 
 #open files
