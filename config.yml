@@ -10,6 +10,7 @@ default:
     ECHO_LSM_TbyT_Smoothed_name: "ECHO_LSM_TbyT_SMOOTHED.CSV"
     ECHO_LSM_MLM_chunks_wc_name: "ECHO_LSM_MLM_chunks_wc.csv"
     ECHO_LSM_MLM_chunks_turns_name: "ECHO_LSM_MLM_chunks_turns.csv"
+    maripohsa_survey_data_name: "merged MaRIPOHSA data (patient_level 3-9-22).dta"
     
 mike:
     transcript_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
@@ -24,6 +25,7 @@ mike:
     ECHO_ID_key_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_LSM_MLM_chunks_wc_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_LSM_MLM_chunks_turns_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
+    maripohsa_survey_data_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis'
     
 salar:
     transcript_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
@@ -38,3 +40,4 @@ salar:
     ECHO_ID_key_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_LSM_MLM_chunks_wc_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_LSM_MLM_chunks_turns_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
+    maripohsa_survey_data_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis'
