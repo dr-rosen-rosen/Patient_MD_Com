@@ -8,6 +8,7 @@ default:
     ECHO_survey_data_name: "echo1.dta"
     ECHO_ID_key_name: "ECHO_ID_key.csv"
     ECHO_LSM_TbyT_Smoothed_name: "ECHO_LSM_TbyT_SMOOTHED.CSV"
+    ECHO_LSM_TbyT_Smoothed_V2_name: "ECHO_LSM_TbyT_SMOOTHED_V2.csv"
     ECHO_LSM_MLM_chunks_wc_name: "ECHO_LSM_MLM_chunks_wc.csv"
     ECHO_LSM_MLM_chunks_turns_name: "ECHO_LSM_MLM_chunks_turns.csv"
     maripohsa_survey_data_name: "merged MaRIPOHSA data (patient_level 3-9-22).dta"
@@ -20,6 +21,7 @@ mike:
     ECHO_LSM_MLM_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_LSM_TbyT_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_LSM_TbyT_Smoothed_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
+    ECHO_LSM_TbyT_Smoothed_V2_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_Transcript_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_survey_data_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_ID_key_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
@@ -35,6 +37,7 @@ salar:
     ECHO_LSM_MLM_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_LSM_TbyT_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_LSM_TbyT_Smoothed_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
+    ECHO_LSM_TbyT_Smoothed_V2_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_Transcript_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_survey_data_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_ID_key_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
