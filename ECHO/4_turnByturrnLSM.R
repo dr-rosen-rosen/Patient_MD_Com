@@ -355,21 +355,7 @@ rLSM_df_allturns <- df_tbyt %>%
     ungroup() %>%
     filter(speaker_match == 0) %>%
     # End dropping same speaker turns
-    
-    # group_by(File) %>%
-    # mutate(
-    #   auxverb.orig = auxverb,
-    #   article.orig = article,
-    #   adverb.orig = adverb,
-    #   ipron.orig = ipron,
-    #   prep.orig = prep,
-    #   negate.orig = negate,
-    #   conj.orig = conj,
-    #   quant.orig = quant,
-    #   ppron.orig = ppron,
-    #   WC.orig = WC) %>%
-    # ungroup() %>%
-    #rowwise() %>%
+  
     # This puts the turn before the current one on the same row with a .lag suffix
     #dplyr::mutate(across(.cols=everything(), .funs = ~ dplyr::lead(.x,order_by=File,n = 1, default = NA), .names = '{.col}_lead')) %>%
     group_by(File) %>%
@@ -569,7 +555,7 @@ ECHO_smoothed_chunks_wc_rLSM <- ECHO_smoothed_chunks_wc
 
   
   
-  
+  #RUNNING rLSM ON CHUNKS MADE BASED ON TURNS
   ECHO_smoothed_chunks_turns_rLSM <- ECHO_smoothed_chunks_turns
   
   # test <- ECHO_smoothed_chunks_wc_rLSM %>%
@@ -704,8 +690,7 @@ ECHO_smoothed_chunks_wc_rLSM <- ECHO_smoothed_chunks_wc
 ##creating tbyt matching score for VADER scores  
 ################################################################################################################# 
   
-  ECHO_tbyt_matching_VADER <- smoothed_tByT_VADER_complete_df
-  
+  ECHO_tbyt_matching_VADER <- read_csv(here(config$smoothed_tByT_VADER_complete_df_path, config$smoothed_tByT_VADER_complete_df_name))
   
   # test <- ECHO_tbyt_matching_VADER  %>%
   #   dplyr::select(File, Speaker) %>%
