@@ -488,24 +488,24 @@ ECHO_LSM_MLM_chunks_turns <- ECHO_LSM_MLM_chunks_turns %>%
 ##################################################################
 ##################################################################
 
-
-#tbyt transcripts
-smoothed_tByT_VADER_df <- smoothed_tByT_df
-
-#getting tbyt vader scores
-smoothed_tByT_VADER_scores <- vader_df(smoothed_tByT_VADER_df$Text, incl_nt = T, neu_set = T, rm_qm = T)
-
-#binding the VADER scores with original df (which has ID and text)
-smoothed_tByT_VADER_complete_df <- bind_cols(smoothed_tByT_VADER_df,smoothed_tByT_VADER_scores)
-
-write.csv(smoothed_tByT_VADER_complete_df, "smoothed_tByT_VADER_complete_df.csv")
-
-
-#conv level transcripts
-ECHO_LSM_Prep_VADER <- ECHO_LSM_Prep 
-  
-#getting conv. level VADER scores --> had ERRORS for some transcript...looking into this..
-ECHO_LSM_Prep_VADER$Text <- vader_df(ECHO_LSM_Prep_VADER$Text, incl_nt = T, neu_set = T, rm_qm = T)
+#NOTE: COMMENTED THE VADER SCRIPT OUT SO WE DON'T ACCIDENTALLY RUN IT UNLESS WE WANT UPDATE IT.
+# #tbyt transcripts
+# smoothed_tByT_VADER_df <- smoothed_tByT_df
+# 
+# #getting tbyt vader scores
+# smoothed_tByT_VADER_scores <- vader_df(smoothed_tByT_VADER_df$Text, incl_nt = T, neu_set = T, rm_qm = T)
+# 
+# #binding the VADER scores with original df (which has ID and text)
+# smoothed_tByT_VADER_complete_df <- bind_cols(smoothed_tByT_VADER_df,smoothed_tByT_VADER_scores)
+# 
+# write.csv(smoothed_tByT_VADER_complete_df, "smoothed_tByT_VADER_complete_df.csv")
+# 
+# 
+# #conv level transcripts
+# ECHO_LSM_Prep_VADER <- ECHO_LSM_Prep 
+#   
+# #getting conv. level VADER scores --> had ERRORS for some transcript...looking into this..
+# ECHO_LSM_Prep_VADER$Text <- vader_df(ECHO_LSM_Prep_VADER$Text, incl_nt = T, neu_set = T, rm_qm = T)
 
 ##################################################################
 #####Making one large df with all different matching variables
@@ -521,5 +521,8 @@ ECHO_All_Matching_Measures <- list(ECHO_LSM_MLM, ECHO_turn_exclusions_rLSM, ECHO
                ECHO_tbyt_matching_VADER) %>% 
   reduce(left_join, by = "File")
 
+#making dataframe for all variables in the overall matching document
+ECHO_All_Matching_Measures_varnames <- as.data.frame(colnames(ECHO_All_Matching_Measures))
 
 write.csv(ECHO_All_Matching_Measures, "ECHO_All_Matching_Measures.csv")
+write.csv(ECHO_All_Matching_Measures_varnames, "ECHO_All_Matching_Measures_varnames.csv")
