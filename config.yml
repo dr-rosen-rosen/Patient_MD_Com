@@ -13,7 +13,7 @@ default:
     ECHO_LSM_MLM_chunks_turns_name: "ECHO_LSM_MLM_chunks_turns.csv"
     maripohsa_survey_data_name: "merged MaRIPOHSA data (patient_level 3-9-22).dta"
     smoothed_tByT_VADER_complete_df_name: "smoothed_tByT_VADER_complete_df.csv"
-    ECHO_All_Matching_Measures_name: "ECHO_All_Matching_Measures_varnames.csv"
+    ECHO_All_Matching_Measures_name: "ECHO_All_Matching_Measures.csv"
     
 mike:
     transcript_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
