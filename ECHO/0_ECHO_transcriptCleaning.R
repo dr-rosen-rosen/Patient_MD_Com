@@ -5,6 +5,7 @@ library(here)
 library(config)
 library(haven)
 library(skimr)
+library(vader)
 
 
 Sys.setenv(R_CONFIG_ACTIVE = "salar") # 'default')#
@@ -215,7 +216,17 @@ rename(funct = "function") %>%
 #negations, conjunctions, quantifiers (missing LSM_ppronoun for now)
   rowwise() %>%
   mutate(LSM_function_mean = mean(c(LSM_auxverb, LSM_article, LSM_adverb, LSM_ipron, LSM_prep, 
-                                    LSM_negate, LSM_conj, LSM_quant, LSM_ppron)))
+                                    LSM_negate, LSM_conj, LSM_quant, LSM_ppron))) %>%
+  mutate(conv.affect.match = LSM_affect,
+         conv.social.match = LSM_social,
+         conv.cogproc.match = LSM_cogproc,
+         conv.percept.match = LSM_percept,
+         conv.negemo.match = LSM_negemo,
+         conv.bio.match = LSM_bio,
+         conv.drives.match = LSM_drives,
+         conv.relativ.match = LSM_relativ,
+         conv.informal.match = LSM_informal)
+  
 
 
 #Adding LIWC components back to LSM file
@@ -515,11 +526,13 @@ ECHO_LSM_MLM_chunks_turns <- ECHO_LSM_MLM_chunks_turns %>%
 
 
 #merging all matching measures into one large df
-ECHO_All_Matching_Measures <- list(ECHO_LSM_MLM, ECHO_turn_exclusions_rLSM, ECHO_tbyt_LIWC_matching, 
+ECHO_All_Matching_Measures <- list(ECHO_LSM_MLM, ECHO_smoothed_rLSM, ECHO_smoothed_LIWC_matching, 
                ECHO_LSM_MLM_chunks_turns, ECHO_LSM_MLM_chunks_wc, 
                ECHO_smoothed_chunks_turns_rLSM, ECHO_smoothed_chunks_wc_rLSM,
-               ECHO_tbyt_matching_VADER) %>% 
-  reduce(left_join, by = "File")
+               ECHO_smoothed_chunks_wc_LIWC_matching, ECHO_smoothed_chunks_turns_LIWC_matching,
+               ECHO_smoothed_VADER_matching) %>% 
+  reduce(full_join, by = "File")
+
 
 #making dataframe for all variables in the overall matching document
 ECHO_All_Matching_Measures_varnames <- as.data.frame(colnames(ECHO_All_Matching_Measures))
