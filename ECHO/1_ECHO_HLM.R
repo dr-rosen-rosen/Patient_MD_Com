@@ -250,32 +250,36 @@ anova(m.1_H3a.2_HLM,m.0_H3a.2_HLM)
 ## Notes on models
 # M0 is Null lm
 # M1 is provier id grouping var only
+
+
+
+
+
+
+
+
+# NEW step 3 using update
 # M2 is M1 + conv_styl_preds + cntrl_vars
+predictors <- append(cntrl_vars,conv_styl_preds)
+m.2_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+summary(m.2_H3a.2_HLM_conv)
 # M3 is M1 + conv_cntnt_preds + cntrl_vars
+predictors <- append(cntrl_vars,conv_cntnt_preds)
+m.3_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+summary(m.3_H3a.2_HLM_conv)
 # M4 is M1 + tbyt_styl_preds + cntrl_vars
+predictors <- append(cntrl_vars,tbyt_styl_preds)
+m.4_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+summary(m.4_H3a.2_HLM_conv)
 # M5 is M1 + tbyt_cntnt_preds + cntrl_vars
+predictors <- append(cntrl_vars,tbyt_cntnt_preds)
+m.5_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+summary(m.5_H3a.2_HLM_conv)
 # M6 is M1 + conv_styl_chnkd_preds + cntrl_vars
 # M7 is M1 + conv_cntnt_chnkd_preds + cntrl_vars
 # M8 is M1 + tbyt_styl_chnkd_preds + cntrl_vars
 # M9 is M1 + tbyt_cntnt_chnkd_preds + cntrl_vars
 
-
-# NEW step 3 using update
-predictors <- append(cntrl_vars,conv_styl_preds)
-m.2_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-summary(m.2_H3a.2_HLM_conv)
-
-predictors <- append(cntrl_vars,conv_cntnt_preds)
-m.3_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-summary(m.3_H3a.2_HLM_conv)
-
-predictors <- append(cntrl_vars,tbyt_styl_preds)
-m.4_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-summary(m.4_H3a.2_HLM_conv)
-
-predictors <- append(cntrl_vars,tbyt_cntnt_preds)
-m.5_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-summary(m.5_H3a.2_HLM_conv)
 
 sjPlot::tab_model(m.2_H3a.2_HLM)
 
