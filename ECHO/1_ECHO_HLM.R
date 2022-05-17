@@ -9,6 +9,30 @@ library(sjPlot)
 #Used lme4 to run glmer by adding  "family = 'binomial'" to code
 #install.packages("glmer")
 #library(glmer)
+############################################################################################################
+# Predictor & control variable lists
+############################################################################################################
+cntrl_vars <- c('racecat2','age', 'gender', 'working', 'marital', 'hsdegree')
+conv_styl_preds <- ECHO_conv_LSM_variables
+conv_cntnt_preds <- ECHO_conv_LIWC_Matching_variables
+tbyt_styl_preds <- ECHO_tbyt_rLSM_variables
+tbyt_cntnt_preds <- ECHO_tbyt_LIWC_Matching_variables
+conv_styl_chnkd_preds <- ECHO_conv_LSM_chunks_turns_variables
+# conv_cntnt_chnkd_preds <- 
+tbyt_styl_chnkd_preds <- ECHO_tbyt_rLSM_chunks_turns_variables 
+tbyt_cntnt_chnkd_preds <- ECHO_tbyt_LIWC_matching_chunks_turns_variables
+
+## Notes on models
+# M0 is Null lm
+# M1 is provier id grouping var only
+# M2 is M1 + conv_styl_preds + cntrl_vars
+# M3 is M1 + conv_cntnt_preds + cntrl_vars
+# M4 is M1 + tbyt_styl_preds + cntrl_vars
+# M5 is M1 + tbyt_cntnt_preds + cntrl_vars
+# M6 is M1 + conv_styl_chnkd_preds + cntrl_vars
+# M7 is M1 + conv_cntnt_chnkd_preds + cntrl_vars
+# M8 is M1 + tbyt_styl_chnkd_preds + cntrl_vars
+# M9 is M1 + tbyt_cntnt_chnkd_preds + cntrl_vars
 
 
 ############################################################################################################
@@ -216,57 +240,43 @@ sjPlot::tab_model(m.2_H3a.1_HLM_conv,m.2_H3a.1_HLM_rLSM.D,m.2_H3a.1_HLM_rLSM.P)
 
 # step 1: Null model
 m.0_H3a.2_HLM <- lm(overcomm~ 1, data = H3a.2_df)
+summary(m.1_H3a.2_HLM)
 
 # step 2: add the culstering variable.. MD
 m.1_H3a.2_HLM <- lmer(overcomm ~ 1 + (1|provider_id), data = H3a.2_df)
 # test for fit of grouping structure
 anova(m.1_H3a.2_HLM,m.0_H3a.2_HLM)
 
-# step 3: add the predictors
-m.2_H3a.2_HLM_conv <- lmer(
-  overcomm ~
-  #occare ~
-  #ocunderstand ~
-                      LSM_function_mean+
-                         #rLSM.P +
-                        #rLSM.D +
-                      #   WPS_avg.D +
-                      #   WPS_avg.P +
-                      #   WC_sum.D +
-                      #   WC_sum.P +
-                      # mean.rLSM +
-                      # ratio.rLSM +
-                      # verb_dom +
-                      #   WC_D_scaled+
-                      #   WC_P_scaled+
-                      #   WPS_D_scaled+
-                      #   WPS_P_scaled+
-                      #   Sixltr_D_scaled+
-                      #   Sixltr_P_scaled+
-                      # affiliation_D_scaled+
-                      # affiliation_P_scaled+
-                      # i_D_scaled+
-                      # i_P_scaled+
-                      # Clout_D_scaled+
-                      # Clout_P_scaled+
-                      # differ_D_scaled+
-                      # differ_P_scaled+
-                      # Clout_D_scaled+
-                      # Clout_P_scaled+
-                      # insight_D_scaled+
-                      # insight_P_scaled+
-                      # cause_D_scaled+
-                      # cause_P_scaled+
-                      # provider_style_sd+
-                      # provider_rLSM_sd +
-                      #racecat2 +
-                      # hsdegree + 
-                      # rLSM.P*racecat2 +
-                      # rLSM.D*racecat2 +
-                      # LSM_function_mean*racecat2 +
-                      (1|provider_id), data = H3a.2_df)
-anova(m.1_H3a.2_HLM,m.2_H3a.2_HLM)
-summary(m.2_H3a.2_HLM)
+## Notes on models
+# M0 is Null lm
+# M1 is provier id grouping var only
+# M2 is M1 + conv_styl_preds + cntrl_vars
+# M3 is M1 + conv_cntnt_preds + cntrl_vars
+# M4 is M1 + tbyt_styl_preds + cntrl_vars
+# M5 is M1 + tbyt_cntnt_preds + cntrl_vars
+# M6 is M1 + conv_styl_chnkd_preds + cntrl_vars
+# M7 is M1 + conv_cntnt_chnkd_preds + cntrl_vars
+# M8 is M1 + tbyt_styl_chnkd_preds + cntrl_vars
+# M9 is M1 + tbyt_cntnt_chnkd_preds + cntrl_vars
+
+
+# NEW step 3 using update
+predictors <- append(cntrl_vars,conv_styl_preds)
+m.2_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+summary(m.2_H3a.2_HLM_conv)
+
+predictors <- append(cntrl_vars,conv_cntnt_preds)
+m.3_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+summary(m.3_H3a.2_HLM_conv)
+
+predictors <- append(cntrl_vars,tbyt_styl_preds)
+m.4_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+summary(m.4_H3a.2_HLM_conv)
+
+predictors <- append(cntrl_vars,tbyt_cntnt_preds)
+m.5_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+summary(m.5_H3a.2_HLM_conv)
+
 sjPlot::tab_model(m.2_H3a.2_HLM)
 
 sjPlot::tab_model(m.2_H3a.2_HLM_conv,m.2_H3a.2_HLM_rLSM.P,m.2_H3a.2_HLM_rLSM.D)
