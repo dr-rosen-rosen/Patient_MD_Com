@@ -6,7 +6,7 @@ library(here)
 library(config)
 library(gdata)
 
-Sys.setenv(R_CONFIG_ACTIVE = "mike") # 'default')#
+Sys.setenv(R_CONFIG_ACTIVE = "salar") # 'default')#
 config <- config::get()
 
 #open files
@@ -102,27 +102,45 @@ ECHO_tbyt_LIWC_Matching_variables = c('affect.tbytmatch.D', 'affect.tbytmatch.P'
                                  'drives.tbytmatch.D', 'drives.tbytmatch.P', 'relativ.tbytmatch.D', 'relativ.tbytmatch.P', 
                                  'informal.tbytmatch.D', 'informal.tbytmatch.P')
 ECHO_conv_LSM_chunks_turns_variables = c('LSM_function_mean_1_turns', 'LSM_function_mean_2_turns', 'LSM_function_mean_3_turns', 'LSM_function_mean_chunkratio_turns')
-ECHO_conv_LSM_chunks_wc_variables = c('LSM_function_mean_1_wc', 'LSM_function_mean_2_wc', 'LSM_function_mean_3_wc', 'LSM_function_mean_chunkratio_wc')
+# ECHO_conv_LSM_chunks_wc_variables = c('LSM_function_mean_1_wc', 'LSM_function_mean_2_wc', 'LSM_function_mean_3_wc', 'LSM_function_mean_chunkratio_wc')
+ECHO_conv_LIWC_Matching_turns_variables = c('affect_chunkratio_turns',
+                                            'social_chunkratio_turns',
+                                            'cogproc_chunkratio_turns',
+                                            'percept_chunkratio_turns',
+                                            'negemo_chunkratio_turns',
+                                            'bio_chunkratio_turns',
+                                            'drives_chunkratio_turns',
+                                           'relativ_chunkratio_turns',
+                                            'informal_chunkratio_turns')
+# ECHO_conv_LIWC_Matching_wc_variables = c('affect_chunkratio_wc',
+                                            # 'social_chunkratio_wc',
+                                            # 'cogproc_chunkratio_wc',
+                                            # 'percept_chunkratio_wc',
+                                            # 'negemo_chunkratio_wc',
+                                            # 'bio_chunkratio_wc',
+                                            # 'drives_chunkratio_wc',
+                                            # 'relativ_chunkratio_wc',
+                                            # 'informal_chunkratio_wc')
 ECHO_tbyt_rLSM_chunks_turns_variables = c('rLSM.D.1_turns', 'rLSM.D.2_turns', 'rLSM.D.3_turns', 'rLSM.P.1_turns', 'rLSM.P.2_turns',
                                           'rLSM.P.3_turns', 'mean.rLSM.1_turns', 'ratio.rLSM.1_turns', 'verb_dom.1_turns', 'mean.rLSM.2_turns',
                                           'ratio.rLSM.2_turns', 'verb_dom.2_turns', 'mean.rLSM.3_turns', 'ratio.rLSM.3_turns',
                                           'verb_dom.3_turns', 'rLSM_Chunk_Ratio.D_turns', 'rLSM_Chunk_Ratio.P_turns')
-ECHO_tbyt_rLSM_chunks_wc_variables = c('rLSM.D.1_wc', 'rLSM.D.2_wc', 'rLSM.D.3_wc', 'rLSM.P.1_wc', 'rLSM.P.2_wc',
-                                       'rLSM.P.3_wc', 'mean.rLSM.1_wc', 'ratio.rLSM.1_wc', 'verb_dom.1_wc', 'mean.rLSM.2_wc',
-                                       'ratio.rLSM.2_wc', 'verb_dom.2_wc', 'mean.rLSM.3_wc', 'ratio.rLSM.3_wc',
-                                       'verb_dom.3_wc', 'rLSM_Chunk_Ratio.D_wc', 'rLSM_Chunk_Ratio.P_wc')
+# ECHO_tbyt_rLSM_chunks_wc_variables = c('rLSM.D.1_wc', 'rLSM.D.2_wc', 'rLSM.D.3_wc', 'rLSM.P.1_wc', 'rLSM.P.2_wc',
+#                                        'rLSM.P.3_wc', 'mean.rLSM.1_wc', 'ratio.rLSM.1_wc', 'verb_dom.1_wc', 'mean.rLSM.2_wc',
+#                                        'ratio.rLSM.2_wc', 'verb_dom.2_wc', 'mean.rLSM.3_wc', 'ratio.rLSM.3_wc',
+#                                        'verb_dom.3_wc', 'rLSM_Chunk_Ratio.D_wc', 'rLSM_Chunk_Ratio.P_wc')
 ECHO_tbyt_LIWC_matching_chunks_turns_variables = c('affect_chunkratio_D_turns', 'affect_chunkratio_P_turns', 'social_chunkratio_D_turns',
                                                    'social_chunkratio_P_turns', 'cogproc_chunkratio_D_turns', 'cogproc_chunkratio_P_turns',
                                                    'percept_chunkratio_D_turns', 'percept_chunkratio_P_turns', 'negemo_chunkratio_D_turns',
                                                    'negemo_chunkratio_P_turns', 'bio_chunkratio_D_turns', 'bio_chunkratio_P_turns',
                                                    'drives_chunkratio_D_turns', 'drives_chunkratio_P_turns', 'relativ_chunkratio_D_turns',
                                                    'relativ_chunkratio_P_turns', 'informal_chunkratio_D_turns', 'informal_chunkratio_P_turns')
-ECHO_tbyt_LIWC_matching_chunks_wc_variables = c('affect_chunkratio_D_turns', 'affect_chunkratio_P_turns', 'social_chunkratio_D_turns',
-                                                'social_chunkratio_P_turns', 'cogproc_chunkratio_D_turns', 'cogproc_chunkratio_P_turns',
-                                                'percept_chunkratio_D_turns', 'percept_chunkratio_P_turns', 'negemo_chunkratio_D_turns',
-                                                'negemo_chunkratio_P_turns', 'bio_chunkratio_D_turns', 'bio_chunkratio_P_turns',
-                                                'drives_chunkratio_D_turns', 'drives_chunkratio_P_turns', 'relativ_chunkratio_D_turns',
-                                                'relativ_chunkratio_P_turns', 'informal_chunkratio_D_turns', 'informal_chunkratio_P_turns')
+# ECHO_tbyt_LIWC_matching_chunks_wc_variables = c('affect_chunkratio_D_turns', 'affect_chunkratio_P_turns', 'social_chunkratio_D_turns',
+#                                                 'social_chunkratio_P_turns', 'cogproc_chunkratio_D_turns', 'cogproc_chunkratio_P_turns',
+#                                                 'percept_chunkratio_D_turns', 'percept_chunkratio_P_turns', 'negemo_chunkratio_D_turns',
+#                                                 'negemo_chunkratio_P_turns', 'bio_chunkratio_D_turns', 'bio_chunkratio_P_turns',
+#                                                 'drives_chunkratio_D_turns', 'drives_chunkratio_P_turns', 'relativ_chunkratio_D_turns',
+#                                                 'relativ_chunkratio_P_turns', 'informal_chunkratio_D_turns', 'informal_chunkratio_P_turns')
 ECHO_tbyt_VADER_matching_chunks_wc_variables = c('compound.tbytmatch.D', 'compound.tbytmatch.P',
                                                  'pos.tbytmatch.D', 'pos.tbytmatch.P',
                                                  'neu.tbytmatch.D', 'neu.tbytmatch.P',
@@ -132,7 +150,7 @@ ECHO_tbyt_VADER_matching_chunks_wc_variables = c('compound.tbytmatch.D', 'compou
 ECHO_Matching_variables = c(ECHO_conv_LSM_variables, ECHO_tbyt_rLSM_variables, ECHO_conv_LIWC_Matching_variables,
                             ECHO_tbyt_LIWC_Matching_variables, ECHO_conv_LSM_chunks_turns_variables, ECHO_conv_LSM_chunks_wc_variables,
                             ECHO_tbyt_rLSM_chunks_turns_variables, ECHO_tbyt_rLSM_chunks_wc_variables, 
-                            ECHO_tbyt_LIWC_matching_chunks_turns_variables, ECHO_tbyt_LIWC_matching_chunks_wc_variables)
+                            ECHO_tbyt_LIWC_matching_chunks_turns_variables, ECHO_conv_LIWC_Matching_turns_variables, ECHO_tbyt_LIWC_matching_chunks_wc_variables)
 
 ECHO_survey_cultural_dissim = c('cultdiss', 'cultdissmd', 'cdspeak','cdreason','cdstyle','cdvalue','cdspirit','cdethnic',
                                 'cdtype','cdrace','cdculture','cdskin','cultdissmd1', 'cultdissmd2', 'cultdissmd3', 'cultdissmd4', 
