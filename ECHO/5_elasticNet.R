@@ -40,9 +40,9 @@ coef(ipstyle.cv.glmmod, s = "lambda.min")
 # the above tries to optimize lambad with a given alpha; 
 # this extention tries to optimize both alpha and lambda
 # still working on intrepreting this
-cva <- glmnetUtils::cva.glmnet(iptrust ~., data = df_NoNA, family = 'gaussian')
-plot(cva)
-predict(cva, df_NoNA,alpha = .001)
+# cva <- glmnetUtils::cva.glmnet(iptrust ~., data = df_NoNA, family = 'gaussian')
+# plot(cva)
+# predict(cva, df_NoNA,alpha = .001)
 
 # Speach features
 
