@@ -396,7 +396,16 @@ pivot_wider(names_from = name, names_prefix = "LSM_", values_from = LIWC_new) %>
 rowwise() %>%
 mutate(LSM_function_mean = mean(c(LSM_auxverb, LSM_article, LSM_adverb, LSM_ipron, LSM_prep, 
                                   LSM_negate, LSM_conj, LSM_quant, LSM_ppron))) %>%
-pivot_longer(LSM_WC:LSM_function_mean) %>%
+  mutate(conv.affect.match = LSM_affect,
+         conv.social.match = LSM_social,
+         conv.cogproc.match = LSM_cogproc,
+         conv.percept.match = LSM_percept,
+         conv.negemo.match = LSM_negemo,
+         conv.bio.match = LSM_bio,
+         conv.drives.match = LSM_drives,
+         conv.relativ.match = LSM_relativ,
+         conv.informal.match = LSM_informal) %>%
+pivot_longer(LSM_WC:conv.informal.match) %>%
 pivot_wider(names_from = c(name, Chunk), values_from = value)
 
 
@@ -419,7 +428,16 @@ ECHO_LSM_MLM_chunks_wc <- ECHO_LSM_MLM_chunks_wc %>%
   mutate(LSM_function_mean_chunkratio = (LSM_function_mean_3/LSM_function_mean_1))
 
 ECHO_LSM_MLM_chunks_wc <- ECHO_LSM_MLM_chunks_wc %>%
-  rename_at(vars(-(File)), ~ paste0(., '_wc'))
+  rename_at(vars(-(File)), ~ paste0(., '_wc')) %>%
+  mutate(affect_chunkratio_wc = conv.affect.match_3_wc/ conv.affect.match_1_wc,
+         social_chunkratio_wc = conv.social.match_3_wc/ conv.social.match_1_wc,
+         cogproc_chunkratio_wc = conv.cogproc.match_3_wc/ conv.cogproc.match_1_wc,
+         percept_chunkratio_wc = conv.percept.match_3_wc/ conv.percept.match_1_wc,
+         negemo_chunkratio_wc = conv.negemo.match_3_wc/ conv.negemo.match_1_wc,
+         bio_chunkratio_wc = conv.bio.match_3_wc/ conv.bio.match_1_wc,
+         drives_chunkratio_wc = conv.drives.match_3_wc/ conv.drives.match_1_wc,
+         relativ_chunkratio_wc = conv.relativ.match_3_wc/ conv.relativ.match_1_wc,
+         informal_chunkratio_wc = conv.informal.match_3_wc/ conv.informal.match_1_wc)
 ######################################################################################################
 #THIS SECTION IS LSM ON CHUNKS BASED ON TURNS
 #Here is the code for creating the LIWC values for patient and doctor as individual variables
@@ -468,7 +486,16 @@ pivot_wider(names_from = name, names_prefix = "LSM_", values_from = LIWC_new) %>
 rowwise() %>%
 mutate(LSM_function_mean = mean(c(LSM_auxverb, LSM_article, LSM_adverb, LSM_ipron, LSM_prep, 
                                   LSM_negate, LSM_conj, LSM_quant, LSM_ppron))) %>%
-pivot_longer(LSM_WC:LSM_function_mean) %>%
+  mutate(conv.affect.match = LSM_affect,
+         conv.social.match = LSM_social,
+         conv.cogproc.match = LSM_cogproc,
+         conv.percept.match = LSM_percept,
+         conv.negemo.match = LSM_negemo,
+         conv.bio.match = LSM_bio,
+         conv.drives.match = LSM_drives,
+         conv.relativ.match = LSM_relativ,
+         conv.informal.match = LSM_informal) %>%
+pivot_longer(LSM_WC:conv.informal.match) %>%
 pivot_wider(names_from = c(name, Chunk), values_from = value)
 
 
@@ -491,7 +518,16 @@ ECHO_LSM_MLM_chunks_turns <- ECHO_LSM_MLM_chunks_turns %>%
   mutate(LSM_function_mean_chunkratio = (LSM_function_mean_3/LSM_function_mean_1))
 
 ECHO_LSM_MLM_chunks_turns <- ECHO_LSM_MLM_chunks_turns %>%
-  rename_at(vars(-(File)), ~ paste0(., '_turns'))
+  rename_at(vars(-(File)), ~ paste0(., '_turns')) %>%
+  mutate(affect_chunkratio_turns = conv.affect.match_3_turns/ conv.affect.match_1_turns,
+         social_chunkratio_turns = conv.social.match_3_turns/ conv.social.match_1_turns,
+         cogproc_chunkratio_turns = conv.cogproc.match_3_turns/ conv.cogproc.match_1_turns,
+         percept_chunkratio_turns = conv.percept.match_3_turns/ conv.percept.match_1_turns,
+         negemo_chunkratio_turns = conv.negemo.match_3_turns/ conv.negemo.match_1_turns,
+         bio_chunkratio_turns = conv.bio.match_3_turns/ conv.bio.match_1_turns,
+         drives_chunkratio_turns = conv.drives.match_3_turns/ conv.drives.match_1_turns,
+         relativ_chunkratio_turns = conv.relativ.match_3_turns/ conv.relativ.match_1_turns,
+         informal_chunkratio_turns = conv.informal.match_3_turns/ conv.informal.match_1_turns)
 
 ##################################################################
 ##################################################################
