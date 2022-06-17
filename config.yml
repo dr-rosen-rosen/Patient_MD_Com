@@ -14,6 +14,8 @@ default:
     maripohsa_survey_data_name: "merged MaRIPOHSA data (patient_level 3-9-22).dta"
     smoothed_tByT_VADER_complete_df_name: "smoothed_tByT_VADER_complete_df.csv"
     ECHO_All_Matching_Measures_name: "ECHO_All_Matching_Measures.csv"
+    ECHO_WSU_Transcripts_name: "ECHO1_transcripts_WSV.csv"
+    WSU_ECHO_ID_Key_name: "WSU_ECHO_ID_Key.csv"
     
 mike:
     transcript_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
@@ -32,6 +34,8 @@ mike:
     maripohsa_survey_data_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis'
     smoothed_tByT_VADER_complete_df_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_All_Matching_Measures_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
+    ECHO_WSU_Transcripts_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
+    WSU_ECHO_ID_Key_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     
 salar:
     transcript_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
@@ -50,3 +54,5 @@ salar:
     maripohsa_survey_data_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis'
     smoothed_tByT_VADER_complete_df_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_All_Matching_Measures_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
+    ECHO_WSU_Transcripts_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
+    WSU_ECHO_ID_Key_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
