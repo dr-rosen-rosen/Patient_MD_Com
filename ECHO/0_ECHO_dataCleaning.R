@@ -6,11 +6,45 @@ library(here)
 library(config)
 library(gdata)
 
-Sys.setenv(R_CONFIG_ACTIVE = "salar") # 'default')#
-config <- config::get()
+
+# Sys.setenv(R_CONFIG_ACTIVE = "salar") # 'default')#
+# config <- config::get()
 
 #open files
-ECHO_All_Matching <- read_csv(here(config$ECHO_All_Matching_Measures_path, config$ECHO_All_Matching_Measures_name))
+#ECHO_All_Matching <- read_csv(here(config$ECHO_All_Matching_Measures_path, config$ECHO_All_Matching_Measures_name))
+
+# ECHO_All_Matching_Measures_WSU <- ECHO_All_Matching_Measures_V2[-c(30:359),]
+# 
+# ECHO_All_Matching_Measures_Other <- ECHO_All_Matching_Measures_V2[-c(1:29),]
+# 
+# ECHO_All_Matching_Measures_Other <- ECHO_All_Matching_Measures_Other %>%
+#   mutate(provider_id = str_sub(File, 1, 4)) %>%
+#   mutate(site_name= str_sub(provider_id, 1, 2)) 
+# 
+# WSU_ECHO_ID_Key_V2 <- WSU_ECHO_ID_Key %>%
+#   mutate(File = str_sub(Local_ID, 6, 9)) %>%
+#   mutate(tapeid = Global_ID) %>%
+#   mutate(provider_id = str_sub(Local_ID, 1,4)) %>%
+#   mutate(site_name= "WC") %>%
+#   select(-c(Local_ID,Global_ID, tapeid))
+# 
+# ECHO_All_Matching_Measures_WSU <- left_join(ECHO_All_Matching_Measures_WSU, WSU_ECHO_ID_Key_V2, by= "File")
+# 
+# ECHO_All_Matching_Measures_WSU <- ECHO_All_Matching_Measures_WSU %>%
+#   filter(File != "200B")
+# 
+# 
+# ECHO_All_Matching <- bind_rows(ECHO_All_Matching_Measures_Other, ECHO_All_Matching_Measures_WSU)
+# 
+# 
+
+
+#####
+ECHO_All_Matching <- ECHO_All_Matching_Measures_V2
+
+
+ECHO_All_Matching<- ECHO_All_Matching %>%
+  relocate(rLSM.D:informal.tbytmatch.P, .after = filler_P)
 
 #adding a function to apply scale() to all variables in a df
 add_scaled <- function(data, vars = colnames(data), ...) {
@@ -22,17 +56,18 @@ add_scaled <- function(data, vars = colnames(data), ...) {
 
 #making a df for all nonspeech variables
 ECHO_All_Matching_Nonspeech <- ECHO_All_Matching %>%
-  select(c(2, "provider_id":"disclosedquest"))
+  select(c( "provider_id":"disclosedquest"))
 
 #making a df for all speech variables
 ECHO_All_Matching_speech <- ECHO_All_Matching %>%
-  select(-(1:2)) %>%
+  select(-(1)) %>%
   select(-("provider_id":"disclosedquest"))
 
 
 ECHO_All_Matching_speech <-add_scaled(ECHO_All_Matching_speech)
 
-ECHO_All_Matching <- bind_cols(ECHO_All_Matching_Nonspeech, ECHO_All_Matching_speech)
+ECHO_All_Matching <- bind_cols(ECHO_All_Matching_speech, ECHO_All_Matching_Nonspeech)
+
 
 
 #making a race concordance variable "raceconc" between patient and provider race
@@ -67,18 +102,104 @@ ECHO_All_Matching <- ECHO_All_Matching %>%
   ungroup()
 
 
-
-# drop physicians with < n cases
+#Transforming cdspeak from continuous to dichotomous variable "cdspeakhigh"
 ECHO_All_Matching <- ECHO_All_Matching %>%
-  group_by(provider_id) %>%
-  filter(n() > 7) %>%
-  ungroup() %>%
-  gdata::drop.levels(.)
+  rowwise() %>%
+  mutate(cdspeakhigh = ifelse(cdspeak >= 3, 1, 0)) 
 
-#count_provider_id <- ECHO_All_Matching %>% count(provider_id)
+#making dichotomous variable to test out cultdissmd1 --> not used in analysis
+# ECHO_All_Matching <- ECHO_All_Matching %>%
+#   rowwise() %>%
+#   mutate(cultdissmd1high = ifelse(cultdissmd1 >= 4, 1, 0)) 
 
+
+
+
+#making subscale for provcomm-general clarity
 ECHO_All_Matching <- ECHO_All_Matching %>%
-  mutate(provider_id = factor(provider_id))
+  rowwise() %>%
+  mutate(pcwordsR = 4 - pcwords) %>%
+  mutate(pcfastR = 4 - pcfast) %>%
+  mutate(provcomm_clarity = mean(c(pcwordsR, pcfastR))) %>%
+  mutate(provcomm_clarityhigh = ifelse(provcomm_clarity== 4, 1, 0))
+
+
+#making subscale for provcomm-responsiveness
+ECHO_All_Matching <- ECHO_All_Matching %>%
+  rowwise() %>%
+  mutate(pcignoreR = 4 - pcignore) %>%
+  mutate(provcomm_responsive = mean(c(pctime, pclisten, pcignoreR))) %>%
+  mutate(provcomm_responsivehigh = ifelse(provcomm_responsive== 4, 1, 0))
+
+#making subscale for provcomm-explanation of condition
+ECHO_All_Matching <- ECHO_All_Matching %>%
+  rowwise() %>%
+  mutate(provcomm_expcondition = mean(c(pcinfo, pchealthprob))) %>%
+  mutate(provcomm_expconditionhigh = ifelse(provcomm_expcondition== 4, 1, 0))
+
+#making subscale for provcomm-explanation of self-care
+ECHO_All_Matching <- ECHO_All_Matching %>%
+  rowwise() %>%
+  mutate(provcomm_expselfcare = mean(c(pccarehome, pcsymp, pchowmeds,
+                                       pcgoovermeds, pcwritemeds,pcreasonmeds,
+                                       pcsemeds))) %>%
+  mutate(provcomm_expselfcarehigh = ifelse(provcomm_expselfcare== 4, 1, 0))
+
+#making subscale for provcomm-empowerment
+ECHO_All_Matching <- ECHO_All_Matching %>%
+  rowwise() %>%
+  mutate(provcomm_empowerment = mean(c(pcdiff, pcactivities))) %>%
+  mutate(provcomm_empowermenthigh = ifelse(provcomm_empowerment== 4, 1, 0))
+
+
+
+#making subscale for ipstyle-friendliness
+ECHO_All_Matching <- ECHO_All_Matching %>%
+  rowwise() %>%
+  mutate(ipwelcomeR = 4 - ipwelcome) %>%
+  mutate(iprudeR = 4 - iprude) %>%
+  mutate(ipstyle_friend = mean(c(ipfriend, ipwelcomeR, iprudeR))) %>%
+  mutate(ipstyle_friendhigh = ifelse(ipstyle_friend== 4, 1, 0)) 
+  
+
+
+#making subscale for ipstyle-respectfulness
+ECHO_All_Matching <- ECHO_All_Matching %>%
+  rowwise() %>%
+  mutate(iptalkfrontR = 4 - iptalkfront) %>%
+  mutate(ipstyle_respect = mean(c(ipcare, ipname, iptalkfrontR, ippriv))) %>%
+  mutate(ipstyle_respecthigh = ifelse(ipstyle_respect== 4, 1, 0))
+
+
+
+#making subscale for ipstyle-discrimination
+ECHO_All_Matching <- ECHO_All_Matching %>%
+  rowwise() %>%
+  mutate(ipinferiorR = 4 - ipinferior) %>%
+  mutate(ipnegattitudeR = 4 - ipnegattitude) %>%
+  mutate(ipdiscrimraceR = 4 - ipdiscrimrace) %>%
+  mutate(ipdiscrimeducR = 4 - ipdiscrimeduc) %>%
+  mutate(ipstyle_discrim = mean(c(ipinferiorR, ipnegattitudeR, ipdiscrimraceR, ipdiscrimeducR))) %>%
+  mutate(ipstyle_discrimhigh = ifelse(ipstyle_discrim== 4, 1, 0))
+
+
+#making subscale for ipstyle-emotional support, reassurance
+ECHO_All_Matching <- ECHO_All_Matching %>%
+  rowwise() %>%
+  mutate(ipstyle_emosupport = mean(c(iplessworry, ipcompliment, ipcompassion))) %>%
+  mutate(ipstyle_emosupporthigh = ifelse(ipstyle_emosupport== 4, 1, 0))
+
+
+
+
+# #drop physicians with < n cases
+# ECHO_All_Matching <- ECHO_All_Matching %>%
+#   group_by(provider_id) %>%
+#   filter(n() > 7) %>%
+#   ungroup() %>%
+#   gdata::drop.levels(.)
+
+
 
 #Making the site_name variable: only three sites in data set: JC, OC, SC
 ECHO_All_Matching <- ECHO_All_Matching %>%
@@ -94,6 +215,8 @@ ECHO_All_Matching <- ECHO_All_Matching %>%
 ECHO_All_Matching <- ECHO_All_Matching %>%
   mutate(site_id = factor(site_id))
 
+ECHO_All_Matching <- ECHO_All_Matching %>%
+  mutate(provider_id = factor(provider_id))
 
 ECHO_common_variables = c('provider_id', 'site_id')
 ECHO_raceconc_variables = c('raceconc')
@@ -103,17 +226,25 @@ ECHO_conv_LSM_variables = c('LSM_function_mean')
 
 ECHO_conv_LSM_variables_scaled = c('LSM_function_mean.scaled')
 
-ECHO_tbyt_rLSM_variables = c('rLSM.P', 'rLSM.D', 'WC_sum.D', 'WC_sum.P', 'mean.rLSM', 'ratio.rLSM', 'verb_dom')
+ECHO_tbyt_rLSM_variables = c('rLSM.P', 'rLSM.D', 'WC_sum.D', 'WC_sum.P', 'mean.rLSM', 'ratio.rLSM', 'verb_dom', 'WPS_avg.D', 'WPS_avg.P')
 
-ECHO_tbyt_rLSM_variables_scaled = c('rLSM.P.scaled', 'rLSM.D.scaled', 'WC_sum.D.scaled', 'WC_sum.P.scaled', 'mean.rLSM.scaled', 'ratio.rLSM.scaled', 'verb_dom.scaled')
+ECHO_tbyt_rLSM_variables_scaled = c('rLSM.P.scaled', 'rLSM.D.scaled', 'WC_sum.D.scaled', 'WC_sum.P.scaled', 'mean.rLSM.scaled', 'ratio.rLSM.scaled', 'verb_dom.scaled', 'WPS_avg.D.scaled', 'WPS_avg.P.scaled')
 
 ECHO_conv_LIWC_Matching_variables = c('conv.affect.match', 'conv.social.match', 'conv.cogproc.match',
                                       'conv.percept.match', 'conv.negemo.match', 'conv.bio.match',
                                       'conv.drives.match', 'conv.relativ.match', 'conv.informal.match')
 
+# conv.auxverb.match', 'conv.article.match', 'conv.adverb.match',
+#                                       'conv.ipron.match', 'conv.prep.match', 'conv.negate.match',
+#                                       'conv.conj.match', 'conv.quant.match', 'conv.ppron.match'
+
 ECHO_conv_LIWC_Matching_variables_scaled = c('conv.affect.match.scaled', 'conv.social.match.scaled', 'conv.cogproc.match.scaled',
                                              'conv.percept.match.scaled', 'conv.negemo.match.scaled', 'conv.bio.match.scaled',
                                              'conv.drives.match.scaled', 'conv.relativ.match.scaled', 'conv.informal.match.scaled')
+
+# 'conv.auxverb.match.scaled', 'conv.article.match.scaled', 'conv.adverb.match.scaled',
+# 'conv.ipron.match.scaled', 'conv.prep.match.scaled', 'conv.negate.match.scaled',
+# 'conv.conj.match.scaled', 'conv.quant.match.scaled', 'conv.ppron.match.scaled'
 
 ECHO_tbyt_LIWC_Matching_variables = c('affect.tbytmatch.D', 'affect.tbytmatch.P', 'social.tbytmatch.D', 'social.tbytmatch.P',
                                  'cogproc.tbytmatch.D', 'cogproc.tbytmatch.P', 'percept.tbytmatch.D', 'percept.tbytmatch.P',
@@ -126,6 +257,12 @@ ECHO_tbyt_LIWC_Matching_variables_scaled = c('affect.tbytmatch.D.scaled', 'affec
                                              'negemo.tbytmatch.D.scaled', 'negemo.tbytmatch.P.scaled', 'bio.tbytmatch.D.scaled', 'bio.tbytmatch.P.scaled', 
                                              'drives.tbytmatch.D.scaled', 'drives.tbytmatch.P.scaled', 'relativ.tbytmatch.D.scaled', 'relativ.tbytmatch.P.scaled', 
                                              'informal.tbytmatch.D.scaled', 'informal.tbytmatch.P.scaled')
+
+# 'auxverb.tbytmatch.D.scaled', 'auxverb.tbytmatch.P.scaled',
+# 'article.tbytmatch.D.scaled', 'article.tbytmatch.P.scaled', 'adverb.tbytmatch.D.scaled', 'adverb.tbytmatch.P.scaled',
+# 'ipron.tbytmatch.D.scaled', 'ipron.tbytmatch.P.scaled', 'prep.tbytmatch.D.scaled', 'prep.tbytmatch.P.scaled',
+# 'negate.tbytmatch.D.scaled', 'negate.tbytmatch.P.scaled', 'conj.tbytmatch.D.scaled', 'conj.tbytmatch.P.scaled',
+# 'quant.tbytmatch.D.scaled', 'quant.tbytmatch.P.scaled', 'ppron.tbytmatch.D.scaled', 'ppron.tbytmatch.P.scaled'
 
 ECHO_conv_LSM_chunks_turns_variables = c('LSM_function_mean_1_turns', 'LSM_function_mean_2_turns', 'LSM_function_mean_3_turns', 'LSM_function_mean_chunkratio_turns')
 
@@ -233,17 +370,22 @@ ECHO_tbyt_VADER_matching_chunks_wc_variables = c('compound.tbytmatch.D', 'compou
                                                  'neg.tbytmatch.D', 'neg.tbytmatch.P')
 
 #this combines all the lists of matching variables into one list (VADER excluded for now)
-ECHO_Matching_variables = c(ECHO_conv_LSM_variables, ECHO_tbyt_rLSM_variables, ECHO_conv_LIWC_Matching_variables,
-                            ECHO_tbyt_LIWC_Matching_variables, ECHO_conv_LSM_chunks_turns_variables, ECHO_conv_LSM_chunks_wc_variables,
-                            ECHO_tbyt_rLSM_chunks_turns_variables, ECHO_tbyt_rLSM_chunks_wc_variables, 
-                            ECHO_tbyt_LIWC_matching_chunks_turns_variables, ECHO_conv_LIWC_Matching_turns_variables, ECHO_tbyt_LIWC_matching_chunks_wc_variables)
+# ECHO_Matching_variables = c(ECHO_conv_LSM_variables, ECHO_tbyt_rLSM_variables, ECHO_conv_LIWC_Matching_variables,
+#                             ECHO_tbyt_LIWC_Matching_variables, ECHO_conv_LSM_chunks_turns_variables, ECHO_conv_LSM_chunks_wc_variables,
+#                             ECHO_tbyt_rLSM_chunks_turns_variables, ECHO_tbyt_rLSM_chunks_wc_variables, 
+#                             ECHO_tbyt_LIWC_matching_chunks_turns_variables, ECHO_conv_LIWC_Matching_turns_variables, ECHO_tbyt_LIWC_matching_chunks_wc_variables)
+
+#this combines all the lists of matching variables into one list (VADER excluded for now)
+ECHO_Matching_variables = c(ECHO_conv_LSM_variables, ECHO_tbyt_rLSM_variables, ECHO_conv_LIWC_Matching_variables, ECHO_tbyt_LIWC_Matching_variables)
 
 #ECHO_conv_LSM_chunks_turns_variables_scaled, ECHO_conv_LSM_chunks_wc_variables_scaled, ECHO_tbyt_rLSM_chunks_wc_variables_scaled,ECHO_tbyt_LIWC_matching_chunks_wc_variables_scaled
-ECHO_Matching_variables_scaled = c(ECHO_conv_LSM_variables_scaled, ECHO_tbyt_rLSM_variables_scaled, ECHO_conv_LIWC_Matching_variables_scaled,
-                            ECHO_tbyt_LIWC_Matching_variables_scaled, ECHO_conv_LSM_chunks_turns_variables_scaled,
-                            ECHO_tbyt_rLSM_chunks_turns_variables_scaled, ECHO_tbyt_LIWC_matching_chunks_turns_variables_scaled, 
-                            ECHO_conv_LIWC_Matching_turns_variables_scaled)
+# ECHO_Matching_variables_scaled = c(ECHO_conv_LSM_variables_scaled, ECHO_tbyt_rLSM_variables_scaled, ECHO_conv_LIWC_Matching_variables_scaled,
+#                             ECHO_tbyt_LIWC_Matching_variables_scaled, ECHO_conv_LSM_chunks_turns_variables_scaled,
+#                             ECHO_tbyt_rLSM_chunks_turns_variables_scaled, ECHO_tbyt_LIWC_matching_chunks_turns_variables_scaled, 
+#                             ECHO_conv_LIWC_Matching_turns_variables_scaled)
 
+ECHO_Matching_variables_scaled = c(ECHO_conv_LSM_variables_scaled, ECHO_tbyt_rLSM_variables_scaled, ECHO_conv_LIWC_Matching_variables_scaled,
+                                   ECHO_tbyt_LIWC_Matching_variables_scaled)
 
 ECHO_Speech_variables = c('WC_D',  'Analytic_D', 'Clout_D', 'Authentic_D',  
                           'Tone_D',   ' WPS_D',   'Sixltr_D',    'Dic_D', 
@@ -282,7 +424,7 @@ ECHO_Speech_variables = c('WC_D',  'Analytic_D', 'Clout_D', 'Authentic_D',
 
 #' WPS_D.scaled',
 #' shehe_D.scaled',
-ECHO_Speech_variables_scaled = c( 'WC_D.scaled',  'Analytic_D.scaled', 'Clout_D.scaled', 'Authentic_D.scaled',  
+ECHO_Speech_variables_scaled = c( 'WC_D.scaled', 'WPS_D.scaled', 'Analytic_D.scaled', 'Clout_D.scaled', 'Authentic_D.scaled',  
                                   'Tone_D.scaled', 'Sixltr_D.scaled',    'Dic_D.scaled', 
                                   'function_D.scaled', 'pronoun_D.scaled',  'ppron_D.scaled',     'i_D.scaled',  'we_D.scaled', 
                                   'you_D.scaled', 'they_D.scaled',    'ipron_D.scaled',   'article_D.scaled',    
@@ -317,17 +459,36 @@ ECHO_Speech_variables_scaled = c( 'WC_D.scaled',  'Analytic_D.scaled', 'Clout_D.
                                   'netspeak_P.scaled',  'assent_P.scaled',   'nonflu_P.scaled',   'filler_P.scaled')
 
 
+ECHO_conversation_level_variables = c('LSM_function_mean.scaled', 'conv.affect.match.scaled', 'conv.social.match.scaled', 
+                                      'conv.cogproc.match.scaled', 'conv.percept.match.scaled', 
+                                      'conv.bio.match.scaled', 'conv.drives.match.scaled', 'conv.relativ.match.scaled', 
+                                      'conv.informal.match.scaled')
+  
+ECHO_tbyt_doctor_variables = c('rLSM.D.scaled', 'WC_sum.D.scaled', 'WPS_avg.D.scaled', 'affect.tbytmatch.D.scaled', 
+                               'social.tbytmatch.D.scaled', 'cogproc.tbytmatch.D.scaled', 'percept.tbytmatch.D.scaled', 
+                               'bio.tbytmatch.D.scaled', 'drives.tbytmatch.D.scaled', 
+                               'relativ.tbytmatch.D.scaled', 'informal.tbytmatch.D.scaled')
+
+ECHO_provider_level_speech = c('WC_D.scaled',  'Analytic_D.scaled', 'Clout_D.scaled', 'Authentic_D.scaled',  
+                               'Tone_D.scaled', 'Sixltr_D.scaled',    'Dic_D.scaled', 'affect_D.scaled',   
+                               'social_D.scaled', 'cogproc_D.scaled', 'insight_D.scaled',  'cause_D.scaled',     
+                               'discrep_D.scaled',  'tentat_D.scaled', 'certain_D.scaled', 'differ_D.scaled', 'percept_D.scaled',   
+                               'bio_D.scaled', 'drives_D.scaled', 'relativ_D.scaled', 'informal_D.scaled')
+
 ECHO_survey_cultural_dissim = c('cultdiss', 'cultdissmd', 'cdspeak','cdreason','cdstyle','cdvalue','cdspirit','cdethnic',
                                 'cdtype','cdrace','cdculture','cdskin','cultdissmd1', 'cultdissmd2', 'cultdissmd3', 'cultdissmd4', 
-                                'cultdissmd5', 'cultdissmd6', 'cultdissmd7', 'cultdissmd8', 'cultdissmd9', 'cultdissmd10')
+                                'cultdissmd5', 'cultdissmd6', 'cultdissmd7', 'cultdissmd8', 'cultdissmd9', 'cultdissmd10',
+                                'cdspeakhigh')
 
 ECHO_survey_cultural_dissim_subscale = c('cdspeak', 'cdreason', 'cdstyle', 'cdrace')
 
 ECHO_survey_provcomm = c('provcomm', 'provcommhigh', 'pcwords', 'pcfast', 'pctime', 'pclisten', 'pcignore',	
                          'pcinfo',	'pchealthprob',	'pcanytest', 'pcwhytest',	'pchowtest', 'pcexamine',	
-                         'pcconfuse', 'pccarehome', 'pcsymp', 'pchowmeds', 	'pcgoovermeds',	'pcwritemeds', 
+                         'pcconfuse', 'pccarehome', 'pcsymp', 'pchowmeds', 'pcgoovermeds', 'pcwritemeds', 
                          'pcreasonmeds',	'pcsemeds',	'pcdiff',	'pcactivities',	'pcinvolvedec',	'pcfelttreat', 
-                         'pcprefopin', 'pcpressure', 'pcaskprob', 'pcunderprob')
+                         'pcprefopin', 'pcpressure', 'pcaskprob', 'pcunderprob',
+                         'provcomm_clarityhigh', 'provcomm_responsivehigh', 'provcomm_expconditionhigh',
+                         'provcomm_expselfcarehigh', 'provcomm_empowermenthigh')
 
 ECHO_survey_overcomm = c('overcomm', 'overcommhigh', 'ocexplain', 'ocgive', 'octell', 'occare', 'ocunderstand')
 
@@ -335,7 +496,9 @@ ECHO_survey_ipstyle = c('ipstyle', 'ipstylehigh',
                         'ipfriend',	'ipwelcome', 'iprude', 'ipcare',	
                         'ipname',	'iptalkfront', 'ippriv', 'ipinferior',	
                         'ipnegattitude', 'ipdiscrimrace', 'ipdiscrimeduc',	
-                        'iplessworry', 'ipcompliment', 'ipcompassion')
+                        'iplessworry', 'ipcompliment', 'ipcompassion',
+                        'ipstyle_friendhigh', 'ipstyle_respecthigh',
+                        'ipstyle_discrimhigh', 'ipstyle_emosupporthigh')
 
 ECHO_survey_iptrust = c('iptrust', 'iptrusttert', 
                         'iptdoubtcare',	'iptconsiderate',	'iptadvice',	
@@ -439,7 +602,8 @@ H3a.1_df <- ECHO_All_Matching %>%
 
 ############################################################################################################
 #Using LSM_function_mean to predict overall communication quality (overcomm)
-H3a.2_combined_variables <- c(ECHO_common_variables, ECHO_demographic_variables, ECHO_survey_overcomm, ECHO_Matching_variables_scaled)
+H3a.2_combined_variables <- c(ECHO_common_variables, ECHO_demographic_variables, ECHO_survey_overcomm, 
+                              ECHO_Matching_variables_scaled, ECHO_Speech_variables_scaled)
 
 H3a.2_df <- ECHO_All_Matching %>%
   as_tibble() %>% 
@@ -475,7 +639,8 @@ H3a.4_df <- ECHO_All_Matching %>%
 H3a.4_df$iptrust_scaled <- scale(H3a.4_df$iptrust, center = TRUE, scale = TRUE)
 ############################################################################################################
 #Using LSM_function_mean to predict if patient reports that provider knows them as a person (provknowcat)
-H3a.5_combined_variables <- c(ECHO_common_variables, ECHO_demographic_variables, ECHO_survey_provknowcat, ECHO_Matching_variables_scaled)
+H3a.5_combined_variables <- c(ECHO_common_variables, ECHO_demographic_variables, ECHO_survey_provknowcat, 
+                              ECHO_Matching_variables_scaled, ECHO_Speech_variables_scaled)
 
 H3a.5_df <- ECHO_All_Matching %>%
   as_tibble() %>% 
@@ -487,7 +652,8 @@ H3a.5_df <- ECHO_All_Matching %>%
 
 ############################################################################################################
 #Using LSM_function_mean to predict overall patient satisfaction (overallsat)
-H3a.6_combined_variables <- c(ECHO_common_variables, ECHO_demographic_variables, ECHO_survey_overallsat, ECHO_Matching_variables_scaled)
+H3a.6_combined_variables <- c(ECHO_common_variables, ECHO_demographic_variables, ECHO_survey_overallsat, 
+                              ECHO_Matching_variables_scaled, ECHO_Speech_variables_scaled)
 
 H3a.6_df <- ECHO_All_Matching %>%
   as_tibble() %>% 
@@ -512,12 +678,23 @@ H3a.7_df <- ECHO_All_Matching %>%
   tidyr::drop_na()
 
 
+# H3a.7_df <- H3a.7_df %>%
+#   filter(rLSM.D.scaled < 1 & rLSM.D.scaled > -2) %>%
+#   filter(LSM_function_mean.scaled >-2)
+
+# H3a.7_df <- H3a.7_df %>%
+#    filter(rLSM.P.scaled < 2 & rLSM.P.scaled > -2) 
+
+# H3a.7_df <- H3a.7_df %>%
+#     filter(LSM_function_mean.scaled < 2 & rLSM.P.scaled > -2) 
+
 
 
 
 ############################################################################################################
 #Using LSM_function_mean to predict viral suppression
-H3b.1_combined_variables <- c(ECHO_common_variables, ECHO_demographic_variables, ECHO_survey_viralsuppression, ECHO_Matching_variables_scaled)
+H3b.1_combined_variables <- c(ECHO_common_variables, ECHO_demographic_variables, ECHO_survey_viralsuppression, 
+                              ECHO_Matching_variables_scaled, ECHO_Speech_variables_scaled)
 
 H3b.1_df <- ECHO_All_Matching %>%
   as_tibble() %>% 
@@ -530,7 +707,7 @@ H3b.1_df <- ECHO_All_Matching %>%
 ############################################################################################################
 #Using LSM_function_mean to predict adherence measures
 #adhard, adeasy, adunable, adfollow,adpast4, adpast30, pctarv, adrate, missany(binomial)
-H4_combined_variables <- c(ECHO_common_variables, ECHO_demographic_variables, ECHO_survey_adherence, ECHO_Matching_variables_scaled)
+H4_combined_variables <- c(ECHO_common_variables, ECHO_demographic_variables, ECHO_survey_adherence, ECHO_Matching_variables_scaled, ECHO_Speech_variables_scaled)
 
 H4_df <- ECHO_All_Matching %>%
   as_tibble() %>% 
