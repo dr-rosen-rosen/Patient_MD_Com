@@ -6,7 +6,7 @@
 **/.DS_Store
 **/.docx
 **/.csv
-**/.pptx
+**/*.pptx
 **/.html
 **/.Rmd
 *.csv
@@ -19,7 +19,7 @@
 .Rapp.history
 
 # Session Data files
-.RData
+.RData**
 
 # User-specific files
 .Ruserdata
