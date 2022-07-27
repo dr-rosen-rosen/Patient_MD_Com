@@ -30,7 +30,9 @@ window_transcripts <- function(transcript_df, window, collapse){
 }
 
 test_window <- window_transcripts(
-  transcript_df = ECHO_Transcripts_Total_final,
-  window = 5)
+  transcript_df = smoothed_tByT_df_V2,
+  window = 8,
+  collapse = ' | '
+  )
 
 skimr::skim(test_window)
