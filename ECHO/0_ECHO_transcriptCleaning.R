@@ -8,7 +8,7 @@ library(skimr)
 library(vader)
 
 
-Sys.setenv(R_CONFIG_ACTIVE = "salar") # 'default')#
+Sys.setenv(R_CONFIG_ACTIVE = "mike") # 'default')#
 config <- config::get()
 
 ECHO_Transcripts_Complete_TbyT <- read_csv(here(config$ECHO_Transcript_path, config$ECHO_Transcript_name))
