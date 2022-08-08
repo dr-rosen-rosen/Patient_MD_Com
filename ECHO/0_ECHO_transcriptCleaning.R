@@ -8,7 +8,7 @@ library(skimr)
 library(vader)
 
 
-Sys.setenv(R_CONFIG_ACTIVE = "mike") # 'default')#
+Sys.setenv(R_CONFIG_ACTIVE = "salar") # 'default')#
 config <- config::get()
 
 ECHO_Transcripts_Complete_TbyT <- read_csv(here(config$ECHO_Transcript_path, config$ECHO_Transcript_name))
@@ -517,7 +517,6 @@ ECHO_Transcripts_Complete_TbyT <- ECHO_Transcripts_Complete_TbyT %>%
 
 
 
-
 #This is the data that will be further cleaned before analysis
 ECHO_Transcripts_Total_final <- ECHO_Transcripts_Complete_TbyT
 
@@ -608,7 +607,9 @@ write.csv(ECHO_LSM_Prep_final, "ECHO_LSM_Prep_final.csv")
 ##################################################################################################
 
 #Opening all files
-ECHO_LSM_MLM <- read_csv(here(config$ECHO_LSM_MLM_V2_path, config$ECHO_LSM_MLM_V2_name))
+#this version was for conversation-level LSM using LIWC-2015
+#ECHO_LSM_MLM <- read_csv(here(config$ECHO_LSM_MLM_V2_path, config$ECHO_LSM_MLM_V2_name))
+ECHO_LSM_MLM <- read_csv(here(config$ECHO_LSM_MLM_V3_path, config$ECHO_LSM_MLM_V3_name))
 ECHO_survey_data <- read_dta(here(config$ECHO_survey_data_path, config$ECHO_survey_data_name))
 ECHO_ID_key <- read_csv(here(config$ECHO_ID_key_path, config$ECHO_ID_key_name))
 # WSU_ECHO_ID_Key <- read_csv(here(config$WSU_ECHO_ID_Key_path, config$WSU_ECHO_ID_Key_name))
@@ -624,12 +625,9 @@ ECHO_ID_key <- read_csv(here(config$ECHO_ID_key_path, config$ECHO_ID_key_name))
 
 #Here is the code for creating the LIWC values for patient and doctor as individual variables
 ECHO_LSM_LIWC_Components <- ECHO_LSM_MLM%>%
-  rename(output_order = 'Source (A)') %>%
-  rename(File = 'Source (B)') %>%
-  rename(Speaker = 'Source (C)') %>%
-  rename(Text = 'Source (D)') %>%
-  select(-one_of(c("AllPunc","Period","Comma", "Colon", "SemiC","QMark",
-                   "Exclam", "Dash", "Quote", "Apostro", "Parenth", "OtherP"))) %>%
+  rename(output_order = '...1') %>%
+  select(-one_of(c("Segment", "AllPunc","Period","Comma", "QMark",
+                   "Exclam", "Apostro", "OtherP"))) %>%
   ungroup()%>%
   select(-Text) %>%
   select(-output_order) %>%
@@ -639,15 +637,10 @@ ECHO_LSM_LIWC_Components <- ECHO_LSM_MLM%>%
 
 #This is for calculating LSM for this data
 ECHO_LSM_MLM <- ECHO_LSM_MLM %>%
-  rename(output_order = 'Source (A)') %>%
-  rename(File = 'Source (B)') %>%
-  rename(Speaker = 'Source (C)') %>%
-  rename(Text = 'Source (D)') %>%
+  rename(output_order = '...1') %>%
   #deleting all punctuations
-  select(-one_of(c("AllPunc","Period","Comma", "Colon", "SemiC","QMark",
-                   "Exclam", "Dash", "Quote", "Apostro", "Parenth", "OtherP"))) %>%
-  #renamed function variable to funct as indicated on LIWC manual
-  rename(funct = "function") %>%
+  select(-one_of(c("Segment", "AllPunc","Period","Comma", "QMark",
+                   "Exclam", "Apostro", "OtherP"))) %>%
   #creating LSM scores
   select(-Text) %>%
   select(-output_order) %>%
@@ -661,16 +654,73 @@ ECHO_LSM_MLM <- ECHO_LSM_MLM %>%
   #negations, conjunctions, quantifiers (missing LSM_ppronoun for now)
   rowwise() %>%
   mutate(LSM_function_mean = mean(c(LSM_auxverb, LSM_article, LSM_adverb, LSM_ipron, LSM_prep, 
-                                    LSM_negate, LSM_conj, LSM_quant, LSM_ppron))) %>%
-  mutate(conv.affect.match = LSM_affect,
-         conv.social.match = LSM_social,
+                                    LSM_negate, LSM_conj, LSM_quantity, LSM_ppron))) %>%
+  mutate(conv.auxverb.match = LSM_auxverb,
+         conv.article.match = LSM_article,
+         conv.adverb.match = LSM_adverb,
+         conv.ipron.match = LSM_ipron,
+         conv.prep.match = LSM_prep,
+         conv.negate.match = LSM_negate,
+         conv.conj.match = LSM_conj,
+         conv.quantity.match = LSM_quantity,
+         conv.ppron.match = LSM_ppron,
+         conv.Drives.match = LSM_Drives,
+         conv.affiliation.match = LSM_affiliation,
+         conv.achieve.match = LSM_achieve,
+         conv.power.match = LSM_power,
+         conv.Cognition.match = LSM_Cognition,
+         conv.allnone.match = LSM_allnone,
          conv.cogproc.match = LSM_cogproc,
-         conv.percept.match = LSM_percept,
-         conv.negemo.match = LSM_negemo,
-         conv.bio.match = LSM_bio,
-         conv.drives.match = LSM_drives,
-         conv.relativ.match = LSM_relativ,
-         conv.informal.match = LSM_informal)
+         conv.memory.match = LSM_memory,
+         conv.Affect.match = LSM_Affect,
+         conv.tone_pos.match = LSM_tone_pos,
+         conv.tone_neg.match = LSM_tone_neg,
+         conv.emotion.match = LSM_emotion,
+         conv.emo_pos.match = LSM_emo_pos,
+         conv.emo_neg.match = LSM_emo_neg,
+         conv.emo_anx.match = LSM_emo_anx,
+         conv.emo_anger.match = LSM_emo_anger,
+         conv.emo_sad.match = LSM_emo_sad,
+         conv.swear.match = LSM_swear,
+         conv.Social.match = LSM_Social,
+         conv.socbehav.match = LSM_socbehav,
+         conv.prosocial.match = LSM_prosocial,
+         conv.polite.match = LSM_polite,
+         conv.conflict.match = LSM_conflict,
+         conv.moral.match = LSM_moral,
+         conv.comm.match = LSM_comm,
+         conv.socrefs.match = LSM_socrefs,
+         conv.Culture.match = LSM_Culture,
+         conv.ethnicity.match = LSM_ethnicity,
+         conv.Lifestyle.match = LSM_Lifestyle,
+         conv.leisure.match = LSM_leisure,
+         conv.home.match = LSM_home,
+         conv.work.match = LSM_work,
+         conv.money.match = LSM_money,
+         conv.relig.match = LSM_relig,
+         conv.Physical.match = LSM_Physical,
+         conv.health.match = LSM_health,
+         conv.illness.match = LSM_illness,
+         conv.wellness.match = LSM_wellness,
+         conv.mental.match = LSM_mental,
+         conv.substances.match = LSM_substances,
+         conv.death.match = LSM_death,
+         conv.need.match = LSM_need,
+         conv.want.match = LSM_want,
+         conv.acquire.match = LSM_acquire,
+         conv.fulfill.match = LSM_fulfill,
+         conv.fatigue.match = LSM_fatigue,
+         conv.reward.match = LSM_reward,
+         conv.risk.match = LSM_risk,
+         conv.curiosity.match = LSM_curiosity,
+         conv.allure.match = LSM_allure,
+         conv.Perception.match = LSM_Perception,
+         conv.attention.match = LSM_attention,
+         conv.feeling.match = LSM_feeling,
+         conv.focuspast.match = LSM_focuspast,
+         conv.focuspresent.match = LSM_focuspresent,
+         conv.focusfuture.match = LSM_focusfuture,
+         conv.Conversation.match = LSM_Conversation)
 
 
 
@@ -694,13 +744,11 @@ df_tbyt_V2 <- read_csv(here(config$ECHO_LSM_TbyT_Smoothed_V2_path, config$ECHO_L
 # df_tbyt_V2 <- read_csv(here(config$ECHO_LSM_TbyT_Smoothed_V3_path, config$ECHO_LSM_TbyT_Smoothed_V3_name))
 
 df_tbyt_V2 <- df_tbyt_V2 %>%
-  rename(output_order = A) %>%
-  rename(File = B) %>%
-  rename(Speaker = C) %>%
-  rename(Text = D) %>%
-  select(-E) %>%
-  select(-F) %>%
-  select(-G) 
+  select(-'...1') %>%
+  select(-Sequence) %>%
+  select(-overall_sequence) %>%
+  select(-Word_count) %>%
+  select(-Segment) 
 
 # test <- df_tbyt_V2 %>%
 #   dplyr::select(File, Speaker) %>%
@@ -717,7 +765,7 @@ df_tbyt_V2 <- df_tbyt_V2 %>%
 
 ECHO_smoothed_rLSM <- df_tbyt_V2 %>%
   dplyr::select(File, Text, Speaker, WC, WPS, auxverb, article, adverb, ipron, 
-                prep, negate, conj, quant, ppron) %>%
+                prep, negate, conj, quantity, ppron) %>%
   # Adding quick way to drop turn by turns from the same speaker
   ### WE NEED TO THINK ABOUT FLOW. WHERE WE"RE DOING SMOOTHING, ETC> (here or in cleaning)
   group_by(File) %>%
@@ -741,7 +789,7 @@ ECHO_smoothed_rLSM <- df_tbyt_V2 %>%
     prep.orig = prep,
     negate.orig = negate,
     conj.orig = conj,
-    quant.orig = quant,
+    quantity.orig = quantity,
     ppron.orig = ppron,
     WC.orig = WC,
     WPS.orig = WPS) %>%
@@ -758,7 +806,7 @@ ECHO_smoothed_rLSM <- df_tbyt_V2 %>%
     prep.lag = lag(prep),
     negate.lag = lag(negate),
     conj.lag = lag(conj),
-    quant.lag = lag(quant),
+    quantity.lag = lag(quantity),
     ppron.lag = lag(ppron),
     WC.lag = lag(WC),
     WPS.lag = lag(WPS)) %>%
@@ -766,7 +814,7 @@ ECHO_smoothed_rLSM <- df_tbyt_V2 %>%
   # filter(WC > 1 & WC.lag >1) %>% # drops all exchanges with one word utterances
   # This makes sure that only liwc categories prersent in the first statement are used for rlsm
   mutate(across(c(auxverb.lag, article.lag, adverb.lag, ipron.lag, 
-                  prep.lag, negate.lag, conj.lag, quant.lag, ppron.lag), 
+                  prep.lag, negate.lag, conj.lag, quantity.lag, ppron.lag), 
                 ~ if_else(. > 0,.,as.numeric(NA)))) %>%
   # This sets liwc categories in the responders speech to NA if that category was NA in the first person's speech
   # Per the rLSM paper
@@ -779,7 +827,7 @@ ECHO_smoothed_rLSM <- df_tbyt_V2 %>%
     prep = if_else(is.na(prep.lag),as.numeric(NA),prep),
     negate = if_else(is.na(negate.lag),as.numeric(NA),negate),
     conj = if_else(is.na(conj.lag),as.numeric(NA),conj),
-    quant = if_else(is.na(quant.lag),as.numeric(NA),quant),
+    quantity = if_else(is.na(quantity.lag),as.numeric(NA),quantity),
     ppron = if_else(is.na(ppron.lag),as.numeric(NA),ppron)
   ) %>%
   ungroup() %>%
@@ -792,7 +840,7 @@ ECHO_smoothed_rLSM <- df_tbyt_V2 %>%
     prep.rLSM = 1 - (abs(prep - prep.lag) / (prep + prep.lag + .0001)),
     negate.rLSM = 1 - (abs(negate - negate.lag) / (negate + negate.lag + .0001)),
     conj.rLSM = 1 - (abs(conj - conj.lag) / (conj + conj.lag + .0001)),
-    quant.rLSM = 1 - (abs(quant - quant.lag) / (quant + quant.lag + .0001)),
+    quantity.rLSM = 1 - (abs(quantity - quantity.lag) / (quantity + quantity.lag + .0001)),
     ppron.rLSM = 1 - (abs(ppron - ppron.lag) / (ppron + ppron.lag + .0001))
   ) %>%
   ungroup() %>%
@@ -857,13 +905,11 @@ df_tbyt_LIWC <- read_csv(here(config$ECHO_LSM_TbyT_Smoothed_V2_path, config$ECHO
 # df_tbyt_LIWC <- read_csv(here(config$ECHO_LSM_TbyT_Smoothed_V3_path, config$ECHO_LSM_TbyT_Smoothed_V3_name))
 
 df_tbyt_LIWC <- df_tbyt_LIWC %>%
-  rename(output_order = A) %>%
-  rename(File = B) %>%
-  rename(Speaker = C) %>%
-  rename(Text = D) %>%
-  select(-E) %>%
-  select(-F) %>%
-  select(-G)
+  select(-'...1') %>%
+  select(-Sequence) %>%
+  select(-overall_sequence) %>%
+  select(-Word_count) %>%
+  select(-Segment)
 
 # test <- smoothed_tByT_df %>%
 #   dplyr::select(File, Speaker) %>%
@@ -879,8 +925,17 @@ df_tbyt_LIWC <- df_tbyt_LIWC %>%
 
 #SK: had to delete sequence from the list right below with select()
 ECHO_smoothed_LIWC_matching <- df_tbyt_LIWC %>%
-  dplyr::select(File, Text, Speaker, affect, social, cogproc, negemo, percept,
-                bio, drives, relativ, informal) %>%
+  dplyr::select(File, Text, Speaker, auxverb, article, adverb, ipron, 
+                prep, negate, conj, quantity, ppron, Drives, affiliation,
+                achieve, power, Cognition, allnone, cogproc, memory, Affect,
+                tone_pos, tone_neg, emotion, emo_pos, emo_neg, emo_anx, emo_anger,
+                emo_sad, swear, Social, socbehav, prosocial, polite, conflict,
+                moral, comm, socrefs, Culture, ethnicity, Lifestyle, leisure,
+                home, work, money, relig, Physical, health, illness, wellness, 
+                mental, substances, death, need, want, acquire, fulfill, fatigue,
+                reward, risk, curiosity, allure, Perception, attention, feeling,
+                focuspast, focuspresent, focusfuture, Conversation
+ ) %>%
   # Adding quick way to drop turn by turns from the same speaker
   ### WE NEED TO THINK ABOUT FLOW. WHERE WE"RE DOING SMOOTHING, ETC> (here or in cleaning)
   group_by(File) %>%
@@ -899,48 +954,229 @@ ECHO_smoothed_LIWC_matching <- df_tbyt_LIWC %>%
   #dplyr::mutate(across(.cols=everything(), .funs = ~ dplyr::lead(.x,order_by=File,n = 1, default = NA), .names = '{.col}_lead')) %>%
   group_by(File) %>%
   mutate(
-    affect.lag = lag(affect), 
-    social.lag = lag(social),
+    auxverb.lag = lag(auxverb),
+    article.lag = lag(article),
+    adverb.lag = lag(adverb),
+    ipron.lag = lag(ipron),
+    prep.lag = lag(prep),
+    negate.lag = lag(negate),
+    conj.lag = lag(conj),
+    quantity.lag = lag(quantity),
+    ppron.lag = lag(ppron),
+    Drives.lag = lag(Drives),
+    affiliation.lag = lag(affiliation),
+    achieve.lag = lag(achieve),
+    power.lag = lag(power),
+    Cognition.lag = lag(Cognition),
+    allnone.lag = lag(allnone),
     cogproc.lag = lag(cogproc),
-    negemo.lag = lag(negemo),
-    percept.lag = lag(percept),
-    bio.lag = lag(bio),
-    drives.lag = lag(drives),
-    relativ.lag = lag(relativ),
-    informal.lag = lag(informal)
+    memory.lag = lag(memory),
+    Affect.lag = lag(Affect),
+    tone_pos.lag = lag(tone_pos),
+    tone_neg.lag = lag(tone_neg),
+    emotion.lag = lag(emotion),
+    emo_pos.lag = lag(emo_pos),
+    emo_neg.lag = lag(emo_neg),
+    emo_anx.lag = lag(emo_anx),
+    emo_anger.lag = lag(emo_anger),
+    emo_sad.lag = lag(emo_sad),
+    swear.lag = lag(swear),
+    Social.lag = lag(Social),
+    socbehav.lag = lag(socbehav),
+    prosocial.lag = lag(prosocial),
+    polite.lag = lag(polite),
+    conflict.lag = lag(conflict),
+    moral.lag = lag(moral),
+    comm.lag = lag(comm),
+    socrefs.lag = lag(socrefs),
+    Culture.lag = lag(Culture),
+    ethnicity.lag = lag(ethnicity),
+    Lifestyle.lag = lag(Lifestyle),
+    leisure.lag = lag(leisure),
+    home.lag = lag(home),
+    work.lag = lag(work),
+    money.lag = lag(money),
+    relig.lag = lag(relig),
+    Physical.lag = lag(Physical),
+    health.lag = lag(health),
+    illness.lag = lag(illness),
+    wellness.lag = lag(wellness),
+    mental.lag = lag(mental),
+    substances.lag = lag(substances),
+    death.lag = lag(death),
+    need.lag = lag(need),
+    want.lag = lag(want),
+    acquire.lag = lag(acquire),
+    fulfill.lag = lag(fulfill),
+    fatigue.lag = lag(fatigue),
+    reward.lag = lag(reward),
+    risk.lag = lag(risk),
+    curiosity.lag = lag(curiosity),
+    allure.lag = lag(allure),
+    Perception.lag = lag(Perception),
+    attention.lag = lag(attention),
+    feeling.lag = lag(feeling),
+    focuspast.lag = lag(focuspast),
+    focuspresent.lag = lag(focuspresent),
+    focusfuture.lag = lag(focusfuture),
+    Conversation.lag = lag(Conversation)
   ) %>%
   ungroup() %>%
   # filter(WC > 1 & WC.lag >1) %>% # drops all exchanges with one word utterances
   # This makes sure that only liwc categories prersent in the first statement are used for rlsm
-  mutate(across(c(affect.lag, social.lag, cogproc.lag, negemo.lag, percept.lag,
-                  bio.lag, drives.lag, relativ.lag, informal.lag), 
+  mutate(across(c(auxverb.lag, article.lag, adverb.lag, ipron.lag, 
+                  prep.lag, negate.lag, conj.lag, quantity.lag, ppron.lag,
+                  Drives.lag, affiliation.lag, achieve.lag, power.lag,
+                  Cognition.lag, allnone.lag, cogproc.lag, memory.lag, 
+                  Affect.lag, tone_pos.lag, tone_neg.lag, emotion.lag,
+                  emo_pos.lag, emo_neg.lag, emo_anx.lag, emo_anger.lag,
+                  emo_sad.lag, swear.lag, Social.lag, socbehav.lag, 
+                  prosocial.lag, polite.lag, conflict.lag, moral.lag,
+                  comm.lag, socrefs.lag, Culture.lag, ethnicity.lag,
+                  Lifestyle.lag, leisure.lag, home.lag, work.lag,
+                  money.lag, relig.lag, Physical.lag, health.lag,
+                  illness.lag, wellness.lag, mental.lag, substances.lag,
+                  death.lag, need.lag, want.lag, acquire.lag), 
                 ~ if_else(. > 0,.,as.numeric(NA)))) %>%
   # This sets liwc categories in the responders speech to NA if that category was NA in the first person's speech
   # Per the rLSM paper
   group_by(File) %>%
   mutate(
-    affect = if_else(is.na(affect.lag),as.numeric(NA),affect),
-    social = if_else(is.na(social.lag),as.numeric(NA),social),
+    auxverb = if_else(is.na(auxverb.lag),as.numeric(NA),auxverb),
+    article = if_else(is.na(article.lag),as.numeric(NA),article),
+    adverb = if_else(is.na(adverb.lag),as.numeric(NA),adverb),
+    ipron = if_else(is.na(ipron.lag),as.numeric(NA),ipron),
+    prep = if_else(is.na(prep.lag),as.numeric(NA),prep),
+    negate = if_else(is.na(negate.lag),as.numeric(NA),negate),
+    conj = if_else(is.na(conj.lag),as.numeric(NA),conj),
+    quantity = if_else(is.na(quantity.lag),as.numeric(NA),quantity),
+    Drives = if_else(is.na(Drives.lag),as.numeric(NA),Drives),
+    affiliation = if_else(is.na(affiliation.lag),as.numeric(NA),affiliation),
+    achieve = if_else(is.na(achieve.lag),as.numeric(NA),achieve),
+    power = if_else(is.na(power.lag),as.numeric(NA),power),
+    Cognition = if_else(is.na(Cognition.lag),as.numeric(NA),Cognition),
+    allnone = if_else(is.na(allnone.lag),as.numeric(NA),allnone),
     cogproc = if_else(is.na(cogproc.lag),as.numeric(NA),cogproc),
-    percept = if_else(is.na(percept.lag),as.numeric(NA),percept),
-    negemo = if_else(is.na(negemo.lag),as.numeric(NA),negemo),
-    bio = if_else(is.na(bio.lag),as.numeric(NA),bio),
-    drives = if_else(is.na(drives.lag),as.numeric(NA),drives),
-    relativ = if_else(is.na(relativ.lag),as.numeric(NA),relativ),
-    informal = if_else(is.na(informal.lag),as.numeric(NA),informal)
+    memory = if_else(is.na(memory.lag),as.numeric(NA),memory),
+    Affect = if_else(is.na(Affect.lag),as.numeric(NA),Affect),
+    tone_pos = if_else(is.na(tone_pos.lag),as.numeric(NA),tone_pos),
+    tone_neg = if_else(is.na(tone_neg.lag),as.numeric(NA),tone_neg),
+    emotion = if_else(is.na(emotion.lag),as.numeric(NA),emotion),
+    emo_pos = if_else(is.na(emo_pos.lag),as.numeric(NA),emo_pos),
+    emo_neg = if_else(is.na(emo_neg.lag),as.numeric(NA),emo_neg),
+    emo_anx = if_else(is.na(emo_anx.lag),as.numeric(NA),emo_anx),
+    emo_anger = if_else(is.na(emo_anger.lag),as.numeric(NA),emo_anger),
+    emo_sad = if_else(is.na(emo_sad.lag),as.numeric(NA),emo_sad),
+    swear = if_else(is.na(swear.lag),as.numeric(NA),swear),
+    Social = if_else(is.na(Social.lag),as.numeric(NA),Social),
+    socbehav = if_else(is.na(socbehav.lag),as.numeric(NA),socbehav),
+    prosocial = if_else(is.na(prosocial.lag),as.numeric(NA),prosocial),
+    polite = if_else(is.na(polite.lag),as.numeric(NA),polite),
+    conflict = if_else(is.na(conflict.lag),as.numeric(NA),conflict),
+    moral = if_else(is.na(moral.lag),as.numeric(NA),moral),
+    comm = if_else(is.na(comm.lag),as.numeric(NA),comm),
+    socrefs = if_else(is.na(socrefs.lag),as.numeric(NA),socrefs),
+    Culture = if_else(is.na(Culture.lag),as.numeric(NA),Culture),
+    ethnicity = if_else(is.na(ethnicity.lag),as.numeric(NA),ethnicity),
+    Lifestyle = if_else(is.na(Lifestyle.lag),as.numeric(NA),Lifestyle),
+    leisure = if_else(is.na(leisure.lag),as.numeric(NA),leisure),
+    home = if_else(is.na(home.lag),as.numeric(NA),home),
+    work = if_else(is.na(work.lag),as.numeric(NA),work),
+    money = if_else(is.na(money.lag),as.numeric(NA),money),
+    relig = if_else(is.na(relig.lag),as.numeric(NA),relig),
+    Physical = if_else(is.na(Physical.lag),as.numeric(NA),Physical),
+    health = if_else(is.na(health.lag),as.numeric(NA),health),
+    illness = if_else(is.na(illness.lag),as.numeric(NA),illness),
+    wellness = if_else(is.na(wellness.lag),as.numeric(NA),wellness),
+    mental = if_else(is.na(mental.lag),as.numeric(NA),mental),
+    substances = if_else(is.na(substances.lag),as.numeric(NA),substances),
+    death = if_else(is.na(death.lag),as.numeric(NA),death),
+    need = if_else(is.na(need.lag),as.numeric(NA),need),
+    want = if_else(is.na(want.lag),as.numeric(NA),want),
+    acquire = if_else(is.na(acquire.lag),as.numeric(NA),acquire),
+    fulfill = if_else(is.na(fulfill.lag),as.numeric(NA),fulfill),
+    fatigue = if_else(is.na(fatigue.lag),as.numeric(NA),fatigue),
+    reward = if_else(is.na(reward.lag),as.numeric(NA),reward),
+    risk = if_else(is.na(risk.lag),as.numeric(NA),risk),
+    curiosity = if_else(is.na(curiosity.lag),as.numeric(NA),curiosity),
+    allure = if_else(is.na(allure.lag),as.numeric(NA),allure),
+    Perception = if_else(is.na(Perception.lag),as.numeric(NA),Perception),
+    attention = if_else(is.na(attention.lag),as.numeric(NA),attention),
+    feeling = if_else(is.na(feeling.lag),as.numeric(NA),feeling),
+    focuspast = if_else(is.na(focuspast.lag),as.numeric(NA),focuspast),
+    focuspresent = if_else(is.na(focuspresent.lag),as.numeric(NA),focuspresent),
+    focusfuture = if_else(is.na(focusfuture.lag),as.numeric(NA),focusfuture),
+    Conversation = if_else(is.na(Conversation.lag),as.numeric(NA),Conversation)
   ) %>%
   ungroup() %>%
   rowwise() %>%
   mutate(
-    affect.tbytmatch = 1 - (abs(affect - affect.lag) / (affect + affect.lag + .0001)),
-    social.tbytmatch = 1 - (abs(social - social.lag) / (social + social.lag + .0001)),
+    auxverb.tbytmatch = 1 - (abs(auxverb - auxverb.lag) / (auxverb + auxverb.lag + .0001)),
+    article.tbytmatch = 1 - (abs(article - article.lag) / (article + article.lag + .0001)),
+    adverb.tbytmatch = 1 - (abs(adverb - adverb.lag) / (adverb + adverb.lag + .0001)),
+    ipron.tbytmatch = 1 - (abs(ipron - ipron.lag) / (ipron + ipron.lag + .0001)),
+    prep.tbytmatch = 1 - (abs(prep - prep.lag) / (prep + prep.lag + .0001)),
+    negate.tbytmatch = 1 - (abs(negate - negate.lag) / (negate + negate.lag + .0001)),
+    conj.tbytmatch = 1 - (abs(conj - conj.lag) / (conj + conj.lag + .0001)),
+    quantity.tbytmatch = 1 - (abs(quantity - quantity.lag) / (quantity + quantity.lag + .0001)),
+    ppron.tbytmatch = 1 - (abs(ppron - ppron.lag) / (ppron + ppron.lag + .0001)),
+    Drives.tbytmatch = 1 - (abs(Drives - Drives.lag) / (Drives + Drives.lag + .0001)),
+    affiliation.tbytmatch = 1 - (abs(affiliation - affiliation.lag) / (affiliation + affiliation.lag + .0001)),
+    achieve.tbytmatch = 1 - (abs(achieve - achieve.lag) / (achieve + achieve.lag + .0001)),
+    power.tbytmatch = 1 - (abs(power - power.lag) / (power + power.lag + .0001)),
+    Cognition.tbytmatch = 1 - (abs(Cognition - Cognition.lag) / (Cognition + Cognition.lag + .0001)),
+    allnone.tbytmatch = 1 - (abs(allnone - allnone.lag) / (allnone + allnone.lag + .0001)),
     cogproc.tbytmatch = 1 - (abs(cogproc - cogproc.lag) / (cogproc + cogproc.lag + .0001)),
-    percept.tbytmatch = 1 - (abs(percept - percept.lag) / (percept + percept.lag + .0001)),
-    negemo.tbytmatch = 1 - (abs(negemo - negemo.lag) / (negemo + negemo.lag + .0001)),
-    bio.tbytmatch = 1 - (abs(bio - bio.lag) / (bio + bio.lag + .0001)),
-    drives.tbytmatch = 1 - (abs(drives - drives.lag) / (drives + drives.lag + .0001)),
-    relativ.tbytmatch = 1 - (abs(relativ - relativ.lag) / (relativ + relativ.lag + .0001)),
-    informal.tbytmatch = 1 - (abs(informal - informal.lag) / (informal + informal.lag + .0001))
+    memory.tbytmatch = 1 - (abs(memory - memory.lag) / (memory + memory.lag + .0001)),
+    Affect.tbytmatch = 1 - (abs(Affect - Affect.lag) / (Affect + Affect.lag + .0001)),
+    tone_pos.tbytmatch = 1 - (abs(tone_pos - tone_pos.lag) / (tone_pos + tone_pos.lag + .0001)),
+    tone_neg.tbytmatch = 1 - (abs(tone_neg - tone_neg.lag) / (tone_neg + tone_neg.lag + .0001)),
+    emotion.tbytmatch = 1 - (abs(emotion - emotion.lag) / (emotion + emotion.lag + .0001)),
+    emo_pos.tbytmatch = 1 - (abs(emo_pos - emo_pos.lag) / (emo_pos + emo_pos.lag + .0001)),
+    emo_neg.tbytmatch = 1 - (abs(emo_neg - emo_neg.lag) / (emo_neg + emo_neg.lag + .0001)),
+    emo_anx.tbytmatch = 1 - (abs(emo_anx - emo_anx.lag) / (emo_anx + emo_anx.lag + .0001)),
+    emo_anger.tbytmatch = 1 - (abs(emo_anger - emo_anger.lag) / (emo_anger + emo_anger.lag + .0001)),
+    emo_sad.tbytmatch = 1 - (abs(emo_sad - emo_sad.lag) / (emo_sad + emo_sad.lag + .0001)),
+    swear.tbytmatch = 1 - (abs(swear - swear.lag) / (swear + swear.lag + .0001)),
+    Social.tbytmatch = 1 - (abs(Social - Social.lag) / (Social + Social.lag + .0001)),
+    socbehav.tbytmatch = 1 - (abs(socbehav - socbehav.lag) / (socbehav + socbehav.lag + .0001)),
+    prosocial.tbytmatch = 1 - (abs(prosocial - prosocial.lag) / (prosocial + prosocial.lag + .0001)),
+    polite.tbytmatch = 1 - (abs(polite - polite.lag) / (polite + polite.lag + .0001)),
+    conflict.tbytmatch = 1 - (abs(conflict - conflict.lag) / (conflict + conflict.lag + .0001)),
+    moral.tbytmatch = 1 - (abs(moral - moral.lag) / (moral + moral.lag + .0001)),
+    comm.tbytmatch = 1 - (abs(comm - comm.lag) / (comm + comm.lag + .0001)),
+    socrefs.tbytmatch = 1 - (abs(socrefs - socrefs.lag) / (socrefs + socrefs.lag + .0001)),
+    Culture.tbytmatch = 1 - (abs(Culture - Culture.lag) / (Culture + Culture.lag + .0001)),
+    ethnicity.tbytmatch = 1 - (abs(ethnicity - ethnicity.lag) / (ethnicity + ethnicity.lag + .0001)),
+    Lifestyle.tbytmatch = 1 - (abs(Lifestyle - Lifestyle.lag) / (Lifestyle + Lifestyle.lag + .0001)),
+    leisure.tbytmatch = 1 - (abs(leisure - leisure.lag) / (leisure + leisure.lag + .0001)),
+    home.tbytmatch = 1 - (abs(home - home.lag) / (home + home.lag + .0001)),
+    work.tbytmatch = 1 - (abs(work - work.lag) / (work + work.lag + .0001)),
+    money.tbytmatch = 1 - (abs(money - money.lag) / (money + money.lag + .0001)),
+    relig.tbytmatch = 1 - (abs(relig - relig.lag) / (relig + relig.lag + .0001)),
+    Physical.tbytmatch = 1 - (abs(Physical - Physical.lag) / (Physical + Physical.lag + .0001)),
+    health.tbytmatch = 1 - (abs(health - health.lag) / (health + health.lag + .0001)),
+    illness.tbytmatch = 1 - (abs(illness - illness.lag) / (illness + illness.lag + .0001)),
+    wellness.tbytmatch = 1 - (abs(wellness - wellness.lag) / (wellness + wellness.lag + .0001)),
+    mental.tbytmatch = 1 - (abs(mental - mental.lag) / (mental + mental.lag + .0001)),
+    substances.tbytmatch = 1 - (abs(substances - substances.lag) / (substances + substances.lag + .0001)),
+    death.tbytmatch = 1 - (abs(death - death.lag) / (death + death.lag + .0001)),
+    need.tbytmatch = 1 - (abs(need - need.lag) / (need + need.lag + .0001)),
+    want.tbytmatch = 1 - (abs(want - want.lag) / (want + want.lag + .0001)),
+    acquire.tbytmatch = 1 - (abs(acquire - acquire.lag) / (acquire + acquire.lag + .0001)),
+    fulfill.tbytmatch = 1 - (abs(fulfill - fulfill.lag) / (fulfill + fulfill.lag + .0001)),
+    fatigue.tbytmatch = 1 - (abs(fatigue - fatigue.lag) / (fatigue + fatigue.lag + .0001)),
+    reward.tbytmatch = 1 - (abs(reward - reward.lag) / (reward + reward.lag + .0001)),
+    risk.tbytmatch = 1 - (abs(risk - risk.lag) / (risk + risk.lag + .0001)),
+    curiosity.tbytmatch = 1 - (abs(curiosity - curiosity.lag) / (curiosity + curiosity.lag + .0001)),
+    allure.tbytmatch = 1 - (abs(allure - allure.lag) / (allure + allure.lag + .0001)),
+    Perception.tbytmatch = 1 - (abs(Perception - Perception.lag) / (Perception + Perception.lag + .0001)),
+    attention.tbytmatch = 1 - (abs(attention - attention.lag) / (attention + attention.lag + .0001)),
+    feeling.tbytmatch = 1 - (abs(feeling - feeling.lag) / (feeling + feeling.lag + .0001)),
+    focuspast.tbytmatch = 1 - (abs(focuspast - focuspast.lag) / (focuspast + focuspast.lag + .0001)),
+    focuspresent.tbytmatch = 1 - (abs(focuspresent - focuspresent.lag) / (focuspresent + focuspresent.lag + .0001)),
+    focusfuture.tbytmatch = 1 - (abs(focusfuture - focusfuture.lag) / (focusfuture + focusfuture.lag + .0001)),
+    Conversation.tbytmatch = 1 - (abs(Conversation - Conversation.lag) / (Conversation + Conversation.lag + .0001))
   ) %>%
   ungroup() %>%
   group_by(File,Speaker) %>%
@@ -950,8 +1186,19 @@ ECHO_smoothed_LIWC_matching <- df_tbyt_LIWC %>%
   pivot_wider(
     id_cols = File,
     names_from = Speaker,
-    values_from = c(affect.tbytmatch, social.tbytmatch, cogproc.tbytmatch, percept.tbytmatch,
-                    negemo.tbytmatch, bio.tbytmatch, drives.tbytmatch, relativ.tbytmatch, informal.tbytmatch),
+    values_from = c(auxverb.tbytmatch, article.tbytmatch, adverb.tbytmatch, ipron.tbytmatch, prep.tbytmatch,
+                    negate.tbytmatch, conj.tbytmatch, quantity.tbytmatch, ppron.tbytmatch, Drives.tbytmatch,
+                    affiliation.tbytmatch, achieve.tbytmatch, power.tbytmatch, Cognition.tbytmatch, 
+                    allnone.tbytmatch, cogproc.tbytmatch, memory.tbytmatch, Affect.tbytmatch, tone_pos.tbytmatch,
+                    tone_neg.tbytmatch, emotion.tbytmatch, emo_pos.tbytmatch, emo_neg.tbytmatch, emo_anx.tbytmatch, 
+                    emo_anger.tbytmatch, emo_sad.tbytmatch, swear.tbytmatch, Social.tbytmatch, socbehav.tbytmatch,
+                    prosocial.tbytmatch, polite.tbytmatch, conflict.tbytmatch, moral.tbytmatch, comm.tbytmatch, 
+                    socrefs.tbytmatch, Culture.tbytmatch, ethnicity.tbytmatch, Lifestyle.tbytmatch, leisure.tbytmatch,
+                    home.tbytmatch, work.tbytmatch, money.tbytmatch, relig.tbytmatch, Physical.tbytmatch, health.tbytmatch,
+                    illness.tbytmatch, wellness.tbytmatch, mental.tbytmatch, substances.tbytmatch, death.tbytmatch, 
+                    need.tbytmatch, want.tbytmatch, acquire.tbytmatch, fulfill.tbytmatch, fatigue.tbytmatch, reward.tbytmatch,
+                    risk.tbytmatch, curiosity.tbytmatch, allure.tbytmatch, Perception.tbytmatch, attention.tbytmatch,
+                    feeling.tbytmatch, focuspast.tbytmatch, focuspresent.tbytmatch, focusfuture.tbytmatch, Conversation.tbytmatch),
     names_glue = "{.value}.{Speaker}"
   )
 
@@ -966,9 +1213,6 @@ ECHO_smoothed_LIWC_matching <- df_tbyt_LIWC %>%
 
 ECHO_All_Matching_Measures_V2 <- list(ECHO_LSM_MLM, ECHO_smoothed_rLSM, ECHO_smoothed_LIWC_matching) %>% 
   reduce(full_join, by = "File")
-
-
-
 
 
 
