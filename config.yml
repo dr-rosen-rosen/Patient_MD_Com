@@ -17,6 +17,8 @@ default:
     ECHO_All_Matching_Measures_name: "ECHO_All_Matching_Measures.csv"
     ECHO_WSU_Transcripts_name: "ECHO1_transcripts_WSV.csv"
     WSU_ECHO_ID_Key_name: "WSU_ECHO_ID_Key.csv"
+    ECHO_rolling_window_5_LIWC_name: "ECHO_rolling_window_5_LIWC.csv"
+    ECHO_rolling_window_8_LIWC_name: "ECHO_rolling_window_8_LIWC.csv"
     
 mike:
     transcript_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
@@ -38,6 +40,8 @@ mike:
     ECHO_WSU_Transcripts_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     WSU_ECHO_ID_Key_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_LSM_MLM_V3_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
+    ECHO_rolling_window_5_LIWC_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
+    ECHO_rolling_window_8_LIWC_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     
 salar:
     transcript_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
@@ -59,3 +63,5 @@ salar:
     ECHO_WSU_Transcripts_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
     WSU_ECHO_ID_Key_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_LSM_MLM_V3_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
+    ECHO_rolling_window_5_LIWC_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
+    ECHO_rolling_window_8_LIWC_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
