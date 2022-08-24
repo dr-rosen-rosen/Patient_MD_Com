@@ -3,6 +3,361 @@
 #########################################
 library(tidyverse)
 
+
+
+
+####################################################################################################
+####################################################################################################
+####################################################################################################
+# USE THIS SCRIPT SECTION FOR TURN-BY-TURN ANALYSIS OF ROLLING WINDOW ON WHOLE CONVERSATION
+
+#5 TURN rolling window analysis for TbyT
+df_tbyt_V3 <- read_csv(here(config$ECHO_rolling_window_5_LIWC_path, config$ECHO_rolling_window_5_LIWC_name))
+
+#8 TURN rolling window analysis 
+# df_tbyt_V3 <- read_csv(here(config$ECHO_rolling_window_8_LIWC_path, config$ECHO_rolling_window_8_LIWC_name))
+
+#Removing unnecessary columns
+df_tbyt_V3 <- df_tbyt_V3 %>%
+  select(-'...1') %>%
+  select(-Text) %>%
+  select(-Sequence) %>%
+  select(-overall_sequence) %>%
+  select(-Word_count) %>%
+  select(-text_agg_wc) %>%
+  select(-Segment) 
+
+# test <- df_tbyt_V3 %>%
+#   dplyr::select(File, Speaker) %>%
+#   group_by(File) %>%
+#   mutate(
+#     Speaker.lag = lag(Speaker)
+#   ) %>%
+#   ungroup() %>%
+#   mutate(
+#     speaker_match = if_else(Speaker == Speaker.lag,1,0)
+#   )
+# table(test$speaker_match)
+
+
+ECHO_smoothed_rLSM <- df_tbyt_V3 %>%
+  dplyr::select(File, text_agg, Speaker, WC, WPS, auxverb, article, adverb, ipron, 
+                prep, negate, conj, quantity, ppron) %>%
+  # Adding quick way to drop turn by turns from the same speaker
+  ### WE NEED TO THINK ABOUT FLOW. WHERE WE"RE DOING SMOOTHING, ETC> (here or in cleaning)
+  group_by(File) %>%
+  mutate(
+    Speaker.lag = lag(Speaker)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    speaker_match = if_else(Speaker == Speaker.lag,1,0)
+  ) %>%
+  ungroup() %>%
+  #filter(speaker_match == 0) %>%
+  # End dropping same speaker turns
+  
+  group_by(File) %>%
+  mutate(
+    auxverb.orig = auxverb,
+    article.orig = article,
+    adverb.orig = adverb,
+    ipron.orig = ipron,
+    prep.orig = prep,
+    negate.orig = negate,
+    conj.orig = conj,
+    quantity.orig = quantity,
+    ppron.orig = ppron,
+    WC.orig = WC,
+    WPS.orig = WPS) %>%
+  ungroup() %>%
+  #rowwise() %>%
+  # This puts the turn before the current one on the same row with a .lag suffix
+  #dplyr::mutate(across(.cols=everything(), .funs = ~ dplyr::lead(.x,order_by=File,n = 1, default = NA), .names = '{.col}_lead')) %>%
+  group_by(File) %>%
+  mutate(
+    auxverb.lag = lag(auxverb),
+    article.lag = lag(article),
+    adverb.lag = lag(adverb),
+    ipron.lag = lag(ipron),
+    prep.lag = lag(prep),
+    negate.lag = lag(negate),
+    conj.lag = lag(conj),
+    quantity.lag = lag(quantity),
+    ppron.lag = lag(ppron),
+    WC.lag = lag(WC),
+    WPS.lag = lag(WPS)) %>%
+  ungroup() %>%
+  # filter(WC > 1 & WC.lag >1) %>% # drops all exchanges with one word utterances
+  # This makes sure that only liwc categories prersent in the first statement are used for rlsm
+  mutate(across(c(auxverb.lag, article.lag,adverb.lag, ipron.lag,
+                  prep.lag, negate.lag, conj.lag, quantity.lag, ppron.lag
+  ), 
+  ~ if_else(. > 0,.,as.numeric(NA)))) %>%
+  # This sets liwc categories in the responders speech to NA if that category was NA in the first person's speech
+  # Per the rLSM paper
+  group_by(File) %>%
+  mutate(
+    auxverb = if_else(is.na(auxverb.lag),as.numeric(NA),auxverb),
+    article = if_else(is.na(article.lag),as.numeric(NA),article),
+    adverb = if_else(is.na(adverb.lag),as.numeric(NA),adverb),
+    ipron = if_else(is.na(ipron.lag),as.numeric(NA),ipron),
+    prep = if_else(is.na(prep.lag),as.numeric(NA),prep),
+    negate = if_else(is.na(negate.lag),as.numeric(NA),negate),
+    conj = if_else(is.na(conj.lag),as.numeric(NA),conj),
+    quantity = if_else(is.na(quantity.lag),as.numeric(NA),quantity),
+    ppron = if_else(is.na(ppron.lag),as.numeric(NA),ppron)
+  ) %>%
+  ungroup() %>%
+  rowwise() %>%
+  mutate(
+    auxverb.rLSM = 1 - (abs(auxverb - auxverb.lag) / (auxverb + auxverb.lag + .0001)),
+    article.rLSM = 1 - (abs(article - article.lag) / (article + article.lag + .0001)),
+    adverb.rLSM = 1 - (abs(adverb - adverb.lag) / (adverb + adverb.lag + .0001)),
+    ipron.rLSM = 1 - (abs(ipron - ipron.lag) / (ipron + ipron.lag + .0001)),
+    prep.rLSM = 1 - (abs(prep - prep.lag) / (prep + prep.lag + .0001)),
+    negate.rLSM = 1 - (abs(negate - negate.lag) / (negate + negate.lag + .0001)),
+    conj.rLSM = 1 - (abs(conj - conj.lag) / (conj + conj.lag + .0001)),
+    quantity.rLSM = 1 - (abs(quantity - quantity.lag) / (quantity + quantity.lag + .0001)),
+    ppron.rLSM = 1 - (abs(ppron - ppron.lag) / (ppron + ppron.lag + .0001))
+  ) %>%
+  ungroup() %>%
+  #creates an average rLSM across separrate featurers
+  #mutate(rLSM = rowMeans(select(.,contains('.rLSM')),na.rm = TRUE)) %>%
+  # mutate(rLSM = ifelse(is.na(rLSM), 0, rLSM)) %>% # replaces NAs with 0
+  # group_by(File,Speaker) %>%
+  # summarize(rLSM = mean(rLSM)) %>%
+  # ungroup() %>%
+  group_by(File,Speaker) %>%
+  summarize(
+    across(contains('.rLSM'), .fns = ~ mean(.x,na.rm=TRUE)),
+    WC_sum = sum(WC),
+    WPS_avg = mean(WPS)) %>%
+  ungroup() %>%
+  mutate(rLSM = rowMeans(select(.,contains('.rLSM')),na.rm = TRUE)) %>%
+  pivot_wider(
+    id_cols = File,
+    names_from = Speaker,
+    values_from = c(rLSM,WPS_avg,WC_sum),
+    # names_prefix = 'rLSM.'
+    names_glue = "{.value}.{Speaker}"
+  ) %>%
+  # drop_na() %>% # find out where these are coming from
+  mutate(
+    mean.rLSM = rowMeans(select(.,contains('rLSM')),na.rm = TRUE),
+    ratio.rLSM.P = rLSM.P / rLSM.D,
+    ratio.rLSM.D = rLSM.D / rLSM.P,
+    verb_dom = WC_sum.D / WC_sum.P
+  ) %>%
+  filter(
+    WC_sum.D >= 50 & WC_sum.P >= 50
+  ) %>%
+  select(-c(WPS_avg.D, WPS_avg.P))
+
+
+
+
+
+####################################################################################################
+####################################################################################################
+####################################################################################################
+# USE THIS SCRIPT SECTION FOR TURN-BY-TURN ANALYSIS OF ROLLING WINDOW ON CHUNKS OF CONVERSATION
+
+
+ECHO_smoothed_chunks <- read_csv(here(config$ECHO_rolling_window_5_LIWC_path, config$ECHO_rolling_window_5_LIWC_name))
+
+#Removing unnecessary columns
+ECHO_smoothed_chunks <-ECHO_smoothed_chunks %>%
+  select(-'...1') %>%
+  select(-Text) %>%
+  select(-Sequence) %>%
+  select(-overall_sequence) %>%
+  select(-Word_count) %>%
+  select(-text_agg_wc) %>%
+  select(-Segment) 
+
+
+#Dropping where WC== 0 since doing the rolling window creates some 
+#turns at beginning & end of conversation that included no text (text_agg)
+ECHO_smoothed_chunks <-ECHO_smoothed_chunks %>%
+  filter(!(WC == 0))
+
+
+
+#creating 5 chunks per conversation based on word count
+ECHO_smoothed_chunks_wc <- ECHO_smoothed_chunks %>%
+  group_by(File) %>%
+  mutate(word_count = str_count(text_agg,"\\w+"),
+         cumulative = cumsum(word_count),
+         chunk = case_when(cumulative < (max(cumulative)/5) ~ 1,
+                           cumulative < (max(cumulative/5))*2 ~ 2,
+                           cumulative < (max(cumulative/5))*3 ~ 3,
+                           cumulative < (max(cumulative/5))*4 ~ 4,
+                           TRUE ~ 5)
+  ) %>%
+  ungroup() %>%
+  relocate(chunk, .before = text_agg) %>%
+  select(-c(word_count, cumulative))
+
+
+
+
+
+ECHO_smoothed_chunks_wc_rLSM <- ECHO_smoothed_chunks_wc
+
+# test <- ECHO_smoothed_chunks_wc_rLSM %>%
+#   dplyr::select(File, Speaker) %>%
+#   group_by(File) %>%
+#   mutate(
+#     Speaker.lag = lag(Speaker)
+#   ) %>%
+#   ungroup() %>%
+#   mutate(
+#     speaker_match = if_else(Speaker == Speaker.lag,1,0)
+#   )
+# table(test$speaker_match)
+
+
+ECHO_smoothed_chunks_wc_rLSM <- ECHO_smoothed_chunks_wc_rLSM %>%
+  dplyr::select(File, Speaker, chunk, WC, auxverb, article, adverb, ipron, 
+                prep, negate, conj, quantity, ppron) %>%
+  # Adding quick way to drop turn by turns from the same speaker
+  ### WE NEED TO THINK ABOUT FLOW. WHERE WE"RE DOING SMOOTHING, ETC> (here or in cleaning)
+  # group_by(File) %>%
+  # mutate(
+  #   Speaker.lag = lag(Speaker)
+  # ) %>%
+  # ungroup() %>%
+  # mutate(
+  #   speaker_match = if_else(Speaker == Speaker.lag,1,0)
+  # ) %>%
+  # ungroup() %>%
+# filter(speaker_match == 0) %>%
+# End dropping same speaker turns
+
+# group_by(File, Chunk) %>%
+# mutate(
+#   auxverb.orig = auxverb,
+#   article.orig = article,
+#   adverb.orig = adverb,
+#   ipron.orig = ipron,
+#   prep.orig = prep,
+#   negate.orig = negate,
+#   conj.orig = conj,
+#   quant.orig = quant,
+#   ppron.orig = ppron,
+#   WC.orig = WC) %>%
+# ungroup() %>%
+#rowwise() %>%
+# This puts the turn before the current one on the same row with a .lag suffix
+#dplyr::mutate(across(.cols=everything(), .funs = ~ dplyr::lead(.x,order_by=File,n = 1, default = NA), .names = '{.col}_lead')) %>%
+group_by(File, chunk) %>%
+  mutate(
+    auxverb.lag = lag(auxverb),
+    article.lag = lag(article),
+    adverb.lag = lag(adverb),
+    ipron.lag = lag(ipron),
+    prep.lag = lag(prep),
+    negate.lag = lag(negate),
+    conj.lag = lag(conj),
+    quantity.lag = lag(quantity),
+    ppron.lag = lag(ppron),
+    WC.lag = lag(WC)) %>%
+  ungroup() %>%
+  # filter(WC > 1 & WC.lag >1) %>% # drops all exchanges with one word utterances
+  # This makes sure that only liwc categories prersent in the first statement are used for rlsm
+  mutate(across(c(auxverb.lag, article.lag, adverb.lag, ipron.lag, 
+                  prep.lag, negate.lag, conj.lag, quantity.lag, ppron.lag), 
+                ~ if_else(. > 0,.,as.numeric(NA)))) %>%
+  # This sets liwc categories in the responders speech to NA if that category was NA in the first person's speech
+  # Per the rLSM paper
+  group_by(File, chunk) %>%
+  mutate(
+    auxverb = if_else(is.na(auxverb.lag),as.numeric(NA),auxverb),
+    article = if_else(is.na(article.lag),as.numeric(NA),article),
+    adverb = if_else(is.na(adverb.lag),as.numeric(NA),adverb),
+    ipron = if_else(is.na(ipron.lag),as.numeric(NA),ipron),
+    prep = if_else(is.na(prep.lag),as.numeric(NA),prep),
+    negate = if_else(is.na(negate.lag),as.numeric(NA),negate),
+    conj = if_else(is.na(conj.lag),as.numeric(NA),conj),
+    quantity = if_else(is.na(quantity.lag),as.numeric(NA),quantity),
+    ppron = if_else(is.na(ppron.lag),as.numeric(NA),ppron)
+  ) %>%
+  ungroup() %>%
+  rowwise() %>%
+  mutate(
+    auxverb.rLSM = 1 - (abs(auxverb - auxverb.lag) / (auxverb + auxverb.lag + .0001)),
+    article.rLSM = 1 - (abs(article - article.lag) / (article + article.lag + .0001)),
+    adverb.rLSM = 1 - (abs(adverb - adverb.lag) / (adverb + adverb.lag + .0001)),
+    ipron.rLSM = 1 - (abs(ipron - ipron.lag) / (ipron + ipron.lag + .0001)),
+    prep.rLSM = 1 - (abs(prep - prep.lag) / (prep + prep.lag + .0001)),
+    negate.rLSM = 1 - (abs(negate - negate.lag) / (negate + negate.lag + .0001)),
+    conj.rLSM = 1 - (abs(conj - conj.lag) / (conj + conj.lag + .0001)),
+    quantity.rLSM = 1 - (abs(quantity - quantity.lag) / (quantity + quantity.lag + .0001)),
+    ppron.rLSM = 1 - (abs(ppron - ppron.lag) / (ppron + ppron.lag + .0001))
+  ) %>%
+  ungroup() %>%
+  #creates an average rLSM across separrate featurers
+  #mutate(rLSM = rowMeans(select(.,contains('.rLSM')),na.rm = TRUE)) %>%
+  # mutate(rLSM = ifelse(is.na(rLSM), 0, rLSM)) %>% # replaces NAs with 0
+  # group_by(File,Speaker) %>%
+  # summarize(rLSM = mean(rLSM)) %>%
+  # ungroup() %>%
+  group_by(File, Speaker, chunk) %>%
+  summarize(
+    across(contains('.rLSM'), .fns = ~ mean(.x,na.rm=TRUE)),
+    WC_sum = sum(WC)) %>%
+  ungroup() %>%
+  mutate(rLSM = rowMeans(select(.,contains('.rLSM')),na.rm = TRUE)) %>%
+  pivot_wider(
+    id_cols = File,
+    names_from = c(chunk,Speaker),
+    values_from = c(rLSM,WC_sum),
+    # names_prefix = 'rLSM.'
+    names_glue = "{.value}.{Speaker}.{chunk}"
+  )  %>%
+  rowwise()%>%
+  mutate(
+    mean.rLSM.1 = mean(c(rLSM.D.1, rLSM.P.1)),
+    ratio.rLSM.D.1 = rLSM.D.1 / rLSM.P.1,
+    ratio.rLSM.P.1 = rLSM.P.1 / rLSM.D.1,
+    verb_dom.1 = WC_sum.D.1 / WC_sum.P.1,
+    mean.rLSM.2 = mean(c(rLSM.D.2, rLSM.P.2)),
+    ratio.rLSM.D.2 = rLSM.D.2 / rLSM.P.2,
+    ratio.rLSM.P.2 = rLSM.P.2 / rLSM.D.2,
+    verb_dom.2 = WC_sum.D.2 / WC_sum.P.2,
+    mean.rLSM.3 = mean(c(rLSM.D.3, rLSM.P.3)),
+    ratio.rLSM.D.3 = rLSM.D.3 / rLSM.P.3,
+    ratio.rLSM.P.3 = rLSM.P.3 / rLSM.D.3,
+    verb_dom.3 = WC_sum.D.3 / WC_sum.P.3,
+    mean.rLSM.4 = mean(c(rLSM.D.4, rLSM.P.4)),
+    ratio.rLSM.D.4 = rLSM.D.4 / rLSM.P.4,
+    ratio.rLSM.P.4 = rLSM.P.4 / rLSM.D.4,
+    verb_dom.4 = WC_sum.D.4 / WC_sum.P.4,
+    mean.rLSM.5 = mean(c(rLSM.D.5, rLSM.P.5)),
+    ratio.rLSM.D.5 = rLSM.D.5 / rLSM.P.5,
+    ratio.rLSM.P.5 = rLSM.P.5 / rLSM.D.5,
+    verb_dom.5 = WC_sum.D.5 / WC_sum.P.5,
+    rLSM_Chunk_Ratio.D = rLSM.D.5/ rLSM.D.1,
+    rLSM_Chunk_Ratio.P = rLSM.P.5/ rLSM.P.1) %>%
+  # %>%
+  #   filter(
+  #     WC_sum.D >= 50 & WC_sum.P >= 50
+  #   )
+  #adding "_wc" at the end of variables since this chunking was based on word count
+  rename_at(vars(-(File)), ~ paste0(., '_wc')) 
+
+
+
+
+
+
+#################################
+##OLD CODE FROM THIS POINT FORWARD
+####################################################################################################
+####################################################################################################
+####################################################################################################
+
 #calculating rLSM without excluding any of the turns
 
 # read in turn by turn LIWC file
