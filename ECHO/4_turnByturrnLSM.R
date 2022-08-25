@@ -12,7 +12,7 @@ library(tidyverse)
 # USE THIS SCRIPT SECTION FOR TURN-BY-TURN ANALYSIS OF ROLLING WINDOW ON WHOLE CONVERSATION
 
 #5 TURN rolling window analysis for TbyT
-df_tbyt_V3 <- read_csv(here(config$ECHO_rolling_window_5_LIWC_path, config$ECHO_rolling_window_5_LIWC_name))
+df_tbyt_V3 <- read_csv(here(config$ECHO_rolling_window_8_LIWC_path, config$ECHO_rolling_window_8_LIWC_name))
 
 #8 TURN rolling window analysis 
 # df_tbyt_V3 <- read_csv(here(config$ECHO_rolling_window_8_LIWC_path, config$ECHO_rolling_window_8_LIWC_name))

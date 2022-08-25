@@ -11,29 +11,29 @@ library(gdata)
 # config <- config::get()
 
 #open files
-#ECHO_All_Matching <- read_csv(here(config$ECHO_All_Matching_Measures_path, config$ECHO_All_Matching_Measures_name))
-
+# ECHO_All_Matching <- read_csv(here(config$ECHO_All_Matching_Measures_path, config$ECHO_All_Matching_Measures_name))
+# 
 # ECHO_All_Matching_Measures_WSU <- ECHO_All_Matching_Measures_V2[-c(30:359),]
-# 
+#
 # ECHO_All_Matching_Measures_Other <- ECHO_All_Matching_Measures_V2[-c(1:29),]
-# 
+#
 # ECHO_All_Matching_Measures_Other <- ECHO_All_Matching_Measures_Other %>%
 #   mutate(provider_id = str_sub(File, 1, 4)) %>%
-#   mutate(site_name= str_sub(provider_id, 1, 2)) 
-# 
+#   mutate(site_name= str_sub(provider_id, 1, 2))
+#
 # WSU_ECHO_ID_Key_V2 <- WSU_ECHO_ID_Key %>%
 #   mutate(File = str_sub(Local_ID, 6, 9)) %>%
 #   mutate(tapeid = Global_ID) %>%
 #   mutate(provider_id = str_sub(Local_ID, 1,4)) %>%
 #   mutate(site_name= "WC") %>%
 #   select(-c(Local_ID,Global_ID, tapeid))
-# 
+#
 # ECHO_All_Matching_Measures_WSU <- left_join(ECHO_All_Matching_Measures_WSU, WSU_ECHO_ID_Key_V2, by= "File")
-# 
+#
 # ECHO_All_Matching_Measures_WSU <- ECHO_All_Matching_Measures_WSU %>%
 #   filter(File != "200B")
-# 
-# 
+#
+#
 # ECHO_All_Matching <- bind_rows(ECHO_All_Matching_Measures_Other, ECHO_All_Matching_Measures_WSU)
 # 
 # 
