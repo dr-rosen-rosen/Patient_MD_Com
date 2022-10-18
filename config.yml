@@ -19,6 +19,8 @@ default:
     WSU_ECHO_ID_Key_name: "WSU_ECHO_ID_Key.csv"
     ECHO_rolling_window_5_LIWC_name: "ECHO_rolling_window_5_LIWC.csv"
     ECHO_rolling_window_8_LIWC_name: "ECHO_rolling_window_8_LIWC.csv"
+    maripohsa_conv_liwc_name: "maripohsa_conv_liwc.csv"
+    maripohsa_rolling_window_5_LIWC_name: "maripohsa_rolling_window_5_LIWC.csv"
     
 mike:
     transcript_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
@@ -42,6 +44,9 @@ mike:
     ECHO_LSM_MLM_V3_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_rolling_window_5_LIWC_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_rolling_window_8_LIWC_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
+    maripohsa_conv_liwc_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis'
+    maripohsa_rolling_window_5_LIWC_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis'
+    
     
 salar:
     transcript_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
@@ -65,3 +70,5 @@ salar:
     ECHO_LSM_MLM_V3_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_rolling_window_5_LIWC_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
     ECHO_rolling_window_8_LIWC_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
+    maripohsa_conv_liwc_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis'
+    maripohsa_rolling_window_5_LIWC_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis'
