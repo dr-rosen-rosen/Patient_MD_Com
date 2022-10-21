@@ -599,6 +599,51 @@ write.csv(ECHO_LSM_Prep_final, "ECHO_LSM_Prep_final.csv")
 
 
 
+#########################################################
+########################################################
+#################################################################
+
+
+library(runner)
+
+window_transcripts <- function(transcript_df, window, collapse){
+  
+  if(missing(collapse)) {collapse <- ' '}
+  
+  # do some quality control
+  if(length(unique(transcript_df$Speaker) )!= 2) {
+    print('Too many different speakers...')
+  } else {print('Good to go: only 2 speakers')}
+  
+  windowed_df <- transcript_df %>%
+    group_by(File, Speaker) %>%
+    mutate(
+      text_agg = runner::runner(
+        Text,
+        f = paste,
+        collapse = collapse,
+        k = window,
+        na_pad = TRUE
+      ),
+      text_agg_wc = str_count(text_agg, "\\w+")) %>% 
+    ungroup()
+  
+  return(windowed_df)
+}
+
+test_window <- window_transcripts(
+  transcript_df = smoothed_tByT_df_V2,
+  window = 5,
+  collapse = ' '
+)
+
+skimr::skim(test_window)
+
+
+write.csv(test_window, "ECHO_rolling_window_5.csv")
+
+
+
 ##################################################################################################
 ##################################################################################################
 #START HERE AFTER LIWC ANALYSIS DONE
@@ -613,6 +658,7 @@ ECHO_LSM_MLM <- read_csv(here(config$ECHO_LSM_MLM_V3_path, config$ECHO_LSM_MLM_V
 ECHO_survey_data <- read_dta(here(config$ECHO_survey_data_path, config$ECHO_survey_data_name))
 ECHO_ID_key <- read_csv(here(config$ECHO_ID_key_path, config$ECHO_ID_key_name))
 # WSU_ECHO_ID_Key <- read_csv(here(config$WSU_ECHO_ID_Key_path, config$WSU_ECHO_ID_Key_name))
+
 
 
 # WSU_ECHO_ID_Key_V2 <- WSU_ECHO_ID_Key %>%
@@ -655,6 +701,8 @@ ECHO_LSM_MLM <- ECHO_LSM_MLM %>%
   rowwise() %>%
   mutate(LSM_function_mean = mean(c(LSM_auxverb, LSM_article, LSM_adverb, LSM_ipron, LSM_prep, 
                                     LSM_negate, LSM_conj, LSM_quantity, LSM_ppron))) %>%
+  mutate(conv.psychological.match = mean(c(LSM_Drives, LSM_Cognition,
+                                           LSM_Affect, LSM_Social))) %>%
   mutate(conv.auxverb.match = LSM_auxverb,
          conv.article.match = LSM_article,
          conv.adverb.match = LSM_adverb,
@@ -738,16 +786,28 @@ ECHO_LSM_MLM <- left_join(ECHO_LSM_MLM, ECHO_survey_data, by = "tapeid")
 
 ####################################################################################################
 #Use this if you want to use the tbyt file with 1 & 2 word turns EXCLUDED
-df_tbyt_V2 <- read_csv(here(config$ECHO_LSM_TbyT_Smoothed_V2_path, config$ECHO_LSM_TbyT_Smoothed_V2_name))
+# df_tbyt_V2 <- read_csv(here(config$ECHO_LSM_TbyT_Smoothed_V2_path, config$ECHO_LSM_TbyT_Smoothed_V2_name))
+
+#rolling window analysis for TbyT
+df_tbyt_V3 <- read_csv(here(config$ECHO_rolling_window_5_LIWC_path, config$ECHO_rolling_window_5_LIWC_name))
 
 # #Use this if you want to use the tbyt file with 1 & 2 word turns INCLUDED
 # df_tbyt_V2 <- read_csv(here(config$ECHO_LSM_TbyT_Smoothed_V3_path, config$ECHO_LSM_TbyT_Smoothed_V3_name))
 
-df_tbyt_V2 <- df_tbyt_V2 %>%
+# df_tbyt_V2 <- df_tbyt_V2 %>%
+#   select(-'...1') %>%
+#   select(-Sequence) %>%
+#   select(-overall_sequence) %>%
+#   select(-Word_count) %>%
+#   select(-Segment)
+
+df_tbyt_V3 <- df_tbyt_V3 %>%
   select(-'...1') %>%
+  select(-Text) %>%
   select(-Sequence) %>%
   select(-overall_sequence) %>%
   select(-Word_count) %>%
+  select(-text_agg_wc) %>%
   select(-Segment) 
 
 # test <- df_tbyt_V2 %>%
@@ -763,8 +823,8 @@ df_tbyt_V2 <- df_tbyt_V2 %>%
 # table(test$speaker_match)
 
 
-ECHO_smoothed_rLSM <- df_tbyt_V2 %>%
-  dplyr::select(File, Text, Speaker, WC, WPS, auxverb, article, adverb, ipron, 
+ECHO_smoothed_rLSM <- df_tbyt_V3 %>%
+  dplyr::select(File, text_agg, Speaker, WC, WPS, auxverb, article, adverb, ipron, 
                 prep, negate, conj, quantity, ppron) %>%
   # Adding quick way to drop turn by turns from the same speaker
   ### WE NEED TO THINK ABOUT FLOW. WHERE WE"RE DOING SMOOTHING, ETC> (here or in cleaning)
@@ -813,8 +873,9 @@ ECHO_smoothed_rLSM <- df_tbyt_V2 %>%
   ungroup() %>%
   # filter(WC > 1 & WC.lag >1) %>% # drops all exchanges with one word utterances
   # This makes sure that only liwc categories prersent in the first statement are used for rlsm
-  mutate(across(c(auxverb.lag, article.lag, adverb.lag, ipron.lag, 
-                  prep.lag, negate.lag, conj.lag, quantity.lag, ppron.lag), 
+  mutate(across(c(auxverb.lag, article.lag,adverb.lag, ipron.lag,
+                  prep.lag, negate.lag, conj.lag, quantity.lag, ppron.lag
+                  ), 
                 ~ if_else(. > 0,.,as.numeric(NA)))) %>%
   # This sets liwc categories in the responders speech to NA if that category was NA in the first person's speech
   # Per the rLSM paper
@@ -864,16 +925,17 @@ ECHO_smoothed_rLSM <- df_tbyt_V2 %>%
     # names_prefix = 'rLSM.'
     names_glue = "{.value}.{Speaker}"
   ) %>%
-  drop_na() %>% # find out where these are coming from
+  # drop_na() %>% # find out where these are coming from
   mutate(
     mean.rLSM = rowMeans(select(.,contains('rLSM')),na.rm = TRUE),
-    ratio.rLSM = rLSM.D / rLSM.P,
+    ratio.rLSM.P = rLSM.P / rLSM.D,
+    ratio.rLSM.D = rLSM.D / rLSM.P,
     verb_dom = WC_sum.D / WC_sum.P
   ) %>%
   filter(
     WC_sum.D >= 50 & WC_sum.P >= 50
-  )
-
+  ) %>%
+  select(-c(WPS_avg.D, WPS_avg.P))
 
 # ECHO_transcript_topbottom5_rLSM_V2 <- c("JC02P03", "JC06P01", "JC05P05", 
 #                                      "OC08P10", "SC12P062", "SC15P050", 
@@ -899,17 +961,28 @@ ECHO_smoothed_rLSM <- df_tbyt_V2 %>%
 ################################################################################################################# 
 
 #Use this if you want to use the tbyt file with 1 & 2 word turns EXCLUDED
-df_tbyt_LIWC <- read_csv(here(config$ECHO_LSM_TbyT_Smoothed_V2_path, config$ECHO_LSM_TbyT_Smoothed_V2_name))
+#df_tbyt_LIWC <- read_csv(here(config$ECHO_LSM_TbyT_Smoothed_V2_path, config$ECHO_LSM_TbyT_Smoothed_V2_name))
 
+
+df_tbyt_LIWC_V3 <- read_csv(here(config$ECHO_rolling_window_5_LIWC_path, config$ECHO_rolling_window_5_LIWC_name))
 #Use this if you want to use the tbyt file with 1 & 2 word turns INCLUDED
 # df_tbyt_LIWC <- read_csv(here(config$ECHO_LSM_TbyT_Smoothed_V3_path, config$ECHO_LSM_TbyT_Smoothed_V3_name))
 
-df_tbyt_LIWC <- df_tbyt_LIWC %>%
+# df_tbyt_LIWC <- df_tbyt_LIWC %>%
+#   select(-'...1') %>%
+#   select(-Sequence) %>%
+#   select(-overall_sequence) %>%
+#   select(-Word_count) %>%
+#   select(-Segment)
+
+df_tbyt_LIWC_V3 <- df_tbyt_LIWC_V3 %>%
   select(-'...1') %>%
+  select(-Text) %>%
   select(-Sequence) %>%
   select(-overall_sequence) %>%
   select(-Word_count) %>%
-  select(-Segment)
+  select(-text_agg_wc) %>%
+  select(-Segment) 
 
 # test <- smoothed_tByT_df %>%
 #   dplyr::select(File, Speaker) %>%
@@ -924,8 +997,8 @@ df_tbyt_LIWC <- df_tbyt_LIWC %>%
 # table(test$speaker_match)
 
 #SK: had to delete sequence from the list right below with select()
-ECHO_smoothed_LIWC_matching <- df_tbyt_LIWC %>%
-  dplyr::select(File, Text, Speaker, auxverb, article, adverb, ipron, 
+ECHO_smoothed_LIWC_matching <- df_tbyt_LIWC_V3 %>%
+  dplyr::select(File, text_agg, Speaker, auxverb, article, adverb, ipron, 
                 prep, negate, conj, quantity, ppron, Drives, affiliation,
                 achieve, power, Cognition, allnone, cogproc, memory, Affect,
                 tone_pos, tone_neg, emotion, emo_pos, emo_neg, emo_anx, emo_anger,
@@ -1183,6 +1256,9 @@ ECHO_smoothed_LIWC_matching <- df_tbyt_LIWC %>%
   summarize(
     across(contains('.tbytmatch'), .fns = ~ mean(.x,na.rm=TRUE))) %>%
   ungroup() %>%
+  mutate(psychological.tbytmatch = rowMeans(.[, c("Drives.tbytmatch", "Cognition.tbytmatch",
+                                                  "Affect.tbytmatch", "Social.tbytmatch")],na.rm = TRUE)) %>%
+  ungroup() %>%
   pivot_wider(
     id_cols = File,
     names_from = Speaker,
@@ -1198,7 +1274,8 @@ ECHO_smoothed_LIWC_matching <- df_tbyt_LIWC %>%
                     illness.tbytmatch, wellness.tbytmatch, mental.tbytmatch, substances.tbytmatch, death.tbytmatch, 
                     need.tbytmatch, want.tbytmatch, acquire.tbytmatch, fulfill.tbytmatch, fatigue.tbytmatch, reward.tbytmatch,
                     risk.tbytmatch, curiosity.tbytmatch, allure.tbytmatch, Perception.tbytmatch, attention.tbytmatch,
-                    feeling.tbytmatch, focuspast.tbytmatch, focuspresent.tbytmatch, focusfuture.tbytmatch, Conversation.tbytmatch),
+                    feeling.tbytmatch, focuspast.tbytmatch, focuspresent.tbytmatch, focusfuture.tbytmatch, 
+                    Conversation.tbytmatch, psychological.tbytmatch),
     names_glue = "{.value}.{Speaker}"
   )
 
@@ -1208,11 +1285,395 @@ ECHO_smoothed_LIWC_matching <- df_tbyt_LIWC %>%
 
 ###########
 
-#AFTER THIS CODE, YOU ARE READY TO GO TO "0_ECH)_dataCleaning.R" for creating model dfs and then modeling
+#AFTER THIS CODE, YOU ARE READY TO GO TO "0_ECHO_dataCleaning.R" for creating model dfs and then modeling
 #LSM Conv, rLSM, and LIWC matching tbyt
 
 ECHO_All_Matching_Measures_V2 <- list(ECHO_LSM_MLM, ECHO_smoothed_rLSM, ECHO_smoothed_LIWC_matching) %>% 
   reduce(full_join, by = "File")
+
+
+# ############################################################################################################
+# ############################################################################################################
+# #####Adding chunk variable (based on Word Count and Turns) for ECHO TbyT transcript after processing through LIWC
+# ############################################################################################################
+# ############################################################################################################
+# 
+
+
+df_tbyt_V3 <- read_csv(here(config$ECHO_rolling_window_5_LIWC_path, config$ECHO_rolling_window_5_LIWC_name))
+
+# #Use this if you want to use the tbyt file with 1 & 2 word turns INCLUDED
+# df_tbyt_V2 <- read_csv(here(config$ECHO_LSM_TbyT_Smoothed_V3_path, config$ECHO_LSM_TbyT_Smoothed_V3_name))
+
+# df_tbyt_V2 <- df_tbyt_V2 %>%
+#   select(-'...1') %>%
+#   select(-Sequence) %>%
+#   select(-overall_sequence) %>%
+#   select(-Word_count) %>%
+#   select(-Segment)
+
+df_tbyt_V3 <- df_tbyt_V3 %>%
+  select(-'...1') %>%
+  select(-Text) %>%
+  select(-Sequence) %>%
+  select(-overall_sequence) %>%
+  select(-Word_count) %>%
+  select(-text_agg_wc) %>%
+  select(-Segment) 
+
+ECHO_smoothed_chunks <- read_csv(here(config$ECHO_rolling_window_5_LIWC_path, config$ECHO_rolling_window_5_LIWC_name))
+
+ECHO_smoothed_chunks <-ECHO_smoothed_chunks %>%
+  select(-'...1') %>%
+  select(-Text) %>%
+  select(-Sequence) %>%
+  select(-overall_sequence) %>%
+  select(-Word_count) %>%
+  select(-text_agg_wc) %>%
+  select(-Segment) 
+  
+ECHO_smoothed_chunks <-ECHO_smoothed_chunks %>%
+  filter(!(WC == 0))
+  
+  
+  
+   rename(output_order = A) %>%
+  rename(File = B) %>%
+  rename(Speaker = C) %>%
+  rename(Text = D) %>%
+  select(-E) %>%
+  select(-F)
+
+   
+   
+   
+   
+   
+   
+   
+   
+
+   ECHO_smoothed_chunks_wc <- ECHO_smoothed_chunks %>%
+     group_by(File) %>%
+     mutate(word_count = str_count(text_agg,"\\w+"),
+            cumulative = cumsum(word_count),
+            chunk = case_when(cumulative < (max(cumulative)/5) ~ 1,
+                              cumulative < (max(cumulative/5))*2 ~ 2,
+                              cumulative < (max(cumulative/5))*3 ~ 3,
+                              cumulative < (max(cumulative/5))*4 ~ 4,
+                              TRUE ~ 5)
+     ) %>%
+     ungroup() %>%
+     relocate(chunk, .before = text_agg) %>%
+     select(-c(word_count, cumulative))
+
+
+####################
+
+   
+   ECHO_smoothed_chunks_wc_rLSM <- ECHO_smoothed_chunks_wc
+   
+   # test <- ECHO_smoothed_chunks_wc_rLSM %>%
+   #   dplyr::select(File, Speaker) %>%
+   #   group_by(File) %>%
+   #   mutate(
+   #     Speaker.lag = lag(Speaker)
+   #   ) %>%
+   #   ungroup() %>%
+   #   mutate(
+   #     speaker_match = if_else(Speaker == Speaker.lag,1,0)
+   #   )
+   # table(test$speaker_match)
+   
+   #SK: had to delete sequence from the list right below with select()
+   ECHO_smoothed_chunks_wc_rLSM <- ECHO_smoothed_chunks_wc_rLSM %>%
+     dplyr::select(File, Speaker, chunk, WC, auxverb, article, adverb, ipron, 
+                   prep, negate, conj, quantity, ppron) %>%
+     # Adding quick way to drop turn by turns from the same speaker
+     ### WE NEED TO THINK ABOUT FLOW. WHERE WE"RE DOING SMOOTHING, ETC> (here or in cleaning)
+     # group_by(File) %>%
+     # mutate(
+     #   Speaker.lag = lag(Speaker)
+     # ) %>%
+     # ungroup() %>%
+     # mutate(
+     #   speaker_match = if_else(Speaker == Speaker.lag,1,0)
+     # ) %>%
+     # ungroup() %>%
+   # filter(speaker_match == 0) %>%
+   # End dropping same speaker turns
+   
+   # group_by(File, Chunk) %>%
+   # mutate(
+   #   auxverb.orig = auxverb,
+   #   article.orig = article,
+   #   adverb.orig = adverb,
+   #   ipron.orig = ipron,
+   #   prep.orig = prep,
+   #   negate.orig = negate,
+   #   conj.orig = conj,
+   #   quant.orig = quant,
+   #   ppron.orig = ppron,
+   #   WC.orig = WC) %>%
+   # ungroup() %>%
+   #rowwise() %>%
+   # This puts the turn before the current one on the same row with a .lag suffix
+   #dplyr::mutate(across(.cols=everything(), .funs = ~ dplyr::lead(.x,order_by=File,n = 1, default = NA), .names = '{.col}_lead')) %>%
+   group_by(File, chunk) %>%
+     mutate(
+       auxverb.lag = lag(auxverb),
+       article.lag = lag(article),
+       adverb.lag = lag(adverb),
+       ipron.lag = lag(ipron),
+       prep.lag = lag(prep),
+       negate.lag = lag(negate),
+       conj.lag = lag(conj),
+       quantity.lag = lag(quantity),
+       ppron.lag = lag(ppron),
+       WC.lag = lag(WC)) %>%
+     ungroup() %>%
+     # filter(WC > 1 & WC.lag >1) %>% # drops all exchanges with one word utterances
+     # This makes sure that only liwc categories prersent in the first statement are used for rlsm
+     mutate(across(c(auxverb.lag, article.lag, adverb.lag, ipron.lag, 
+                     prep.lag, negate.lag, conj.lag, quantity.lag, ppron.lag), 
+                   ~ if_else(. > 0,.,as.numeric(NA)))) %>%
+     # This sets liwc categories in the responders speech to NA if that category was NA in the first person's speech
+     # Per the rLSM paper
+     group_by(File, chunk) %>%
+     mutate(
+       auxverb = if_else(is.na(auxverb.lag),as.numeric(NA),auxverb),
+       article = if_else(is.na(article.lag),as.numeric(NA),article),
+       adverb = if_else(is.na(adverb.lag),as.numeric(NA),adverb),
+       ipron = if_else(is.na(ipron.lag),as.numeric(NA),ipron),
+       prep = if_else(is.na(prep.lag),as.numeric(NA),prep),
+       negate = if_else(is.na(negate.lag),as.numeric(NA),negate),
+       conj = if_else(is.na(conj.lag),as.numeric(NA),conj),
+       quantity = if_else(is.na(quantity.lag),as.numeric(NA),quantity),
+       ppron = if_else(is.na(ppron.lag),as.numeric(NA),ppron)
+     ) %>%
+     ungroup() %>%
+     rowwise() %>%
+     mutate(
+       auxverb.rLSM = 1 - (abs(auxverb - auxverb.lag) / (auxverb + auxverb.lag + .0001)),
+       article.rLSM = 1 - (abs(article - article.lag) / (article + article.lag + .0001)),
+       adverb.rLSM = 1 - (abs(adverb - adverb.lag) / (adverb + adverb.lag + .0001)),
+       ipron.rLSM = 1 - (abs(ipron - ipron.lag) / (ipron + ipron.lag + .0001)),
+       prep.rLSM = 1 - (abs(prep - prep.lag) / (prep + prep.lag + .0001)),
+       negate.rLSM = 1 - (abs(negate - negate.lag) / (negate + negate.lag + .0001)),
+       conj.rLSM = 1 - (abs(conj - conj.lag) / (conj + conj.lag + .0001)),
+       quantity.rLSM = 1 - (abs(quantity - quantity.lag) / (quantity + quantity.lag + .0001)),
+       ppron.rLSM = 1 - (abs(ppron - ppron.lag) / (ppron + ppron.lag + .0001))
+     ) %>%
+     ungroup() %>%
+     #creates an average rLSM across separrate featurers
+     #mutate(rLSM = rowMeans(select(.,contains('.rLSM')),na.rm = TRUE)) %>%
+     # mutate(rLSM = ifelse(is.na(rLSM), 0, rLSM)) %>% # replaces NAs with 0
+     # group_by(File,Speaker) %>%
+     # summarize(rLSM = mean(rLSM)) %>%
+     # ungroup() %>%
+     group_by(File, Speaker, chunk) %>%
+     summarize(
+       across(contains('.rLSM'), .fns = ~ mean(.x,na.rm=TRUE)),
+       WC_sum = sum(WC)) %>%
+     ungroup() %>%
+     mutate(rLSM = rowMeans(select(.,contains('.rLSM')),na.rm = TRUE)) %>%
+     pivot_wider(
+       id_cols = File,
+       names_from = c(chunk,Speaker),
+       values_from = c(rLSM,WC_sum),
+       # names_prefix = 'rLSM.'
+       names_glue = "{.value}.{Speaker}.{chunk}"
+     )  %>%
+     rowwise()%>%
+     mutate(
+       mean.rLSM.1 = mean(c(rLSM.D.1, rLSM.P.1)),
+       ratio.rLSM.D.1 = rLSM.D.1 / rLSM.P.1,
+       ratio.rLSM.P.1 = rLSM.P.1 / rLSM.D.1,
+       verb_dom.1 = WC_sum.D.1 / WC_sum.P.1,
+       mean.rLSM.2 = mean(c(rLSM.D.2, rLSM.P.2)),
+       ratio.rLSM.D.2 = rLSM.D.2 / rLSM.P.2,
+       ratio.rLSM.P.2 = rLSM.P.2 / rLSM.D.2,
+       verb_dom.2 = WC_sum.D.2 / WC_sum.P.2,
+       mean.rLSM.3 = mean(c(rLSM.D.3, rLSM.P.3)),
+       ratio.rLSM.D.3 = rLSM.D.3 / rLSM.P.3,
+       ratio.rLSM.P.3 = rLSM.P.3 / rLSM.D.3,
+       verb_dom.3 = WC_sum.D.3 / WC_sum.P.3,
+       mean.rLSM.4 = mean(c(rLSM.D.4, rLSM.P.4)),
+       ratio.rLSM.D.4 = rLSM.D.4 / rLSM.P.4,
+       ratio.rLSM.P.4 = rLSM.P.4 / rLSM.D.4,
+       verb_dom.4 = WC_sum.D.4 / WC_sum.P.4,
+       mean.rLSM.5 = mean(c(rLSM.D.5, rLSM.P.5)),
+       ratio.rLSM.D.5 = rLSM.D.5 / rLSM.P.5,
+       ratio.rLSM.P.5 = rLSM.P.5 / rLSM.D.5,
+       verb_dom.5 = WC_sum.D.5 / WC_sum.P.5,
+       rLSM_Chunk_Ratio.D = rLSM.D.5/ rLSM.D.1,
+       rLSM_Chunk_Ratio.P = rLSM.P.5/ rLSM.P.1) %>%
+     # %>%
+     #   filter(
+     #     WC_sum.D >= 50 & WC_sum.P >= 50
+     #   )
+     #adding "_wc" at the end of variables since this chunking was based on word count
+     rename_at(vars(-(File)), ~ paste0(., '_wc')) 
+   
+   
+   
+
+   
+   
+#####################################################
+
+
+   
+     rLSM.D.WC <- ECHO_smoothed_chunks_wc_rLSM %>%
+       select(c(File, rLSM.D.1_wc, rLSM.D.2_wc, rLSM.D.3_wc, rLSM.D.4_wc, rLSM.D.5_wc)) %>%
+       pivot_longer(
+         cols= starts_with("rLSM"),
+         names_to='chunk',
+         values_to='rLSM.D') %>%
+       mutate(provider_id = str_sub(File, 1, 4)) %>%
+       mutate(site_name = str_sub(provider_id, 1, 2)) %>%
+     filter(!(File == "JC08P08"))
+     
+     
+     
+     #creating the plot
+     ggplot(data= rLSM.D.WC, mapping = aes(x = chunk, y = rLSM.D)) +
+       geom_line(color="gray", aes(group = File)) + theme_light() + geom_point() +
+       stat_summary(geom= "line", fun = "mean", color="red", size=1.5, linetype="dashed", group = 1) +
+       facet_wrap(~ site_name)
+     
+##############################
+
+     rLSM.P.WC <- ECHO_smoothed_chunks_wc_rLSM %>%
+       select(c(File, rLSM.P.1_wc, rLSM.P.2_wc, rLSM.P.3_wc, rLSM.P.4_wc, rLSM.P.5_wc)) %>%
+       pivot_longer(
+         cols= starts_with("rLSM"),
+         names_to='chunk',
+         values_to='rLSM.P') %>%
+       mutate(provider_id = str_sub(File, 1, 4)) %>%
+       mutate(site_name = str_sub(provider_id, 1, 2)) %>%
+       filter(!(File == "JC08P08"))
+     
+    
+     
+     
+     
+     #creating the plot
+     ggplot(data= rLSM.P.WC, mapping = aes(x = chunk, y = rLSM.P)) +
+       geom_line(color="gray", aes(group = File)) + theme_light() + geom_point() +
+       stat_summary(geom= "line", fun = "mean", color="red", size=1.5, linetype="dashed", group = 1) +
+       facet_wrap(~ site_name)
+     
+
+
+###############################
+     
+     ##############################
+     
+     ratio.rLSM.P.WC <- ECHO_smoothed_chunks_wc_rLSM %>%
+       select(c(File, ratio.rLSM.P.1_wc, ratio.rLSM.P.2_wc, ratio.rLSM.P.3_wc, ratio.rLSM.P.4_wc, ratio.rLSM.P.5_wc)) %>%
+       pivot_longer(
+         cols= starts_with("ratio"),
+         names_to='chunk',
+         values_to='ratio.rLSM.P') %>%
+       mutate(provider_id = str_sub(File, 1, 4)) %>%
+       mutate(site_name = str_sub(provider_id, 1, 2)) %>%
+       filter(!(File == "JC08P08"))
+     
+     
+     
+     #creating the plot
+     ggplot(data= ratio.rLSM.P.WC, mapping = aes(x = chunk, y = ratio.rLSM.P)) +
+       geom_line(color="gray", aes(group = File)) + theme_light() + geom_point() +
+       stat_summary(geom= "line", fun = "mean", color="red", size=1.5, linetype="dashed", group = 1) +
+       facet_wrap(~ site_name)
+
+     
+#########################
+#########################    
+     
+     
+
+     ratio.rLSM.D.WC <- ECHO_smoothed_chunks_wc_rLSM %>%
+       select(c(File, ratio.rLSM.D.1_wc, ratio.rLSM.D.2_wc, ratio.rLSM.D.3_wc, ratio.rLSM.D.4_wc, ratio.rLSM.D.5_wc)) %>%
+       pivot_longer(
+         cols= starts_with("ratio"),
+         names_to='chunk',
+         values_to='ratio.rLSM.D') %>%
+       mutate(provider_id = str_sub(File, 1, 4)) %>%
+       mutate(site_name = str_sub(provider_id, 1, 2)) %>%
+       filter(!(File == "JC08P08"))
+     
+     
+     
+     #creating the plot
+     ggplot(data= ratio.rLSM.D.WC, mapping = aes(x = chunk, y = ratio.rLSM.D)) +
+       geom_line(color="gray", aes(group = File)) + theme_light() + geom_point() +
+       stat_summary(geom= "line", fun = "mean", color="red", size=1.5, linetype="dashed", group = 1) +
+       facet_wrap(~ site_name)
+     
+#########################
+#########################      
+     verb_dom.WC <- ECHO_smoothed_chunks_wc_rLSM %>%
+       select(c(File, verb_dom.1_wc, verb_dom.2_wc, verb_dom.3_wc, verb_dom.4_wc, verb_dom.5_wc)) %>%
+       pivot_longer(
+         cols= starts_with("verb"),
+         names_to='chunk',
+         values_to='verb_dom') %>%
+       mutate(provider_id = str_sub(File, 1, 4)) %>%
+       mutate(site_name = str_sub(provider_id, 1, 2)) %>%
+       filter(!(File == "JC08P08"))
+     
+
+     
+     #creating the plot
+     ggplot(data= verb_dom.WC, mapping = aes(x = chunk, y = verb_dom)) +
+       geom_line(color="gray", aes(group = File)) + theme_light() + geom_point() +
+       stat_summary(geom= "line", fun = "mean", color="red", size=1.5, linetype="dashed", group = 1) +
+       facet_wrap(~ site_name)
+     
+     
+#########################
+#########################  
+     
+JC08P08_transcript <- ECHO_smoothed_chunks_wc %>%
+       filter(File == "JC08P08") %>%
+       select(c(File, Speaker, chunk, text_agg))
+     
+     
+     JC08P08_transcript <- ECHO_smoothed_chunks_wc %>%
+       filter(File == "JC08P08") %>%
+       select(c(File, Speaker, chunk, text_agg))
+     ###############################
+
+test_sample <- tribble(
+  ~Participant_ID, ~timepoint_1,  ~timepoint_2, ~timepoint_3, ~timepoint_4, ~timepoint_5,
+  "a1", .1,  .3, .2, .4, .5,
+  "a2", .2,  .4, .5, .3, .6,
+  "a3", .1,  .3, .2, .4, .5,
+  "a4", .25,  .3, .35, .44, .25,
+  "a6", .11,  .23, .24, .54, .55,
+  "a7", .21,  .32, .22, .46, .45,
+  "a8", .13,  .36, .42, .49, .75,
+  "a9", .28,  .13, .22, .44, .55
+)
+
+#changing the data into long format
+test_sample <- test_sample %>%
+  pivot_longer(
+    cols= starts_with("timepoint"),
+               names_to='timepoint',
+               values_to='score')
+
+#creating the plot
+ggplot(data= test_sample, mapping = aes(x = timepoint, y = score)) +
+  geom_line(color="gray", aes(group = Participant_ID)) + theme_light() + geom_point() +
+  stat_summary(geom= "line", fun = "mean", color="red", size=2, linetype="dashed", group = 1) 
+
+
+
+
+
 
 
 

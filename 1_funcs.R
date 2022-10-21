@@ -13,6 +13,11 @@ library(stringr)
 ################# Functions for pre-processing transcript files
 ##########################################################################
 
+all_filenames <- list.files(
+  path = "/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts", full.names = TRUE,
+  pattern = ".docx", recursive = TRUE)
+
+
 #initial data cleaning function
 get_and_clean_one_transcript <- function(transcript) {
   #Import raw data from MS Word file
@@ -41,6 +46,8 @@ get_and_clean_one_transcript <- function(transcript) {
   
   return(audio_doc_final)
 }
+
+
 
 get_and_clean_all_transcripts <- function(all_filenames, annies_role_file) {
   #read in and clean each transcript and return in dataframe 
@@ -81,67 +88,6 @@ get_and_clean_all_transcripts <- function(all_filenames, annies_role_file) {
   all_transcripts_final <- rename(all_transcripts_final, transcript_text = V2) 
   #all_transcripts_final <- all_transcripts_final %>% mutate(role = tolower(role))
   
-  if (!is.na(annies_role_file)) { # This will run this version of speaker recoding IF 
-    # a recoding file path is sent to the function; if that is NA, will skip and 
-    # return original speaker codings in the transcript
-    
-    ####### beginning of new code added by Salar on 09/27/21######
-    ##############################################################
-    
-    #converting the annie_role_file to long form
-    #got an error when I ran the code from the 0_main.R ... I think I didn't set up the config.yml script correctly
-    
-    annies_role_file_long <- readr::read_csv(annies_role_file, show_col_types = FALSE) %>% 
-      pivot_longer(!transcript_id, names_to = "role", values_to = "recode")# %>%
-      #mutate(recode = tolower(recode))
-    
-    #transcript_id column in annies_role_file needs to be changed to character format
-    
-    cols.chr <- c("transcript_id")
-    annies_role_file_long[cols.chr]<- sapply(annies_role_file_long[cols.chr], as.character)
-    
-    #joining the main document (all_transcripts_final) with the annies_role_file_long. This adds the 
-    #"recode" column, which was created in annies_role_file_long, to the all_transcripts_final df. 
-    #This approach is much uglier than the approach we had discussed and I think I'll cringe if I see 
-    #this in the future when I am better at R but I think this seems to be working for what we want to do.
-    
-    all_transcripts_final <- all_transcripts_final %>% 
-      left_join(annies_role_file_long, by = c("transcript_id" = "transcript_id", "role" = "role"))
-    
-    #removing old role names from the role column so that these cells can be empty and that they can 
-    #be replaced with the updated roles after this using "unite". 
-    
-    all_transcripts_final <- all_transcripts_final %>%
-      mutate(across("role", str_replace, "S1", "")) %>%
-      mutate(across("role", str_replace, "S2", "")) %>%
-      mutate(across("role", str_replace, "S3", "")) %>%
-      mutate(across("role", str_replace, "S4", "")) %>%
-      mutate(across("role", str_replace, "S5", "")) %>%
-      mutate(across("role", str_replace, "S6", "")) %>%
-      mutate(across("role", str_replace, "S7", "")) %>%
-      mutate(across("role", str_replace, "S8", "")) %>%
-      mutate(across("role", str_replace, "S9", "")) %>%
-      mutate(across("role", str_replace, "S10", "")) %>%
-      mutate(across("role", str_replace, "S11", "")) %>%
-      mutate(across("role", str_replace, "S12", "")) %>%
-      mutate(across("role", str_replace, "S13", "")) %>%
-      mutate(across("role", str_replace, "S?", "")) %>%
-      mutate(across("role", str_replace, "Provider", ""))
-    
-    #uniting "role" and "recode" to make a final "role" column with the unclear roles recoded
-    all_transcripts_final <- all_transcripts_final %>%
-      unite("role", c("role", "recode"), sep = "", na.rm = TRUE)
-    
-    ##Deleting all rows where the utterances were unclear to the person who transcribed (S?) and
-    ##temporarily deleting 6 transcripts that need to be checked by Annie: 15103801, 17101601, 24145401, 
-    ##15134001, 16141601, 37188201. Will update annie_role_file when the roles for these 6 transcripts are clear.
-    all_transcripts_final <- all_transcripts_final %>%
-      filter(role != "***") %>%
-      filter(role != "")
-    
-    ####### end of new code added by Salar on 09/27/21######
-    ########################################################
-  }
   #remove all content that have brackets [....]
   all_transcripts_final$transcript_text <- gsub("\\[(.*?)\\]", "", all_transcripts_final$transcript_text)
   # making column for provider_id
@@ -398,3 +344,24 @@ get_mahalanobis_distance <- function(df, auto_drop, re_center) {
   df <- df %>% select(!mahal & !p)
   return(df)
 }
+
+
+
+
+################################################
+
+
+
+
+library(tidyverse)
+library(xlsx)
+library(stringr)
+library(here)
+library(config)
+library(haven)
+library(skimr)
+
+
+
+maripohsa_survey_data <- read_dta(here(config$maripohsa_survey_data_path, config$maripohsa_survey_data_name))
+#ECHO_ID_key <- read_csv(here(config$ECHO_ID_key_path, config$ECHO_ID_key_name))

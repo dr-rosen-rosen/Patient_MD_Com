@@ -7,6 +7,221 @@ library(jtools)
 library(sjPlot)
 library(performance)
 
+
+############################################################################################################
+# model H3a.7: Using LSM_function_mean to predict cdspeak
+############################################################################################################
+
+
+ECHO_All_Matching_HLM <- ECHO_All_Matching
+  
+
+m.0_H5_HLM <- lm(LSM_function_mean.scaled~ 1, data = ECHO_All_Matching_HLM)
+
+predictors <- c('knowingcat')
+m.1_H5_HLM <- update(m.0_H5_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.1_H5_HLM)
+
+
+m.0_H5_HLM <- lm(rLSM.P.scaled~ 1, data = ECHO_All_Matching_HLM)
+
+predictors <- c('staffexp')
+m.1_H5_HLM <- update(m.0_H5_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.1_H5_HLM)
+
+
+
+m.0_H5_HLM <- glm(accessexp~ 1, family = 'binomial', data = ECHO_All_Matching_HLM)
+
+
+install.packages("correlation")
+install.packages("corrplot")
+library(corrplot)
+
+
+plot()
+corrplot(ECHO_All_Matching_HLM)
+correlate(cdspeak, rLSM.D.scaled , rLSM.P.scaled) %>% 
+  plot()
+
+ECHO_All_Matching_HLM %>% 
+  correlate() %>% 
+  plot()
+
+H3a.7_df %>% 
+  correlate() %>% 
+  plot()
+
+
+
+ECHO_All_Matching_HLM %>%
+  cor(rLSM.D.scaled, cdspeakhigh, method = c("pearson", "kendall", "spearman"))
+
+corrplot(ECHO_All_Matching_HLM)
+
+
+
+#rLSM.D.scaled , rLSM.D.scaled, ratio.rLSM.scaled, class.D, class.P, verb_dom.scaled
+predictors <- c('rLSM.D.scaled')
+m.1_H5_HLM <- update(m.0_H5_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.1_H5_HLM)
+
+predictors <- c('rLSM.P.scaled')
+m.1_H5_HLM <- update(m.0_H5_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.1_H5_HLM)
+
+predictors <- c('LSM_function_mean.scaled')
+m.1_H5_HLM <- update(m.0_H5_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.1_H5_HLM)
+
+predictors <- c('class.D')
+m.1_H5_HLM <- update(m.0_H5_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.1_H5_HLM)
+
+predictors <- c('class.P')
+m.1_H5_HLM <- update(m.0_H5_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.1_H5_HLM)
+
+# step 1: Null model
+m.0_H3a.7_HLM <- glm(cdspeakhigh~ 1, family = 'binomial', data = H3a.7_df)
+
+
+m.0_H3a.7_HLM <- glm(cdspeakhigh~ 1, family = 'binomial',  data = H3a.7_df)
+
+m.0_H3a.7_HLM <- glmer(cdspeakhigh~ 1, family = 'binomial',  data = H3a.7_df)
+
+m.0_H3a.7_HLM <- glm(cdspeakhigh~ 1, family = 'binomial',  data = H3a.7_df)
+
+m.1_H3a.7_HLM <- glmer(cdspeakhigh~ 1 + (1|provider_id), family = 'binomial',  data = H3a.7_df)
+
+anova(m.0_H3a.7_HLM,m.1_H3a.7_HLM)
+
+
+# step 1: Null model
+m.0_H3a.7_HLM <- lm(rLSM.D.scaled ~ 1,data = H3a.7_df)
+summary(m.0_H3a.7_HLM)
+summ(m.0_H3a.7_HLM)
+
+# step 2: add the culstering variable --> "provider_id"
+m.1_H3a.7_HLM  <- lmer(rLSM.D.scaled ~ 1 + (1|provider_id), 
+                       data = H3a.7_df)
+
+anova(m.0_H3a.7_HLM, m.1_H3a.7_HLM)
+
+m.0_H3a.7_HLM <- lm(cdspeakhigh~ 1, data = H3a.7_df)
+#m.0_H3a.7_HLM <- lm(cdspeak~ 1,  data = H3a.7_df)
+# m.0_H3a.7_HLM <- glm(cultdissmd1high~ 1, family = 'binomial',  data = H3a.7_df)
+m.0_H3a.7_HLM <- lm(WC_sum.P.scaled ~ 1,  data = H3a.7_df)
+
+# step 2: add the culstering variable.. MD
+m.1_H3a.7_HLM <- lmer(cdspeak ~ 1 + (1|provider_id), data = H3a.7_df)
+
+# test for fit of grouping structure
+anova(m.1_H3a.7_HLM,m.0_H3a.7_HLM)
+
+
+ggplot(data= H3a.7_df) +
+  geom_point(mapping = aes(x= verb_dom.scaled, y= ratio.rLSM.scaled))
+
+
+ggplot(data= H3a.7_df) +
+  geom_point(mapping = aes(x= verb_dom.scaled, y= cdspeakhigh))
+
+ggplot(data= H3a.7_df) +
+  geom_point(mapping = aes(x= psychological.tbytmatch.P.scaled, y= cdspeakhigh))
+
+ggplot(data= H3a.7_df) +
+  geom_point(mapping = aes(x= verb_dom.scaled, y= psychological.tbytmatch.P.scaled))
+
+
+
+ggplot(data= H3a.7_df) +
+  geom_point(mapping = aes(x= verb_dom.scaled, y= ratio.rLSM))
+
+
+
+
+########################################
+library(modelsummary)
+
+install.packages("modelsummary")
+predictors <- c('site_id', 'racecat2')
+m.10_H3a.7_HLM_conv.m0 <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+
+predictors <- c('site_id', 'racecat2')
+m.10_H3a.7_HLM_conv.m0 <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+
+predictors <- c('site_id', 'racecat2', "LSM_function_mean.scaled")
+m.10_H3a.7_HLM_conv.m1 <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+
+predictors <- c('site_id', 'racecat2', 'LSM_function_mean.scaled', 'rLSM.D.scaled', 'rLSM.P.scaled')
+m.10_H3a.7_HLM_conv.m2 <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+
+predictors <- c('site_id', 'racecat2', 'LSM_function_mean.scaled', 'rLSM.D.scaled', 'rLSM.P.scaled', 'class.D', 'class.P')
+m.10_H3a.7_HLM_conv.m3 <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+
+####
+
+sjPlot::tab_model(m.10_H3a.7_HLM_conv.m0, m.10_H3a.7_HLM_conv.m1, m.10_H3a.7_HLM_conv.m2, m.10_H3a.7_HLM_conv.m3)
+
+
+predictors <- c('verb_dom.scaled')
+m.10_H3a.7_HLM_conv.m1 <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.7_HLM_conv.m1)
+
+predictors <- c('LSM_function_mean.scaled')
+m.10_H3a.7_HLM_conv.m1 <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.7_HLM_conv.m1)
+
+models <- list(
+  "OLS 1"     = lm(Donations ~ Literacy + Clergy, data = dat),
+  "Poisson 1" = glm(Donations ~ Literacy + Commerce, family = poisson, data = dat),
+  "OLS 2"     = lm(Crime_pers ~ Literacy + Clergy, data = dat),
+  "Poisson 2" = glm(Crime_pers ~ Literacy + Commerce, family = poisson, data = dat),
+  "OLS 3"     = lm(Crime_prop ~ Literacy + Clergy, data = dat)
+)
+
+modelsummary(models)
+
+
+
+
+
+####USE SCRIPT BELOW INDIVIDUALLY FOR EACH PREDICTOR#######
+predictors <- c('rLSM.D.scaled', 'rLSM.P.scaled')
+m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.7_HLM_conv)
+
+
+predictors <- c('class.D')
+m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.7_HLM_conv)
+
+predictors <- c('rLSM.D.scaled', 'rLSM.P.scaled')
+m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.7_HLM_conv)
+
+#, 'site_id', 'racecat2'
+predictors <- c('class.D', 'rLSM.D.scaled', 'class.D*rLSM.D.scaled')
+m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.7_HLM_conv)
+
+
+
+
+#####################
+
+
+
+
+
+
+
+
+
+
+
+
 #Used lme4 to run glmer by adding  "family = 'binomial'" to code
 #install.packages("glmer")
 #library(glmer)
@@ -45,7 +260,7 @@ m.0_H1.1_HLM <- lm(
   # LSM_function_mean ~ 1, 
   # rLSM.D ~ 1,
   rLSM.D.scaled ~ 1,
-  data = H1.1_df)
+  data = H3a.7_df)
 summary(m.0_H1.1_HLM)
 summ(m.0_H1.1_HLM)
 
@@ -63,9 +278,9 @@ summary(m.1_H1.1_HLM)
 sjPlot::tab_model(m.1_H1.1_HLM)
 
 # step 3: add the predictors, racecat2
-m.2_H1.1_HLM_conv <- lm(LSM_function_mean.scaled ~ 
-                       site_id, 
-                       # racecat2 +
+m.2_H1.1_HLM <- lm(rLSM.P.scaled ~ 
+                       #site_id, 
+                       racecat2,
                        # cdspeak + 
                        # cdreason +
                        # cdstyle +
@@ -211,6 +426,26 @@ sjPlot::tab_model(m.1_H3a.1_HLM)
 
 
 
+######
+#08-10-22
+
+
+
+
+
+
+
+
+###########
+
+
+
+
+
+
+
+
+
 # NEW step 3 using update
 # M2 is M1 + conv_styl_preds + cntrl_vars
 predictors <- append(cntrl_vars,conv_styl_preds)
@@ -287,6 +522,11 @@ sjPlot::tab_model(m.10_H3a.1_HLM_conv)
 predictors <- c('LSM_function_mean.scaled')
 m.10_H3a.1_HLM_conv <- update(m.0_H3a.1_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
 sjPlot::tab_model(m.10_H3a.1_HLM_conv)
+
+predictors <- c('verb_dom')
+m.10_H3a.1_HLM_conv <- update(m.0_H3a.1_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.1_HLM_conv)
+
 predictors <- c('conv.affect.match.scaled')
 m.10_H3a.1_HLM_conv <- update(m.0_H3a.1_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
 sjPlot::tab_model(m.10_H3a.1_HLM_conv)
@@ -314,7 +554,7 @@ sjPlot::tab_model(m.10_H3a.1_HLM_conv)
 predictors <- c('conv.informal.match.scaled')
 m.10_H3a.1_HLM_conv <- update(m.0_H3a.1_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
 sjPlot::tab_model(m.10_H3a.1_HLM_conv)
-predictors <- c('rLSM.D.scaled')
+predictors <- c('rLSM.P.scaled')
 m.10_H3a.1_HLM_conv <- update(m.0_H3a.1_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
 sjPlot::tab_model(m.10_H3a.1_HLM_conv)
 predictors <- c('WC_sum.D.scaled')
@@ -457,6 +697,7 @@ predictors <- c("LSM_function_mean.scaled", "site_id", "racecat2")
 # step 1: Null model
 m.0_H3a.2_HLM <- glm(overcommhigh~ 1, family= 'binomial', data = H3a.2_df)
 summary(m.0_H3a.2_HLM)
+m.0_H3a.2_HLM <- lm(WC_sum.P.scaled ~ 1, data = H3a.2_df)
 
 # step 2: add the culstering variable.. MD
 m.1_H3a.2_HLM <- lmer(overcomm ~ 1 + (1|provider_id), data = H3a.2_df)
@@ -468,6 +709,38 @@ sjPlot::tab_model(m.1_H3a.2_HLM)
 ## Notes on models
 # M0 is Null lm
 # M1 is provier id grouping var only
+
+
+#####################
+#08-10-22
+
+predictors <- c('LSM_function_mean.scaled')
+m.10_H3a.2_HLM_conv <- update(m.0_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.2_HLM_conv)
+
+predictors <- c('rLSM.D.scaled')
+m.10_H3a.2_HLM_conv <- update(m.0_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.2_HLM_conv)
+
+predictors <- c('verb_dom')
+m.10_H3a.2_HLM_conv <- update(m.0_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.2_HLM_conv)
+
+predictors <- c('ratio.rLSM')
+m.10_H3a.2_HLM_conv <- update(m.0_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.2_HLM_conv)
+
+
+
+
+
+
+
+
+
+#############
+
+
 
 
 
@@ -523,138 +796,7 @@ sjPlot::tab_model(m.10_H3a.2_HLM_conv)
 predictors <- c('LSM_function_mean.scaled')
 m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
 sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('conv.affect.match.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('conv.social.match.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('conv.cogproc.match.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('conv.percept.match.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('conv.negemo.match.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('conv.bio.match.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('conv.drives.match.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('conv.relativ.match.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('conv.informal.match.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('rLSM.D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('WC_sum.D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('WPS_avg.D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('affect.tbytmatch.D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('social.tbytmatch.D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('cogproc.tbytmatch.D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('percept.tbytmatch.D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('negemo.tbytmatch.D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('bio.tbytmatch.D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('drives.tbytmatch.D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('relativ.tbytmatch.D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('informal.tbytmatch.D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('WC_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('WPS_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('Analytic_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('Clout_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('Authentic_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('Tone_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('Sixltr_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('Dic_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('function_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('affect_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('social_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('cogproc_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('percept_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('bio_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('drives_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('relativ_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('work_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('leisure_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('home_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('money_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('relig_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('death_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
-predictors <- c('informal_D.scaled')
-m.10_H3a.2_HLM_conv <- update(m.1_H3a.2_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.2_HLM_conv)
+
 ############################################################################################################
 # model H3a.3: Using LSM_function_mean to predict provider interpersonal style (ipstyle)
 # ipstyle items(ipstylehigh,ipfriend,	ipwelcome, iprude, ipcare,ipname,	iptalkfront, ippriv, ipinferior,	
@@ -747,147 +889,66 @@ check_model(m.10_H3a.3_HLM_conv)
 model_performance(m.10_H3a.3_HLM_conv)
 
 
+##################
+#08-10-22
 
 predictors <- c('LSM_function_mean.scaled')
 m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
 sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('conv.affect.match.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('conv.social.match.scaled', 'site_id', 'racecat2')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('conv.cogproc.match.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('conv.percept.match.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('conv.negemo.match.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('conv.bio.match.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('conv.drives.match.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('conv.relativ.match.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('conv.informal.match.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
+
 predictors <- c('rLSM.P.scaled')
 m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
 sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('WC_sum.D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('WPS_avg.D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('affect.tbytmatch.D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('social.tbytmatch.D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('cogproc.tbytmatch.D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('percept.tbytmatch.D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('negemo.tbytmatch.D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('bio.tbytmatch.D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('drives.tbytmatch.D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('relativ.tbytmatch.D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('informal.tbytmatch.D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('WC_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('WPS_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('Analytic_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('Clout_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('Authentic_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('Tone_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('Sixltr_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('Dic_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('function_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('affect_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('social_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('cogproc_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('percept_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('bio_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('drives_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('relativ_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('work_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('leisure_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('home_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('money_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('relig_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('death_D.scaled')
-m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.3_HLM_conv)
-predictors <- c('informal_D.scaled')
+
+predictors <- c('verb_dom')
 m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
 sjPlot::tab_model(m.10_H3a.3_HLM_conv)
 
 
-predictors <- c('article_D.scaled')
+predictors <- c('ratio.rLSM')
 m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
 sjPlot::tab_model(m.10_H3a.3_HLM_conv)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################
+predictors <- c('LSM_function_mean.scaled')
+m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.3_HLM_conv)
+
+predictors <- c('conv.focusfuture.match.scaled')
+m.10_H3a.3_HLM_conv <- update(m.0_H3a.3_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.3_HLM_conv)
+
+
 
 
 # LSM_auxverb, LSM_article, LSM_adverb, LSM_ipron, LSM_prep, 
@@ -955,7 +1016,7 @@ sjPlot::tab_model(m.9_H3a.4_HLM_conv)
 ############################################################################################################
 
 # step 1: Null model
-m.0_H3a.5_HLM <- glm(provknowcat ~ 1, data = H3a.5_df)
+m.0_H3a.5_HLM <- glm(provknowcat ~ 1, family = 'binomial', data = H3a.5_df)
 
 # step 2: add the culstering variable.. MD
 m.1_H3a.5_HLM <- glmer(provknowcat ~ 1 + (1|provider_id), family = 'binomial',data = H3a.5_df)
@@ -1003,6 +1064,32 @@ sjPlot::tab_model(m.2_H3a.5_HLM)
 sjPlot::tab_model(m.2_H3a.5_HLM_conv,m.2_H3a.5_HLM_rLSM.D,m.2_H3a.5_HLM_rLSM.P)
 
 
+
+
+######
+#08-10-22
+
+
+predictors <- c('LSM_function_mean.scaled')
+m.10_H3a.5_HLM_conv <- update(m.0_H3a.5_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.5_HLM_conv)
+
+predictors <- c('WC_sum.D.scaled')
+m.10_H3a.5_HLM_conv <- update(m.0_H3a.5_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.5_HLM_conv)
+
+predictors <- c('rLSM.D.scaled')
+m.10_H3a.5_HLM_conv <- update(m.0_H3a.5_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.5_HLM_conv)
+
+predictors <- c('ratio.rLSM')
+m.10_H3a.5_HLM_conv <- update(m.0_H3a.5_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.5_HLM_conv) 
+
+
+
+
+
 ############################################################################################################
 # model H3a.6: Using LSM_function_mean to predict overall patient satisfaction (overallsat)
 ############################################################################################################
@@ -1033,136 +1120,8 @@ sjPlot::tab_model(m.2_H3a.6_HLM)
 predictors <- c('LSM_function_mean.scaled')
 m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
 sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('conv.affect.match.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('conv.social.match.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('conv.cogproc.match.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('conv.percept.match.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('conv.negemo.match.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('conv.bio.match.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('conv.drives.match.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('conv.relativ.match.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('conv.informal.match.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('rLSM.D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('WC_sum.D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('WPS_avg.D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('affect.tbytmatch.D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('social.tbytmatch.D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('cogproc.tbytmatch.D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('percept.tbytmatch.D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('negemo.tbytmatch.D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('bio.tbytmatch.D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('drives.tbytmatch.D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('relativ.tbytmatch.D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('informal.tbytmatch.D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('WC_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('WPS_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('Analytic_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('Clout_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('Authentic_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('Tone_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('Sixltr_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('Dic_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('function_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('affect_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('social_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('cogproc_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('percept_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('bio_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('drives_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('relativ_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('work_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('leisure_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('home_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('money_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('relig_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('death_D.scaled')
-m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
-predictors <- c('informal_D.scaled')
+
+predictors <- c('verb_dom')
 m.10_H3a.6_HLM_HLM_conv <- update(m.0_H3a.6_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
 sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
 
@@ -1171,11 +1130,41 @@ sjPlot::tab_model(m.10_H3a.6_HLM_HLM_conv)
 # model H3a.7: Using LSM_function_mean to predict cdspeak
 ############################################################################################################
 
+H3a.7_df <- H3a.7_df %>% 
+  rowwise() %>%
+  mutate(cdspeakhigh_v2 = ifelse(cdspeak >= 2, 1, 0))
+
+
 # step 1: Null model
+m.0_H3a.7_HLM <- glm(cdspeakhigh~ 1, family = 'binomial', data = H3a.7_df)
+
+
 m.0_H3a.7_HLM <- glm(cdspeakhigh~ 1, family = 'binomial',  data = H3a.7_df)
+
+m.0_H3a.7_HLM <- glmer(cdspeakhigh~ 1, family = 'binomial',  data = H3a.7_df)
+
+m.0_H3a.7_HLM <- glm(cdspeakhigh~ 1, family = 'binomial',  data = H3a.7_df)
+
+m.1_H3a.7_HLM <- glmer(cdspeakhigh~ 1 + (1|provider_id), family = 'binomial',  data = H3a.7_df)
+
+anova(m.0_H3a.7_HLM,m.1_H3a.7_HLM)
+
+
+# step 1: Null model
+m.0_H3a.7_HLM <- lm(rLSM.D.scaled ~ 1,data = H3a.7_df)
+summary(m.0_H3a.7_HLM)
+summ(m.0_H3a.7_HLM)
+
+# step 2: add the culstering variable --> "provider_id"
+m.1_H3a.7_HLM  <- lmer(rLSM.D.scaled ~ 1 + (1|provider_id), 
+                     data = H3a.7_df)
+
+anova(m.0_H3a.7_HLM, m.1_H3a.7_HLM)
+
+m.0_H3a.7_HLM <- lm(cdspeakhigh~ 1, data = H3a.7_df)
 #m.0_H3a.7_HLM <- lm(cdspeak~ 1,  data = H3a.7_df)
 # m.0_H3a.7_HLM <- glm(cultdissmd1high~ 1, family = 'binomial',  data = H3a.7_df)
-
+m.0_H3a.7_HLM <- lm(WC_sum.P.scaled ~ 1,  data = H3a.7_df)
 
 # step 2: add the culstering variable.. MD
 m.1_H3a.7_HLM <- lmer(cdspeak ~ 1 + (1|provider_id), data = H3a.7_df)
@@ -1184,189 +1173,84 @@ m.1_H3a.7_HLM <- lmer(cdspeak ~ 1 + (1|provider_id), data = H3a.7_df)
 anova(m.1_H3a.7_HLM,m.0_H3a.7_HLM)
 
 
+ggplot(data= H3a.7_df) +
+  geom_point(mapping = aes(x= verb_dom.scaled, y= ratio.rLSM.scaled))
+
+
+ggplot(data= H3a.7_df) +
+  geom_point(mapping = aes(x= verb_dom.scaled, y= cdspeakhigh))
+
+ggplot(data= H3a.7_df) +
+  geom_point(mapping = aes(x= psychological.tbytmatch.P.scaled, y= cdspeakhigh))
+
+ggplot(data= H3a.7_df) +
+  geom_point(mapping = aes(x= verb_dom.scaled, y= psychological.tbytmatch.P.scaled))
+
+
+
+ggplot(data= H3a.7_df) +
+  geom_point(mapping = aes(x= verb_dom.scaled, y= ratio.rLSM))
+
+
+
+
+########################################
+library(modelsummary)
+
+install.packages("modelsummary")
+predictors <- c('site_id', 'racecat2')
+m.10_H3a.7_HLM_conv.m0 <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+
+predictors <- c('site_id', 'racecat2')
+m.10_H3a.7_HLM_conv.m0 <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+
+predictors <- c('site_id', 'racecat2', "LSM_function_mean.scaled")
+m.10_H3a.7_HLM_conv.m1 <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+
+predictors <- c('site_id', 'racecat2', 'LSM_function_mean.scaled', 'rLSM.D.scaled', 'rLSM.P.scaled')
+m.10_H3a.7_HLM_conv.m2 <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+
+predictors <- c('site_id', 'racecat2', 'LSM_function_mean.scaled', 'rLSM.D.scaled', 'rLSM.P.scaled', 'class.D', 'class.P')
+m.10_H3a.7_HLM_conv.m3 <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+
+####
+
+sjPlot::tab_model(m.10_H3a.7_HLM_conv.m0, m.10_H3a.7_HLM_conv.m1, m.10_H3a.7_HLM_conv.m2, m.10_H3a.7_HLM_conv.m3)
+
+
+predictors <- c('verb_dom.scaled')
+m.10_H3a.7_HLM_conv.m1 <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.7_HLM_conv.m1)
+
+predictors <- c('LSM_function_mean.scaled')
+m.10_H3a.7_HLM_conv.m1 <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
+sjPlot::tab_model(m.10_H3a.7_HLM_conv.m1)
+
+models <- list(
+  "OLS 1"     = lm(Donations ~ Literacy + Clergy, data = dat),
+  "Poisson 1" = glm(Donations ~ Literacy + Commerce, family = poisson, data = dat),
+  "OLS 2"     = lm(Crime_pers ~ Literacy + Clergy, data = dat),
+  "Poisson 2" = glm(Crime_pers ~ Literacy + Commerce, family = poisson, data = dat),
+  "OLS 3"     = lm(Crime_prop ~ Literacy + Clergy, data = dat)
+)
+
+modelsummary(models)
+
+
+
 
 
 ####USE SCRIPT BELOW INDIVIDUALLY FOR EACH PREDICTOR#######
-
-predictors <- c('LSM_function_mean.scaled', 'site_id', 'racecat2')
+predictors <- c('rLSM.D.scaled', 'rLSM.P.scaled')
 m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
 sjPlot::tab_model(m.10_H3a.7_HLM_conv)
 
-predictors <- c('conv.affect.match.scaled', 'site_id')
+#'class.D', 'rLSM.D.scaled', 'rLSM.P.scaled'
+predictors <- c('class.D', 'racecat2', 'class.D*racecat2')
 m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
 sjPlot::tab_model(m.10_H3a.7_HLM_conv)
 
-predictors <- c('conv.social.match.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
 
-predictors <- c('conv.cogproc.match.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('conv.percept.match.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('conv.negemo.match.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('conv.bio.match.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('conv.drives.match.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('conv.relativ.match.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('conv.informal.match.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('rLSM.D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('WC_sum.D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('WPS_avg.D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('affect.tbytmatch.D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('social.tbytmatch.D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('cogproc.tbytmatch.D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('percept.tbytmatch.D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('negemo.tbytmatch.D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('bio.tbytmatch.D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('drives.tbytmatch.D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('relativ.tbytmatch.D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('informal.tbytmatch.D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('WC_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('WPS_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('Analytic_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('Clout_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('Authentic_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('Tone_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('Sixltr_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('Dic_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('function_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('affect_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('social_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('cogproc_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('percept_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('bio_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('drives_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('relativ_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('work_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('leisure_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('home_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('money_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('relig_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('death_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
-
-predictors <- c('informal_D.scaled')
-m.10_H3a.7_HLM_conv <- update(m.0_H3a.7_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
-sjPlot::tab_model(m.10_H3a.7_HLM_conv)
 
 
 ############################################################################################################
@@ -1439,7 +1323,7 @@ sjPlot::tab_model(m.10_H3b.1_HLM_conv)
 predictors <- c('conv.informal.match.scaled')
 m.10_H3b.1_HLM_conv <- update(m.0_H3b.1_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
 sjPlot::tab_model(m.10_H3b.1_HLM_conv)
-predictors <- c('rLSM.D.scaled')
+predictors <- c('rLSM.P.scaled')
 m.10_H3b.1_HLM_conv <- update(m.0_H3b.1_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
 sjPlot::tab_model(m.10_H3b.1_HLM_conv)
 predictors <- c('WC_sum.D.scaled')
@@ -1555,6 +1439,7 @@ sjPlot::tab_model(m.10_H3b.1_HLM_conv)
 
 # step 1: Null model
 m.0_H4_HLM <- glm(missany~ 1, family = 'binomial', data = H4_df)
+m.0_H4_HLM <- lm(adeasy~ 1, data = H4_df)
 
 # step 2: add the culstering variable.. MD
 m.1_H4_HLM <- glmer(missany ~ 1 + (1|provider_id), family = 'binomial', data = H4_df)
@@ -1627,7 +1512,7 @@ sjPlot::tab_model(m.10_H4_HLM_conv)
 predictors <- c('conv.informal.match.scaled', 'site_id')
 m.10_H4_HLM_conv <- update(m.0_H4_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
 sjPlot::tab_model(m.10_H4_HLM_conv)
-predictors <- c('rLSM.D.scaled', 'site_id', 'racecat2')
+predictors <- c('rLSM.P.scaled')
 m.10_H4_HLM_conv <- update(m.0_H4_HLM, paste(".~. +",paste(predictors,collapse = ' + ')))
 sjPlot::tab_model(m.10_H4_HLM_conv)
 predictors <- c('WC_sum.D.scaled')
