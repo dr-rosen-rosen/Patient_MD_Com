@@ -45,10 +45,6 @@ config <- config::get()
 
 
 
-black_box_survey_data_update_test<- read_csv(here(config$black_box_survey_data_update_path, config$black_box_survey_data_update_name))
-
-
-
 #opening blackbox survey data
 black_box_survey_data_update <- read_dta("Black Box, main dataset, March 8 2023 COPY.dta")
 # black_box_survey_data_update<- read_dta(here(config$black_box_survey_data_update_path, config$black_box_survey_data_update_name))
