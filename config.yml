@@ -21,6 +21,11 @@ default:
     ECHO_rolling_window_8_LIWC_name: "ECHO_rolling_window_8_LIWC.csv"
     maripohsa_conv_liwc_name: "maripohsa_conv_liwc.csv"
     maripohsa_rolling_window_5_LIWC_name: "maripohsa_rolling_window_5_LIWC.csv"
+    black_box_transcripts_name: "black_box_transcripts.csv"
+    black_box_survey_data_update_name: "Black Box, main dataset, March 8 2023 COPY.dta"
+    blackbox_conv_liwc_name: "blackbox_conv_liwc.csv"
+    blackbox_rolling_window_8_liwc_name: "blackbox_rolling_window_8_liwc.csv"
+    
     
 mike:
     transcript_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
@@ -46,6 +51,13 @@ mike:
     ECHO_rolling_window_8_LIWC_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/ECHO1_Study'
     maripohsa_conv_liwc_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis'
     maripohsa_rolling_window_5_LIWC_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis'
+    black_box_transcripts_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/black_study'
+    black_box_survey_data_update_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/black_study'
+    blackbox_conv_liwc_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/black_study'
+    blackbox_rolling_window_8_liwc_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/black_study'
+    
+    
+    
     
     
 salar:
@@ -72,3 +84,9 @@ salar:
     ECHO_rolling_window_8_LIWC_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/ECHO1_Study'
     maripohsa_conv_liwc_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis'
     maripohsa_rolling_window_5_LIWC_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis'
+    maripohsa_conv_liwc_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis'
+    maripohsa_rolling_window_5_LIWC_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/Analysis'
+    black_box_transcripts_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/black_study'
+    black_box_survey_data_update_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/black_study'
+    blackbox_conv_liwc_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/black_study'
+    blackbox_rolling_window_8_liwc_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/black_study'
