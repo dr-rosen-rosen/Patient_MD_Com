@@ -7,6 +7,8 @@ library(haven)
 library(skimr)
 library(runner)
 
+Sys.setenv(R_CONFIG_ACTIVE = "salar") # 'default')#
+config <- config::get()
 
 ####################################################################################################################
 #EXTRACTING ALL TRANSCRIPTS FROM WORD DOCUMENTS INTO A SINGLE DATAFRAME
@@ -42,6 +44,15 @@ library(runner)
 
 
 
+
+black_box_survey_data_update_test<- read_csv(here(config$black_box_survey_data_update_path, config$black_box_survey_data_update_name))
+
+
+
+#opening blackbox survey data
+black_box_survey_data_update <- read_dta("Black Box, main dataset, March 8 2023 COPY.dta")
+# black_box_survey_data_update<- read_dta(here(config$black_box_survey_data_update_path, config$black_box_survey_data_update_name))
+
 ####################################################################################################################
 #EXTRACTING ALL TRANSCRIPTS FROM WORD DOCUMENTS INTO A SINGLE DATAFRAME
 ####################################################################################################################
@@ -50,6 +61,8 @@ library(runner)
 
 #reading in my black_box transcripts
 black_box_transcripts <- read.csv("black_box_transcripts.csv")
+#black_box_survey_data_update<- read_csv(here(config$black_box_survey_data_update_path, config$black_box_survey_data_update_name))
+
 
 black_box_transcripts <- black_box_transcripts %>%
   rename("File" = "ID",
@@ -286,7 +299,7 @@ write.csv(test_window, "blackbox_rolling_window_8.csv")
 
 
 blackbox_conv_liwc <- read.csv("blackbox_conv_liwc.csv")
-
+#blackbox_conv_liwc<- read_csv(here(config$blackbox_conv_liwc_path, config$blackbox_conv_liwc_name))
 
 #This is for calculating LSM for this data
 blackbox_conv_lsm <- blackbox_conv_liwc %>%
@@ -392,7 +405,7 @@ blackbox_conv_lsm <- left_join(blackbox_conv_lsm, black_box_survey_data_update, 
 
 #reading in the liwced version of 
 blackbox_rolling_window_8_liwc <- read_csv("blackbox_rolling_window_8_liwc.csv")
-
+#blackbox_rolling_window_8_liwc<- read_csv(here(config$blackbox_rolling_window_8_liwc_path, config$blackbox_rolling_window_8_liwc_name))
 
 blackbox_tbyt_rollingwindow <- blackbox_rolling_window_8_liwc %>%
   select(-'...1') %>%
