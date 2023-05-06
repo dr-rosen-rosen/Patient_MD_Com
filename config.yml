@@ -57,9 +57,6 @@ mike:
     blackbox_rolling_window_8_liwc_path: '/Users/mrosen44/Johns Hopkins/Salar Khaleghzadegan - Patient _Provider_Communication_Projects/black_study'
     
     
-    
-    
-    
 salar:
     transcript_path: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/Analysis/Maripohsa_transcripts'
     annies_role_file: '/Users/skhaleg1/OneDrive - Johns Hopkins/Patient _Provider_Communication_Projects/MaRIPOHSA_Transcripts_SpeakerRole_Annie.csv'
