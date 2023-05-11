@@ -102,14 +102,14 @@ m4.rLSM.D <- lcmm::hlme(
   B = random(m1.rLSM.D)
 )
 
-m4g.rLSM.D <- lcmm::gridsearch(
-  rep = 100, maxiter = 30, minit = m1.rLSM.D, 
-  hlme(rLSM ~ t,
-       random = ~ 1 + t,
-       mixture = ~ 1 + t,
-       ng = 4,
-       subject = 'group_id',
-       data = gm_df))
+# m4g.rLSM.D <- lcmm::gridsearch(
+#   rep = 100, maxiter = 30, minit = m1.rLSM.D, 
+#   hlme(rLSM ~ t,
+#        random = ~ 1 + t,
+#        mixture = ~ 1 + t,
+#        ng = 4,
+#        subject = 'group_id',
+#        data = gm_df))
 m5.rLSM.D <- lcmm::hlme(
   rLSM ~ t,
   random = ~ 1 + t,
@@ -120,42 +120,74 @@ m5.rLSM.D <- lcmm::hlme(
   B = random(m1.rLSM.D)
 )
 
-m5g.rLSM.D <- lcmm::gridsearch(
-  rep = 100, maxiter = 30, minit = m1.rLSM.D, 
-  hlme(rLSM ~ t,
-       random = ~ 1 + t,
-       mixture = ~ 1 + t,
-       ng = 5,
-       subject = 'group_id',
-       data = gm_df))
+# m5g.rLSM.D <- lcmm::gridsearch(
+#   rep = 100, maxiter = 30, minit = m1.rLSM.D, 
+#   hlme(rLSM ~ t,
+#        random = ~ 1 + t,
+#        mixture = ~ 1 + t,
+#        ng = 5,
+#        subject = 'group_id',
+#        data = gm_df))
 
-summarytable(m1.rLSM.D,m2.rLSM.D,m2g.rLSM.D,m3.rLSM.D,m3g.rLSM.D,
-             # m4, m4g,#m5,m5g,
-             which = c("G", "loglik", "conv", "npm", "AIC", "BIC", "SABIC", "entropy","ICL", "%class"))
-summaryplot(m1.rLSM.D,m2.rLSM.D,m2g.rLSM.D,m3.rLSM.D,m3g.rLSM.D,
-            # m4, m4g,#m5,m5g,
-            which = c("BIC", "entropy","ICL"))
+summarytable(
+  # m1.rLSM.D,m2.rLSM.D,m3.rLSM.D,m4.rLSM.D,m5.rLSM.D,
+  m1.rLSM.P,m2.rLSM.P,m3.rLSM.P,m4.rLSM.P,m5.rLSM.P,
+             which = c("G", "loglik", "AIC", "BIC", "%class")) %>% 
+  as.data.frame() %>%
+  write_csv('gmmTableP.csv')
+             #which = c("G", "loglik", "conv", "npm", "AIC", "BIC", "SABIC", "entropy","ICL", "%class"))
+# summaryplot(m1.rLSM.D,m2.rLSM.D,m2g.rLSM.D,m3.rLSM.D,m3g.rLSM.D,
+#             # m4, m4g,#m5,m5g,
+#             which = c("BIC", "entropy","ICL"))
   
 summary(m2.rLSM.D)
 
-data_pred0 <- data.frame(t = seq(0,9,length.out = 50), CEP = 0)
-data_pred1 <- data.frame(t = seq(0,9,length.out = 50), CEP = 1)
-pred0 <- predictY(m2.rLSM.D, data_pred0, var.time = "t")
-pred1 <- predictY(m2.rLSM.D, data_pred1, var.time = "t")
 
-plot(pred0, col=c("red","navy"), lty=1,lwd=5,ylab="normMMSE",legend=NULL,  main="Predicted trajectories for normMMSE ",ylim=c(0,1))
-plot(pred1, col=c("red","navy"), lty=2,lwd=3,legend=NULL,add=TRUE)
-legend(x="topright",legend=c("class1 :","CEP-","CEP+","class2:","CEP-","CEP+"), col=c(rep("red",3),rep("navy",3)), lwd=2, lty=c(0,1,2,0,1,2), ncol=2, bty="n", cex = 0.7)
+# data_pred0 <- data.frame(t = seq(0,9,length.out = 50), CEP = 0)
+# data_pred1 <- data.frame(t = seq(0,9,length.out = 50), CEP = 1)
+# pred0 <- predictY(m2.rLSM.D, data_pred0, var.time = "t")
+# pred1 <- predictY(m2.rLSM.D, data_pred1, var.time = "t")
+# 
+# plot(pred0, col=c("red","navy"), lty=1,lwd=5,ylab="normMMSE",legend=NULL,  main="Predicted trajectories for normMMSE ",ylim=c(.6,.8))
+# plot(pred1, col=c("red","navy"), lty=2,lwd=3,legend=NULL,add=TRUE)
+# legend(x="topright",legend=c("class1 :","CEP-","CEP+","class2:","CEP-","CEP+"), col=c(rep("red",3),rep("navy",3)), lwd=2, lty=c(0,1,2,0,1,2), ncol=2, bty="n", cex = 0.7)
 
-rLSM.D.2Class <- m2.rLSM.D$pprob %>%
+# f.rLSM.D.2Class <- 
+
+f.class.df <- m2.rLSM.D$pprob %>%
   full_join(gm_df, by = 'group_id') %>%
+  mutate(t = t+1) %>%
+  mutate(class = recode(class,`1` = "Increasing", `2` = "Stable")) 
+
+stable_mean <- round(mean(f.class.df[which(f.class.df$class == 'Stable'),'rLSM']), digits = 2)
+increasing_mean <- round(mean(f.class.df[which(f.class.df$class == 'Increasing'),'rLSM']), digits = 2)
+overall_mean <- round(mean(f.class.df$rLSM), digits = 2)
+f.class <- f.class.df %>%
   group_by(class,t) %>%
-  summarize(rLSM = mean(rLSM)) %>%
+  summarize(
+    sd = sd(rLSM,na.rm = TRUE),
+    rLSM = mean(rLSM)) %>%
   ungroup() %>%
   mutate(class = as.factor(class)) %>%
   ggplot(aes(x = as.factor(t), y = rLSM, color = class, group = class)) + geom_point() + geom_line() + ggthemes::theme_tufte() +
-  # labs(title = '2 Class Model for rLSM.D')
-  labs(title = '2 Class Model for rLSM.D')
+  # geom_errorbar(aes(ymin=rLSM-sd, ymax=rLSM+sd), width=.2,
+  #               position=position_dodge(.9)
+  #               ) +
+  geom_hline(yintercept = stable_mean, linetype = 'dotted', color = "#377EB8", show.legend = TRUE) + #, linetype, color, size) +
+  geom_hline(yintercept = increasing_mean, linetype = 'dotted',color = "#E41A1C") + #, linetype, color, size) +
+  geom_hline(yintercept = overall_mean, linetype = 'dashed',color = "black") + #, linetype, color, size) +
+  # geom_text(aes(0,mean(f.class.df$rLSM),label = paste("Overall mean:"), vjust = -1)) +
+  annotate("text", x = 8.5, y = increasing_mean-.006, label = 'Overall mean rw.rLSM for increasing class', size = 3.5,color = "#E41A1C") +
+  annotate("text", x = 8.5, y = stable_mean+.006, label = 'Overall mean rw.rLSM for stable class', size = 3.5,color = "#377EB8") +
+  annotate("text", x = 8.5, y = overall_mean+.006, label = 'Overall mean rw.rLSM across classes', size = 3.5) +
+  scale_color_brewer(palette = "Set1") +
+  scale_y_continuous(breaks = sort(c(seq(.6,.8,.1),stable_mean,increasing_mean,overall_mean)), limits = c(.6,.75)) +
+  # ylim(.6,.8) +
+  labs(title = 'Mean rw.rLSM over time within encounters by linguistic accomodation class',
+       x = 'Decile of turns within encounter',
+       y = 'Mean rw.rLSM',
+       color = 'Accomodation class') + theme(legend.position="bottom")
+
 
 ############# rLSM.P models
 
@@ -200,7 +232,7 @@ m1.rLSM.P <- lcmm::hlme(
   data = gm_df
 )
 
-m2.rLSM.P <- lcmm::hlme(
+m2.rLSM.Pv2 <- lcmm::hlme(
   rLSM ~ t,
   random = ~ 1 + t,
   mixture = ~ 1 + t,
@@ -210,14 +242,14 @@ m2.rLSM.P <- lcmm::hlme(
   B = random(m1.rLSM.P)
 )
 
-m2g.rLSM.P <- lcmm::gridsearch(
-  rep = 100, maxiter = 30, minit = m1.rLSM.P, 
-  hlme(rLSM ~ t,
-       random = ~ 1 + t,
-       mixture = ~ 1 + t,
-       ng = 2,
-       subject = 'group_id',
-       data = gm_df))
+# m2g.rLSM.P <- lcmm::gridsearch(
+#   rep = 100, maxiter = 30, minit = m1.rLSM.P, 
+#   hlme(rLSM ~ t,
+#        random = ~ 1 + t,
+#        mixture = ~ 1 + t,
+#        ng = 2,
+#        subject = 'group_id',
+#        data = gm_df))
 
 m3.rLSM.P <- lcmm::hlme(
   rLSM ~ t,
@@ -229,14 +261,14 @@ m3.rLSM.P <- lcmm::hlme(
   B = random(m1.rLSM.P)
 )
 
-m3g.rLSM.P <- lcmm::gridsearch(
-  rep = 100, maxiter = 30, minit = m1.rLSM.P, 
-  hlme(rLSM ~ t,
-       random = ~ 1 + t,
-       mixture = ~ 1 + t,
-       ng = 3,
-       subject = 'group_id',
-       data = gm_df))
+# m3g.rLSM.P <- lcmm::gridsearch(
+#   rep = 100, maxiter = 30, minit = m1.rLSM.P, 
+#   hlme(rLSM ~ t,
+#        random = ~ 1 + t,
+#        mixture = ~ 1 + t,
+#        ng = 3,
+#        subject = 'group_id',
+#        data = gm_df))
 
 m4.rLSM.P <- lcmm::hlme(
   rLSM ~ t,
@@ -248,14 +280,14 @@ m4.rLSM.P <- lcmm::hlme(
   B = random(m1.rLSM.P)
 )
 
-m4g.rLSM.P <- lcmm::gridsearch(
-  rep = 100, maxiter = 30, minit = m1.rLSM.P, 
-  hlme(rLSM ~ t,
-       random = ~ 1 + t,
-       mixture = ~ 1 + t,
-       ng = 4,
-       subject = 'group_id',
-       data = gm_df))
+# m4g.rLSM.P <- lcmm::gridsearch(
+#   rep = 100, maxiter = 30, minit = m1.rLSM.P, 
+#   hlme(rLSM ~ t,
+#        random = ~ 1 + t,
+#        mixture = ~ 1 + t,
+#        ng = 4,
+#        subject = 'group_id',
+#        data = gm_df))
 m5.rLSM.P <- lcmm::hlme(
   rLSM ~ t,
   random = ~ 1 + t,
@@ -266,42 +298,48 @@ m5.rLSM.P <- lcmm::hlme(
   B = random(m1.rLSM.P)
 )
 
-m5g.rLSM.P <- lcmm::gridsearch(
-  rep = 100, maxiter = 30, minit = m1.rLSM.P, 
-  hlme(rLSM ~ t,
-       random = ~ 1 + t,
-       mixture = ~ 1 + t,
-       ng = 5,
-       subject = 'group_id',
-       data = gm_df))
+# m5g.rLSM.P <- lcmm::gridsearch(
+#   rep = 100, maxiter = 30, minit = m1.rLSM.P, 
+#   hlme(rLSM ~ t,
+#        random = ~ 1 + t,
+#        mixture = ~ 1 + t,
+#        ng = 5,
+#        subject = 'group_id',
+#        data = gm_df))
 
-summarytable(m1.rLSM.P,m2.rLSM.P,m2g.rLSM.P,m3.rLSM.P,m3g.rLSM.P,
-             # m4, m4g,#m5,m5g,
+summarytable(m1.rLSM.P,m2.rLSM.P,m3.rLSM.P,m4.rLSM.P,m5.rLSM.P,
              which = c("G", "loglik", "conv", "npm", "AIC", "BIC", "SABIC", "entropy","ICL", "%class"))
-summaryplot(m1.rLSM.P,m2.rLSM.P,m2g.rLSM.P,m3.rLSM.P,m3g.rLSM.P,
-            # m4, m4g,#m5,m5g,
-            which = c("BIC", "entropy","ICL"))
+# summaryplot(m1.rLSM.P,m2.rLSM.P,m2g.rLSM.P,m3.rLSM.P,m3g.rLSM.P,
+#             # m4, m4g,#m5,m5g,
+#             which = c("BIC", "entropy","ICL"))
 
 summary(m2.rLSM.P)
+# 
+# data_pred0 <- data.frame(t = seq(0,9,length.out = 50), CEP = 0)
+# data_pred1 <- data.frame(t = seq(0,9,length.out = 50), CEP = 1)
+# pred0 <- predictY(m2.rLSM.P, data_pred0, var.time = "t")
+# pred1 <- predictY(m2.rLSM.P, data_pred1, var.time = "t")
 
-data_pred0 <- data.frame(t = seq(0,9,length.out = 50), CEP = 0)
-data_pred1 <- data.frame(t = seq(0,9,length.out = 50), CEP = 1)
-pred0 <- predictY(m2.rLSM.P, data_pred0, var.time = "t")
-pred1 <- predictY(m2.rLSM.P, data_pred1, var.time = "t")
+# plot(pred0, col=c("red","navy"), lty=1,lwd=5,ylab="normMMSE",legend=NULL,  main="Predicted trajectories for normMMSE ",ylim=c(0,1))
+# plot(pred1, col=c("red","navy"), lty=2,lwd=3,legend=NULL,add=TRUE)
+# legend(x="topright",legend=c("class1 :","CEP-","CEP+","class2:","CEP-","CEP+"), col=c(rep("red",3),rep("navy",3)), lwd=2, lty=c(0,1,2,0,1,2), ncol=2, bty="n", cex = 0.7)
 
-plot(pred0, col=c("red","navy"), lty=1,lwd=5,ylab="normMMSE",legend=NULL,  main="Predicted trajectories for normMMSE ",ylim=c(0,1))
-plot(pred1, col=c("red","navy"), lty=2,lwd=3,legend=NULL,add=TRUE)
-legend(x="topright",legend=c("class1 :","CEP-","CEP+","class2:","CEP-","CEP+"), col=c(rep("red",3),rep("navy",3)), lwd=2, lty=c(0,1,2,0,1,2), ncol=2, bty="n", cex = 0.7)
-
-rLSM.P.2Class <- m2.rLSM.P$pprob %>%
+f.rLSM.P.2Class <- m2.rLSM.P$pprob %>%
   full_join(gm_df, by = 'group_id') %>%
+  mutate(t = t+1) %>%
+  mutate(class = recode(class,`1` = "Decreasing", `2` = "Stable")) %>%
   group_by(class,t) %>%
-  summarize(rLSM = mean(rLSM)) %>%
-  ungroup() %>%
+  summarize(
+    sd = sd(rLSM,na.rm = TRUE),
+    rLSM = mean(rLSM)) %>%
+  # ungroup() %>%
   mutate(class = as.factor(class)) %>%
   ggplot(aes(x = as.factor(t), y = rLSM, color = class, group = class)) + geom_point() + geom_line() + ggthemes::theme_tufte() +
-  # labs(title = '2 Class Model for rLSM.P')
-  labs(title = '2 Class Model for rLSM.P')
+  scale_color_brewer(palette = "Set2") +
+  labs(title = 'Mean rw.rLSM.P over time within encounters by growth class',
+       x = 'Decile of turns within encounter',
+       y = 'Mean rw.LSM.P',
+       color = 'Class') + theme(legend.position="bottom")
 
 ############# classes to outcomes
 
