@@ -1,0 +1,44 @@
+-----
+Factor: provider_id 
+Conversion:
+ level number
+  JC01      1
+  JC02      2
+  JC03      3
+  JC04      4
+  JC05      5
+  JC06      6
+  JC07      7
+  JC08      8
+  JC09      9
+  JC10     10
+  JC11     11
+  JC12     12
+  JC13     13
+  JC14     14
+  OC01     15
+  OC02     16
+  OC03     17
+  OC04     18
+  OC05     19
+  OC06     20
+  OC07     21
+  OC08     22
+  SC06     23
+  SC07     24
+  SC12     25
+  SC13     26
+  SC15     27
+  SC18     28
+  SC19     29
+  SC20     30
+  SC21     31
+  SC23     32
+  SC24     33
+-----
+
+TITLE: ML-LPA for ECHO
+DATA: FILE = "ECHO_mPlus.dat";
+VARIABLE: 
+NAMES = Cognition Affect Social Physical Perception provider_id; 
+MISSING=.;
