@@ -148,7 +148,7 @@ accom_20segment <- accom_df %>%
                   id < (max(id/20))*17 ~ 16,
                   id < (max(id/20))*18 ~ 17,
                   id < (max(id/20))*19 ~ 18,
-                  TRUE ~ 20)
+                  TRUE ~ 19)
   ) %>%
   ungroup() %>%
   select(-id) %>%
