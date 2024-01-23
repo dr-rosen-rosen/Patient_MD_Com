@@ -3,16 +3,31 @@
 /Notes/
 /Output/
 
-**/.DS_Store
-**/.docx
-**/.csv
-**/*.pptx
-**/.html
-**/.Rmd
+transcripts/
+/Black_Box/mplus/
+/MARIPOHSA/mplus/
+/cross_study_analysis/mplus/
+/ECHO3/transcripts/
+/align_analysis/align_prepped_transcripts/
+/align_analysis/out/
+/align_analysis/optional_directories/
+*.docx
+*.doc
+*.png
+*.inp
+*.out
+*.dat
+*.txt
+*.xlsx
+**/*.DS_Store
 *.csv
+*.pptx
+*.html
+*.Rmd
 *.pdf
 # Virtual environment
 /python3/
+#ECHO3/transcripts/**.docx
 
 # History files
 .Rhistory

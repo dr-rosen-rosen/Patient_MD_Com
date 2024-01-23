@@ -1,9 +1,107 @@
 #############
-#### Blackbox Scripts for generating accomodation measures
+#### Scripts for generating accommodation measures across studies
 library(tidyverse)
-
+library(here)
 # start with the rw.LSM values
-accom_df <- read.csv("/Users/mrosen44/Johns\ Hopkins/Salar\ Khaleghzadegan\ -\ Patient\ _Provider_Communication_Projects/blackbox_study/blackbox_rolling_window_8_liwc.csv")
+# accom_df <- read.csv(here('/Users/mrosen44/Johns\ Hopkins/Salar\ Khaleghzadegan\ -\ Patient\ _Provider_Communication_Projects/cross_study_analyses/combined_smoothed_rw.rLSM.csv'))
+# table(accom_df$Speaker)
+
+# accom_df$Speaker[accom_df$Speaker == 'doctor'] <- 'pcp'
+
+
+#############
+#### NEW Scripts using functions in peds project
+#############
+
+source('/Users/mrosen44/Documents/Data_Analysis_Local/pediatricSurgeryCommunication/3_accomodationMetrics.R')
+
+
+# Conv LSM
+conv_liwcd <- read.csv('LIWC-22 Results - FINAL_cmbd_conv - LIWC Analysis.csv')
+convLSM_df <- getConvLSM(
+  df = conv_liwcd,
+  file_col = 'file_study_id',
+  spkr_col = 'speaker',
+  vars_to_match = c('auxverb','article','adverb','ipron','prep','negate','conj','quantity','ppron')
+)
+ # baseline LSM
+baseline_liwcd <- read.csv('LIWC-22 Results - baselineLSM - LIWC Analysis.csv')
+
+baselineLSM_df <- getConvLSM(
+  df = baseline_liwcd,
+  file_col = 'file_study_id',
+  spkr_col = 'speaker',
+  vars_to_match = c('auxverb','article','adverb','ipron','prep','negate','conj','quantity','ppron')
+) %>%
+  rename(baseline_lsm = conv_lsm)
+
+# rLSM
+windowed_liwcd <- read.csv('LIWC-22 Results - FINAL_cmbd_windowed - LIWC Analysis.csv') %>%
+  mutate(
+    speaker = case_match(speaker,
+                         'clinician' ~ 'pcp',
+                         .default = speaker)
+  )
+
+rwLSM_df <- getRwLSM(
+  df = windowed_liwcd, 
+  file_col = 'file_study_id',
+  spkr_col = 'speaker') 
+
+# rw.rLSM <- getRwLSM(
+#   df = accom_df,
+#   file_col = 'file_study_id',
+#   spkr_col = 'speaker'
+# )
+hist(rwLSM_df$rLSM.pcp)
+
+window_size = 8
+windowed_liwcd <- windowed_liwcd %>%
+  group_by(file_study_id) %>%
+  slice(((window_size-1)*2):n()) %>%
+  ungroup()
+
+rw.rLSM.by.timePoint <- getAccomodation(
+  df = windowed_liwcd, 
+  file_col = 'file_study_id',
+  spkr_col = 'speaker',
+  breaks = 4)
+
+all_lsm_la <- file_metrics %>%
+  full_join(rw.rLSM.by.timePoint, by = 'file_study_id') %>% 
+  full_join(rwLSM_df, by = 'file_study_id') %>%
+  full_join(convLSM_df, by = 'file_study_id') %>%
+  full_join(baselineLSM_df, by = 'file_study_id') %>%
+  separate_wider_delim(file_study_id, '-', names = c('file','study')) %>%
+  mutate(
+    file_ID = paste0(study,'-',file),
+    file_study_id = paste0(file,'-',study)
+  )
+
+all_lsm_la %>% write.csv('cross_study_matching_accomodation_11-07-2023.csv')
+
+skimr::skim(all_lsm_la)
+
+x <- all_lsm_la %>%
+  separate_wider_delim(file_study_id, '-',names = c(NA,'study')) %>%
+  mutate(
+    over_20perc_other = if_else(prop_other_turn > .2, 1,0),
+    under_100_turns = if_else(tot_turns < 100, 1, 0),
+    excluded_for_either = if_else(over_20perc_other == 1 | under_100_turns ==1, 1, 0)
+  ) %>%
+  group_by(study) %>%
+  summarize(
+    tot_n = n(),
+    n_over_20perc_other = sum(over_20perc_other),
+    n_under_100_turns = sum(under_100_turns),
+    n_excluded_for_either = sum(excluded_for_either),
+    final_included = tot_n-n_excluded_for_either
+  )
+  
+  
+#############
+#### OLD Scripts for generating accommodation measures across studies
+
 
 accom_df <- accom_df %>%
   dplyr::select(File, text_agg, Speaker, WC, WPS, auxverb, article, adverb, ipron, 
@@ -74,37 +172,51 @@ accom_df <- accom_df %>%
   #creates an average rLSM across separrate featurers
   mutate(
     rLSM = rowMeans(dplyr::select(.,contains('.rLSM')),na.rm = TRUE),
-    ) %>%
+  ) %>%
   mutate(
     rLSM = ifelse(is.na(rLSM), 0, rLSM)
-    ) %>%
-  filter(rLSM > 0) # drops leading rows w/o rLSM calculations
+  ) %>%
+  # filter(rLSM > 0) # drops leading rows w/o rLSM calculations
+  group_by(File) %>%
+  slice(15:n()) %>% # drops leading rows with no data (this is for a window of 8... frist 7 rows for both speakers are empty)
+  ungroup()
 
 file_speaker_n <- accom_df %>% group_by(File,Speaker) %>%
   summarize(n = n()) %>% ungroup()
 
 accom_raw <- accom_df %>%
+  # filter(File == 100019) %>%
   group_by(File,Speaker) %>%
   mutate(t = row_number()) %>%
-  # group_modify( ~ as.data.frame(lm(.$rLSM ~ .$t)[['coefficients']][['.$t']]), .keep = TRUE) %>%
-  group_modify(~ as.data.frame(
-    nlme::gls(
-      rLSM ~ t, 
-      data = ., 
-      correlation = nlme::corAR1()
-      )[['coeficients']][['t']]))
-  ungroup() %>%
-  rename(accomodation_raw = 3) %>%
-  full_join(file_speaker_n, by = c('File','Speaker')) %>%
+  group_modify(function(data,key) {
+    tryCatch(
+      {m <- nlme::gls(
+        rLSM ~ t, 
+        data = data, 
+        correlation = nlme::corAR1()
+      ) %>%
+        broom.mixed::tidy()}, error = function(e) {
+          tibble(term = c(NA),
+                 estimate = c(NA_real_),
+                 std.error = c(NA_real_),
+                 statistic = c(NA_real_),
+                 p.value = c(NA_real_)
+          )
+        })
+  }
+  ) %>%
+  filter(term == 't') %>%
+  dplyr::select(File, Speaker, estimate) %>%
+  rename(accomodation_raw = estimate) %>%
+  left_join(file_speaker_n, by = c('File','Speaker')) %>%
   rowwise() %>%
-  mutate(accomodation_raw = accomodation_raw*(n-1)) %>%
-  ungroup() %>%
-  select(-n) %>%
+  # mutate(accomodation_raw = accomodation_raw*(n-1)) %>%
+  ungroup %>%
+  dplyr::select(-n) |>
   pivot_wider(id_cols = File, names_from = Speaker, values_from = accomodation_raw, names_prefix = "accom_raw_")
 
-### temp code:
-test <- accom_raw %>% filter(File == 100019) %>%
-  nlme::gls(rLSM ~ t, data = ., correlation = nlme::corAR1())
+
+
 
 p <- ggplot(accom_raw, aes(x = accom_raw_patient, y = accom_raw_pcp)) + 
   geom_point() +
@@ -115,29 +227,49 @@ ggExtra::ggMarginal(p,type = "histogram")
 accom_10segment <- accom_df %>%
   group_by(File,Speaker) %>%
   mutate(
-  id = row_number(),
-  t = case_when(id < (max(id)/10) ~ 0,
-                id < (max(id/10))*2 ~ 1,
-                id < (max(id/10))*3 ~ 2,
-                id < (max(id/10))*4 ~ 3,
-                id < (max(id/10))*5 ~ 4,
-                id < (max(id/10))*6 ~ 5,
-                id < (max(id/10))*7 ~ 6,
-                id < (max(id/10))*8 ~ 7,
-                id < (max(id/10))*9 ~ 8,
-                TRUE ~ 9)
+    id = row_number(),
+    t = case_when(id < (max(id)/10) ~ 0,
+                  id < (max(id/10))*2 ~ 1,
+                  id < (max(id/10))*3 ~ 2,
+                  id < (max(id/10))*4 ~ 3,
+                  id < (max(id/10))*5 ~ 4,
+                  id < (max(id/10))*6 ~ 5,
+                  id < (max(id/10))*7 ~ 6,
+                  id < (max(id/10))*8 ~ 7,
+                  id < (max(id/10))*9 ~ 8,
+                  TRUE ~ 9)
   ) %>%
   ungroup() %>%
-  select(-id) %>%
+  dplyr::select(-id) %>%
   group_by(File,Speaker,t) %>%
   summarize(rLSM = mean(rLSM)) %>%
   ungroup() %>%
   group_by(File,Speaker) %>%
-  group_modify( ~ as.data.frame(lm(.$rLSM ~ .$t)[['coefficients']][['.$t']]), .keep = TRUE) %>%
-  ungroup() %>%
-  rename(accomodation_10_seg = 3) %>%
-  mutate(accomodation_10_seg = accomodation_10_seg*9) %>%
+  group_modify(function(data,key) {
+    tryCatch(
+      {m <- nlme::gls(
+        rLSM ~ t, 
+        data = data, 
+        correlation = nlme::corAR1()
+      ) %>%
+        broom.mixed::tidy()}, error = function(e) {
+          tibble(term = c(NA),
+                 estimate = c(NA_real_),
+                 std.error = c(NA_real_),
+                 statistic = c(NA_real_),
+                 p.value = c(NA_real_)
+          )
+        })
+  }
+  ) %>%
+  filter(term == 't') %>%
+  dplyr::select(File, Speaker, estimate) %>%
+  rename(accomodation_10_seg = estimate) %>%
+  rowwise() %>%
+  # mutate(accomodation_10_seg = accomodation_10_seg*9) %>%
+  ungroup %>%
   pivot_wider(id_cols = File, names_from = Speaker, values_from = accomodation_10_seg, names_prefix = "accom_10_seg_")
+
 
 p <- ggplot(accom_10segment, aes(x = accom_10_seg_patient, y = accom_10_seg_pcp)) + 
   geom_point() +
@@ -171,15 +303,34 @@ accom_20segment <- accom_df %>%
                   TRUE ~ 19)
   ) %>%
   ungroup() %>%
-  select(-id) %>%
+  dplyr::select(-id) %>%
   group_by(File,Speaker,t) %>%
   summarize(rLSM = mean(rLSM)) %>%
   ungroup() %>%
   group_by(File,Speaker) %>%
-  group_modify( ~ as.data.frame(lm(.$rLSM ~ .$t)[['coefficients']][['.$t']]), .keep = TRUE) %>%
-  ungroup() %>%
-  rename(accomodation_20_seg = 3) %>%
-  mutate(accomodation_20_seg = accomodation_20_seg*19) %>%
+  group_modify(function(data,key) {
+    tryCatch(
+      {m <- nlme::gls(
+        rLSM ~ t, 
+        data = data, 
+        correlation = nlme::corAR1()
+      ) %>%
+        broom.mixed::tidy()}, error = function(e) {
+          tibble(term = c(NA),
+                 estimate = c(NA_real_),
+                 std.error = c(NA_real_),
+                 statistic = c(NA_real_),
+                 p.value = c(NA_real_)
+          )
+        })
+  }
+  ) %>%
+  filter(term == 't') %>%
+  dplyr::select(File, Speaker, estimate) %>%
+  rename(accomodation_20_seg = estimate) %>%
+  rowwise() %>%
+  # mutate(accomodation_20_seg = accomodation_20_seg*19) %>%
+  ungroup %>%
   pivot_wider(id_cols = File, names_from = Speaker, values_from = accomodation_20_seg, names_prefix = "accom_20_seg_")
 
 p <- ggplot(accom_20segment, aes(x = accom_20_seg_patient, y = accom_20_seg_pcp)) + 
@@ -191,14 +342,14 @@ ggExtra::ggMarginal(p,type = "histogram")
 accom_cmb <- accom_raw %>%
   full_join(accom_10segment, by = 'File') %>%
   full_join(accom_20segment, by = 'File')
-write.csv(accom_cmb,'bb_accomodation_v2.csv')
+write.csv(accom_cmb,'bb_accomodation_acf_r_07-27-2023.csv')
 
 
 
 pcp_turn_count <- accom_df %>% filter(Speaker == 'pcp') %>% 
   group_by(File) %>%
   summarize(n = n())
-  
+
 
 
 # simple ar1 model: 104140
@@ -210,9 +361,9 @@ test <- accom_df %>% filter(File == fnum, Speaker == 'pcp') %>%
 test2 <- test %>%
   mutate(t = row_number()) #%>%
 modelsummary::modelsummary(lm(test2$rLSM ~ test2$t), estimate = "{estimate} ({std.error})", statistic = NULL)
-  
+
 x <- forecast::auto.arima(ts(data = test$rLSM, start = 1, end = nrow(test)), stepwise = FALSE, approximation = FALSE, allowmean = FALSE, allowdrift = FALSE) #%>%
-  #forecast::autoplot(.)
+#forecast::autoplot(.)
 # matplot(cbind(test$rLSM, fitted(x), type = 'l'))
 # modelsummary::modelsummary(x, estimate = "{estimate} ({std.error})", statistic = NULL)
 # modelsummary::modelplot(x)
@@ -345,7 +496,7 @@ for (r in seq(1:nrow(auto.arima.results['coef']))) {
     pivot_longer(!rowname, names_to = "File", values_to = "col2") %>% 
     pivot_wider(names_from = "rowname", values_from = "col2")
   auto.arima.coef <- bind_rows(auto.arima.coef, one_set)
-  }
+}
 
 ##### dynamic correlation using dynCorr... this DOES NOT APPEAR TO PROVIDE INDIVIDUAL ESTIMATES!?!?!
 
@@ -394,11 +545,11 @@ source('dynamicalcorrelation_fixed_022218.r')
 x <- dynCor_df %>% dplyr::select(File,pcp,t) %>%
   mutate(File = paste0('f_',as.character(File))) %>%
   pivot_wider(id_cols = t, names_from = File, values_from = pcp) %>% as.matrix()
-  
+
 y <- dynCor_df %>% dplyr::select(File,patient,t) %>%
   mutate(File = paste0('f_',as.character(File))) %>%
   pivot_wider(id_cols = t, names_from = File, values_from = patient) %>% as.matrix()
-  
+
 t <- seq(from = 1, to = max(dynCor_df$t), by = 1)
 
 z <- ind_DC(

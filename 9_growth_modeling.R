@@ -178,7 +178,7 @@ f.class <- f.class.df %>%
   geom_hline(yintercept = overall_mean, linetype = 'dashed',color = "black") + #, linetype, color, size) +
   # geom_text(aes(0,mean(f.class.df$rLSM),label = paste("Overall mean:"), vjust = -1)) +
   annotate("text", x = 8.5, y = increasing_mean-.006, label = 'Overall mean rw.rLSM for increasing class', size = 3.5,color = "#E41A1C") +
-  annotate("text", x = 8.5, y = stable_mean+.006, label = 'Overall mean rw.rLSM for stable class', size = 3.5,color = "#377EB8") +
+  annotate("text", x = 8.5, y = stable_mean+.006, label = 'Overall mean rw.rLSM for unchanging class', size = 3.5,color = "#377EB8") +
   annotate("text", x = 8.5, y = overall_mean+.006, label = 'Overall mean rw.rLSM across classes', size = 3.5) +
   scale_color_brewer(palette = "Set1") +
   scale_y_continuous(breaks = sort(c(seq(.6,.8,.1),stable_mean,increasing_mean,overall_mean)), limits = c(.6,.75)) +

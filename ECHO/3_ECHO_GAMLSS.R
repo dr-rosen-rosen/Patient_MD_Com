@@ -122,14 +122,15 @@ f.rw.rLSM.D.overall <- cd.spk.data %>%
   xlim(0,1) + 
   stat_slab(aes(thickness = stat(pdf*n)), scale = 0.5) +
   stat_dotsinterval(side = "bottom", scale = 0.5, slab_size = NA) +
-  scale_fill_brewer(palette = "Set2") + ggthemes::theme_tufte() + theme(legend.position="bottom") +
+  scale_fill_brewer(palette = "Set2") + 
+  ggthemes::theme_tufte() + theme(legend.position="bottom") +
   labs(title = "Distribtion of rw.rLSM",x = 'rw.rLSM')
 
 f.overall.test <- cd.spk.data %>%
   select(LSM_function_mean,rLSM.D,rw.rLSM.D) %>%
   pivot_longer(cols = everything(), names_to = 'matching_var',values_to = 'value') %>%
   mutate(
-    matching_var = recode(matching_var, 'rw.rLSM.D' = 'rw.rLSM', 'rLSM.D' = 'rLSM', 'LSM_function_mean' = 'LSM'),
+    matching_var = recode(matching_var, 'rw.rLSM.D' = 'rw.rLSM', 'rLSM.D' = 'rLSM', 'LSM_function_mean' = 'Conversational\nLSM'),
   ) %>%
   ggplot(aes(y = matching_var, x = value, fill = matching_var)) +
   scale_y_discrete(limits = rev) +
