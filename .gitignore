@@ -8,9 +8,9 @@ transcripts/
 /MARIPOHSA/mplus/
 /cross_study_analysis/mplus/
 /ECHO3/transcripts/
-/align_analysis/align_prepped_transcripts/
-/align_analysis/out/
-/align_analysis/optional_directories/
+align_analysis/align_prepped_transcripts/
+align_analysis/out/
+align_analysis/optional_directories/
 *.docx
 *.doc
 *.png
